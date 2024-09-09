@@ -72,6 +72,9 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.espresso.core)
     kapt(libs.dagger.hilt.compiler)
 
     implementation(libs.coil.compose)
