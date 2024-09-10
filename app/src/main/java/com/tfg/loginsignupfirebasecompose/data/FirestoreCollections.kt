@@ -1,7 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.data
 
-data class FirestoreCollections(
-    val users: String = "users",
-    val dogs: String = "dogs",
-    val man: String = "man",
-)
+object FirestoreCollections {
+    const val users: String = "users"
+    const val dogs: String = "dogs"
+    const val man: String = "man"
+}

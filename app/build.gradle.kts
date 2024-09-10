@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.tfg.loginsignupfirebasecompose"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.tfg.loginsignupfirebasecompose"
         minSdk = 31
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.compose.material3)
     kapt(libs.dagger.hilt.compiler)
 
     implementation(libs.coil.compose)
