@@ -1,4 +1,4 @@
-package com.tfg.loginsignupfirebasecompose.interfaces.Login
+package com.tfg.loginsignupfirebasecompose.ui.interfaces.SignUp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -29,12 +29,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,17 +46,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.compose.AppTheme
-import com.example.compose.primaryLight
+import com.tfg.loginsignupfirebasecompose.ui.theme.AppTheme
+import com.tfg.loginsignupfirebasecompose.ui.theme.primaryLight
 import com.tfg.loginsignupfirebasecompose.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
-    val navigationEvent by viewModel.navigationEvent.collectAsState()
+fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hiltViewModel()) {
+    var passwordHidden by rememberSaveable { mutableStateOf(true) }
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val navigationEvent by viewModel.navigationEvent.collectAsState()
+
 
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { route ->
@@ -113,7 +114,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                     )
 
                     Text(
-                        text = "Log in to your account",
+                        text = "Create an account in few minutes",
                         textAlign = TextAlign.Center,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
@@ -121,6 +122,27 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         modifier = Modifier
                             .padding(bottom = 32.dp)
                             .padding(top = 8.dp)
+                            .fillMaxWidth()
+                    )
+
+                    TextField(
+                        value = viewModel.name,
+                        onValueChange = { viewModel.name = it },
+                        label = { Text("Name") },
+                        placeholder = { Text("Astrolopitecus") },
+                        singleLine = true,
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.White,
+                            unfocusedIndicatorColor = Color.White,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
+                            cursorColor = Color.White,
+                            focusedLabelColor = Color.White,
+                            unfocusedLabelColor = Color.White
+                        ),
+                        modifier = Modifier
                             .fillMaxWidth()
                     )
 
@@ -181,73 +203,18 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                             .padding(top = 16.dp)
                     )
 
-                    Text(
-                        text = "¿Forgot password?",
-                        textAlign = TextAlign.End,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .padding(top = 8.dp)
-                            .fillMaxWidth()
-                    )
-
                     FilledTonalButton(
                         modifier = Modifier
                             .padding(top = 10.dp)
                             .fillMaxWidth(),
-                        onClick = { viewModel.login() }
+                        onClick = { viewModel.signUp() }
                     ) {
-                        Text("Login")
+                        Text("Sign up")
                     }
-
-                    Text(
-                        text = "Or continue with",
-                        textAlign = TextAlign.Center,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        modifier = Modifier
-                            .padding(bottom = 32.dp)
-                            .padding(top = 8.dp)
-                            .fillMaxWidth()
-                    )
-                    //Sign in with Google and Facebook buttons
-                    /*Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    ) {
-                    //Google Button
-                        IconButton(
-                            onClick = { },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.google),
-                                contentDescription = "Google",
-                                tint = Color.Unspecified
-                            )
-                        }
-                        //Facebook Buttons
-                        IconButton(
-                            onClick = { },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.facebook),
-                                contentDescription = "Facebook",
-                                tint = Color.Unspecified
-                            )
-                        }
-                    }*/
                     HorizontalDivider(thickness = 2.dp)
                     TextButton(
                         onClick = {
-                            viewModel.onSignUpClick()
+                            viewModel.navigateToLogin()
                         },
                         modifier = Modifier
                             .padding(bottom = 32.dp)
@@ -260,11 +227,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                             fontSize = 16.sp,
                         )
                     }
-
                 }
             }
         }
     }
-
-
 }

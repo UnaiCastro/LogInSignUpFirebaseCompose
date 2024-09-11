@@ -1,4 +1,4 @@
-package com.tfg.loginsignupfirebasecompose.interfaces.FirebaseCompose
+package com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose
 
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore

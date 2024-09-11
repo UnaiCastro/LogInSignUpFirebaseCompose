@@ -7,10 +7,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.tfg.loginsignupfirebasecompose.data.AppScreens
-import com.tfg.loginsignupfirebasecompose.interfaces.FirebaseCompose.FirebaseComposeScreen
-import com.tfg.loginsignupfirebasecompose.interfaces.Login.LoginScreen
-import com.tfg.loginsignupfirebasecompose.interfaces.SignUp.SignUpScreen
-import com.tfg.loginsignupfirebasecompose.interfaces.dog.DogScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose.FirebaseComposeScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.Login.LoginScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.SignUp.SignUpScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.DogScreen
 
 @Composable
 fun AppNavigation(){

@@ -1,4 +1,4 @@
-package com.tfg.loginsignupfirebasecompose.interfaces.FirebaseCompose
+package com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -23,25 +23,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.example.compose.AppTheme
+import com.tfg.loginsignupfirebasecompose.ui.theme.AppTheme
 import com.tfg.loginsignupfirebasecompose.R
 
 
 @Composable
-fun FirebaseComposeScreen(navController: NavController, viewModel:FirebaseComposeViewModel  = hiltViewModel()) {
+fun FirebaseComposeScreen(navController: NavController, viewModel: FirebaseComposeViewModel = hiltViewModel()) {
 
     val navigationEvent by viewModel.navigationEvent.collectAsState()
 

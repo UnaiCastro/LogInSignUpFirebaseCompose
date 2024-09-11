@@ -5,6 +5,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tfg.loginsignupfirebasecompose.data.implementations.AuthRepositoryImpl
+import com.tfg.loginsignupfirebasecompose.data.implementations.UserRepositoryImpl
+import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,11 +31,16 @@ object FirebaseModule {
         return FirebaseFirestore.getInstance()
     }
 
-
-
-    /*@Composable
     @Provides
-    fun provideNavController(): NavController {
-        return rememberNavController()
-    }*/
+    @Singleton
+    fun provideAuthRepository(auth: FirebaseAuth): AuthRepository {
+        return AuthRepositoryImpl(auth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(db: FirebaseFirestore): UserRepository {
+        return UserRepositoryImpl(db)
+    }
+
 }

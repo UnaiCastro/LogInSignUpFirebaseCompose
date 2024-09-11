@@ -1,20 +1,24 @@
-package com.tfg.loginsignupfirebasecompose.interfaces.SignUp
+package com.tfg.loginsignupfirebasecompose.ui.interfaces.SignUp
 
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tfg.loginsignupfirebasecompose.data.AppScreens
 import com.tfg.loginsignupfirebasecompose.data.FirestoreCollections
+import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
+/*@HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
@@ -85,4 +89,57 @@ class SignUpViewModel @Inject constructor(
     fun clearNavigationEvent() {
         _navigationEvent.value = null
     }
+}*/
+
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
+
+    var name: String by mutableStateOf("")
+    var email: String by mutableStateOf("")
+    var password: String by mutableStateOf("")
+    var passwordHidden by mutableStateOf(true)
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    private val _navigationEvent = MutableStateFlow<String?>(null)
+    val navigationEvent: StateFlow<String?> = _navigationEvent
+
+    fun signUp() {
+        viewModelScope.launch {
+            val result = authRepository.signUp(email, password)
+            result.fold(
+                onSuccess = { firebaseUser ->
+                    val uid = firebaseUser.uid
+                    val user = hashMapOf(
+                        "name" to name,
+                        "email" to email,
+                        "dogs" to arrayListOf<String>()
+                    )
+                    val saveResult = userRepository.saveUser(uid, user)
+                    saveResult.fold(
+                        onSuccess = { navigateToLogin() },
+                        onFailure = { _errorMessage.value = "Cannot sign up" }
+                    )
+                },
+                onFailure = { _errorMessage.value = "Error al crear el usuario" }
+            )
+        }
+    }
+
+    fun clearErrorMessage() {
+        _errorMessage.value = null
+    }
+
+    fun navigateToLogin() {
+        _navigationEvent.value = AppScreens.LoginScreen.route
+    }
+
+    fun clearNavigationEvent() {
+        _navigationEvent.value = null
+    }
 }
+
