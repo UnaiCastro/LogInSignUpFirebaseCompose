@@ -29,4 +29,24 @@ class UserRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun getEmail(uid: String): String? {
+        return try {
+            val document = db.collection(FirestoreCollections.users).document(uid).get().await()
+            document.getString("email")
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al obtener el email del usuario", e)
+            null
+        }
+    }
+
+    override suspend fun getProfileImageUrl(uid: String): String? {
+        return try {
+            val document = db.collection(FirestoreCollections.users).document(uid).get().await()
+            document.getString("profileImageUrl")
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al obtener la URL de la imagen de perfil", e)
+            null
+        }
+    }
 }

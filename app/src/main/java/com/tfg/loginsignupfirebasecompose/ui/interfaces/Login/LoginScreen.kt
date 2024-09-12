@@ -20,6 +20,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -82,7 +83,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
         )
     }
 
-    AppTheme {
+
         Surface {
             Box(
                 modifier = Modifier
@@ -117,7 +118,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         textAlign = TextAlign.Center,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 32.sp,
+                        style = MaterialTheme.typography.headlineLarge,
                         modifier = Modifier
                             .padding(bottom = 32.dp)
                             .padding(top = 8.dp)
@@ -264,7 +265,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 }
             }
         }
-    }
+
 
 
 }

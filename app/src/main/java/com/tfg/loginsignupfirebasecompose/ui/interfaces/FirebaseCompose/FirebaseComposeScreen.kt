@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +50,7 @@ fun FirebaseComposeScreen(navController: NavController, viewModel: FirebaseCompo
     }
 
 
-    AppTheme {
+
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -81,7 +82,7 @@ fun FirebaseComposeScreen(navController: NavController, viewModel: FirebaseCompo
 
                 Text(
                     "WELCOME",
-                    fontSize = 32.sp,
+                    style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight(700),
                     color = Color.White,
                     modifier = Modifier.padding(top = 12.dp)
@@ -90,7 +91,7 @@ fun FirebaseComposeScreen(navController: NavController, viewModel: FirebaseCompo
                 Text(
                     "Take a dog.\nYour best friend.",
                     textAlign = TextAlign.Center,
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight(500),
                     color = Color.White,
                     modifier = Modifier.padding(top = 2.dp)
@@ -118,7 +119,7 @@ fun FirebaseComposeScreen(navController: NavController, viewModel: FirebaseCompo
                 }
             }
         }
-    }
+
 
 }
 

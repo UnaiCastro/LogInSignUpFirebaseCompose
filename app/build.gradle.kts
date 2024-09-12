@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.dagger.hilt.navigation)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.firebase.auth.ktx)
+    implementation (libs.androidx.navigation.compose)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.constraintlayout.compose)

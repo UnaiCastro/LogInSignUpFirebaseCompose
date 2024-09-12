@@ -83,7 +83,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
         )
     }
 
-    AppTheme {
+
         Surface {
             Box(
                 modifier = Modifier
@@ -230,5 +230,5 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                 }
             }
         }
-    }
+
 }
