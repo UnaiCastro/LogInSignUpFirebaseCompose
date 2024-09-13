@@ -7,9 +7,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material3.Icon
+import com.example.compose.primaryLightHighContrast
+import com.example.compose.scrimLight
 import com.tfg.loginsignupfirebasecompose.navigation.BottomNavItem
-import com.tfg.loginsignupfirebasecompose.ui.theme.primaryLightHighContrast
-import com.tfg.loginsignupfirebasecompose.ui.theme.scrimLight
+
 
 @Composable
 fun BottomNavigationBar(

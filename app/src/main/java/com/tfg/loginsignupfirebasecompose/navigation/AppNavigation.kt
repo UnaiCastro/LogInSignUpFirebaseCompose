@@ -1,5 +1,6 @@
 package com.tfg.loginsignupfirebasecompose.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
@@ -23,6 +24,7 @@ fun AppNavigation(){
 
 
     LaunchedEffect(currentUser) {
+        Log.i("Navigation", "Current User: ${currentUser}")
         if (currentUser != null) {
             navController.navigate(AppScreens.DogScreen.route) {
                 popUpTo(AppScreens.FirebaseComposeScreen.route) { inclusive = true }
@@ -45,14 +47,6 @@ fun AppNavigation(){
         composable(route = AppScreens.DogScreen.route) {
             DogScreen(navController)
         }
-        composable(route = AppScreens.ExploreScreen.route) {
-            ExploreScreen(navController)
-        }
-        composable(route = AppScreens.StarredScreen.route) {
-            StarredScreen(navController)
-        }
-        composable(route = AppScreens.ProfileScreen.route) {
-            ProfileScreen(navController)
-        }
+
     }
 }

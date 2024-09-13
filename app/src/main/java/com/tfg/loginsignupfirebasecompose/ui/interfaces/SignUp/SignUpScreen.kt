@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.tfg.loginsignupfirebasecompose.ui.theme.AppTheme
-import com.tfg.loginsignupfirebasecompose.ui.theme.primaryLight
+import com.example.compose.primaryLight
+
 import com.tfg.loginsignupfirebasecompose.R
 
 @OptIn(ExperimentalMaterial3Api::class)

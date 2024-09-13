@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tfg.loginsignupfirebasecompose.navigation.BottomNavItem
 import com.tfg.loginsignupfirebasecompose.ui.components.BottomNavigationBar
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ChatRoom.ChatRoomScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Explore.ExploreScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Home.HomeScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen.ProfileScreen
@@ -23,14 +24,14 @@ import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen.StarredSc
 fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewModel()) {
     val currentUser by viewModel.currentUser.collectAsState()
     val selectedNavItem by viewModel.selectedNavItem.collectAsState()
-    val navigationEvent by viewModel.navigationEvent.collectAsState()
+    /*val navigationEvent by viewModel.navigationEvent.collectAsState()
 
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { route ->
-            navController.navigate(route)
+            navController.navigate(route)  // Usa el navController global aquí
             viewModel.clearNavigationEvent()
         }
-    }
+    }*/
 
 
     Scaffold(
@@ -60,7 +61,10 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
                 ExploreScreen(innerNavController)
             }
             composable(BottomNavItem.Perfil.route) {
-                ProfileScreen(innerNavController)
+                ProfileScreen(navController,innerNavController)
+            }
+            composable("chatroom") {
+                ChatRoomScreen(innerNavController)
             }
         }
 

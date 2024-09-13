@@ -1,10 +1,12 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tfg.loginsignupfirebasecompose.data.AppScreens
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +27,14 @@ class ProfileViewModel @Inject constructor(
     private val _email = MutableStateFlow<String>("")
     val email: StateFlow<String> = _email
 
+    /*private val _navigationEvent = MutableStateFlow<String?>(null)
+    val navigationEvent: StateFlow<String?> = _navigationEvent*/
+
     private val _profileImageUrl = mutableStateOf<String?>(null)
     val profileImageUrl: State<String?> = _profileImageUrl
+
+    private val _navigationEvent = MutableStateFlow<String?>(null)
+    val navigationEvent: StateFlow<String?> = _navigationEvent
 
     init {
         if (uid.isNotEmpty()) {
@@ -57,12 +65,27 @@ class ProfileViewModel @Inject constructor(
         }
     }
     fun logout() {
+        Log.i("ProfileViewModel", "Logout function called")
         authRepository.logout()
+        _navigationEvent.value = AppScreens.FirebaseComposeScreen.route // Navegar fuera de DogScreen
     }
+
+    fun clearNavigationEvent() {
+        _navigationEvent.value = null
+    }
+
     fun goSettingsScreen() {
         // Navegar a la pantalla de ajustes
     }
     fun goSharedScreen() {
         // Navegar a la pantalla de compartir
     }
+
+    fun goToChatRoomScreen() {
+
+    }
+
+    /*fun clearNavigationEvent() {
+        _navigationEvent.value = null
+    }*/
 }
