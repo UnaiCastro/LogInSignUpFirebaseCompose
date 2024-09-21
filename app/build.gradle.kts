@@ -55,6 +55,13 @@ android {
 
 dependencies {
 
+
+    // Dependencia de Google Maps
+    implementation (libs.gms.play.services.maps)
+
+    // Dependencia para Jetpack Compose Maps
+    implementation (
+        libs.maps.compose)
     implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -77,6 +84,8 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.ui.test.android)
+    implementation(libs.play.services.location)
     kapt(libs.dagger.hilt.compiler)
 
     implementation(libs.coil.compose)

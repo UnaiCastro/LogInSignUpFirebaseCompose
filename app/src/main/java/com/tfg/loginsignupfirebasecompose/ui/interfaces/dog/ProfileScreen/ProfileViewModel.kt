@@ -20,6 +20,7 @@ class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+
     val uid: String by mutableStateOf(authRepository.getCurrentUser()?.uid ?: "")
     private val _currentUser = MutableStateFlow<String>("")
     val currentUser: StateFlow<String> = _currentUser

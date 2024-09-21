@@ -6,8 +6,12 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tfg.loginsignupfirebasecompose.data.implementations.AuthRepositoryImpl
+import com.tfg.loginsignupfirebasecompose.data.implementations.DogRepositoryImpl
+import com.tfg.loginsignupfirebasecompose.data.implementations.EstablishmentRepositoryImpl
 import com.tfg.loginsignupfirebasecompose.data.implementations.UserRepositoryImpl
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.EstablishmentRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -41,6 +45,18 @@ object FirebaseModule {
     @Singleton
     fun provideUserRepository(db: FirebaseFirestore): UserRepository {
         return UserRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideEstablishmentRepository(db: FirebaseFirestore): EstablishmentRepository {
+        return EstablishmentRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDogRepository(db: FirebaseFirestore): DogRepository {
+        return DogRepositoryImpl(db)
     }
 
 }

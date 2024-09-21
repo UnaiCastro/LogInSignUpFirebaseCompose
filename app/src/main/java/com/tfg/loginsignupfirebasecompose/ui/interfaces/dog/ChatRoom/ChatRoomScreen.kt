@@ -1,31 +1,120 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ChatRoom
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import com.tfg.loginsignupfirebasecompose.data.collectionsData.Chat
+import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
+import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
+import com.tfg.loginsignupfirebasecompose.navigation.BottomNavItem
 
 @Composable
-fun ChatRoomScreen(navController: NavController) {
+fun ChatRoomScreen(
+    navController: NavHostController,
+    viewModel: ChatRoomViewModel = hiltViewModel()
+) {
+    val chats by viewModel.chats.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        Text(text = "Chat Room", style = MaterialTheme.typography.headlineLarge)
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Back to Profile")
+        Button(modifier = Modifier.padding(8.dp), onClick = {
+            navController.navigate(BottomNavItem.Perfil.route)
+        }) {
+            Text(text = "Go Back")
+        }
+
+
+        Text(
+            "Chats",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        LazyColumn {
+            items(chats) { (chat, userDetails, dogDetails) ->
+                ChatItem(
+                    chat = chat,
+                    userDetails = userDetails,
+                    dogDetails = dogDetails,
+                    onChatClicked = { chatId ->
+                        navController.navigate("messages/$chatId")
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ChatItem(
+    chat: Chat,
+    userDetails: User,
+    dogDetails: Dog,
+    onChatClicked: (String) -> Unit
+){
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onChatClicked(chat.dogId) },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    ) {
+        Row(modifier = Modifier.padding(16.dp)) {
+            // Mostrar la imagen del usuario
+            if (userDetails != null) {
+                AsyncImage(
+                    model = userDetails.profileImageUrl,
+                    contentDescription = "Profile Image",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Color.Gray, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Mostrar los detalles del usuario y del perro
+            Column {
+                Text(
+                    text = "${userDetails?.name ?: "Unknown User"} · ${dogDetails?.name ?: "Unknown Dog"}",
+                    color = Color.Black)
+                Text(
+                    text = chat.lastMessage,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

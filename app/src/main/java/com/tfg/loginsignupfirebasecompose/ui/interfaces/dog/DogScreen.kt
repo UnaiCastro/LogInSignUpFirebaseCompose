@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tfg.loginsignupfirebasecompose.navigation.BottomNavItem
 import com.tfg.loginsignupfirebasecompose.ui.components.BottomNavigationBar
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ChatRoom.ChatRoomScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.EstablishmentDescripction.EstablishmentDescriptionScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Explore.ExploreScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Home.HomeScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen.ProfileScreen
@@ -65,6 +66,12 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
             }
             composable("chatroom") {
                 ChatRoomScreen(innerNavController)
+            }
+            composable("establishmentDescription/{chatId}"){
+                val chatId = it.arguments?.getString("chatId")
+                if (chatId != null) {
+                    EstablishmentDescriptionScreen(chatId, innerNavController)
+                }
             }
         }
 

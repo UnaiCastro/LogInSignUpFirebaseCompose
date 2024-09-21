@@ -7,8 +7,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material3.Icon
+import com.example.compose.primaryContainerDark
 import com.example.compose.primaryLightHighContrast
 import com.example.compose.scrimLight
+import com.example.compose.secondaryContainerLightHighContrast
 import com.tfg.loginsignupfirebasecompose.navigation.BottomNavItem
 
 
@@ -24,7 +26,9 @@ fun BottomNavigationBar(
         BottomNavItem.Perfil
     )
 
-    NavigationBar {
+    NavigationBar (containerColor = primaryLightHighContrast
+
+    ){
 
         items.forEach { item ->
             NavigationBarItem(
@@ -39,10 +43,11 @@ fun BottomNavigationBar(
                 onClick = { onItemSelected(item) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,
-                    unselectedIconColor = Color.Black,
-                    selectedTextColor = scrimLight,
-                    unselectedTextColor = scrimLight,
-                    indicatorColor = primaryLightHighContrast
+                    unselectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.White,
+                    indicatorColor = primaryContainerDark,
+
                 )
             )
         }
