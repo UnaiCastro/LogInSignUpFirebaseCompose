@@ -133,7 +133,7 @@ fun ProfileScreen(navController: NavController, innerNavController: NavHostContr
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp, vertical = 4.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            onClick = { viewModel.goSettingsScreen() }
+            onClick = { innerNavController.navigate("settings")}
         ) {
             Row(
                 modifier = Modifier
@@ -166,7 +166,7 @@ fun ProfileScreen(navController: NavController, innerNavController: NavHostContr
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp, vertical = 4.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            onClick = { viewModel.goSharedScreen() }
+            onClick = { innerNavController.navigate("shared") }
         ) {
             Row(
                 modifier = Modifier
@@ -192,6 +192,67 @@ fun ProfileScreen(navController: NavController, innerNavController: NavHostContr
 
         }
         Spacer(modifier = Modifier.height(8.dp))
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 4.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            onClick = { innerNavController.navigate("likes") }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.google),
+                    contentDescription = "Shared Icon",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp)
+                )
+                Text(
+                    text = "Establishments Likes",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 4.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            onClick = { innerNavController.navigate("mydogs") }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.google),
+                    contentDescription = "Shared Icon",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp)
+                )
+                Text(
+                    text = "My dogs",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+        }
         TextButton(onClick = { viewModel.logout() }) {
             Text(
                 modifier = Modifier

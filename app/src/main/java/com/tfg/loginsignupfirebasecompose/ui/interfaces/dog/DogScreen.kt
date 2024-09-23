@@ -18,8 +18,14 @@ import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ChatRoom.ChatRoomScr
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.EstablishmentDescripction.EstablishmentDescriptionScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Explore.ExploreScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Home.HomeScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.LikesScreen.LikesScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.MyDogsScreen.MyDogsScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen.ProfileScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Settings.SettingsScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.SharedScreen.SharedScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen.StarredScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.chat.ChatScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.purchaseDescription.PurchaseScreen
 
 @Composable
 fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewModel()) {
@@ -53,7 +59,7 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
             modifier = Modifier.padding(padding)
         ) {
             composable(BottomNavItem.Inicio.route) {
-                HomeScreen(innerNavController)
+                HomeScreen(navController,innerNavController)
             }
             composable(BottomNavItem.Guardados.route) {
                 StarredScreen(innerNavController)
@@ -72,6 +78,31 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
                 if (chatId != null) {
                     EstablishmentDescriptionScreen(chatId, innerNavController)
                 }
+            }
+            composable("purchaseDescription/{dogId}"){
+                val dogId = it.arguments?.getString("dogId")
+                if (dogId != null) {
+                    PurchaseScreen(dogId, innerNavController)
+                }
+            }
+            composable("chat/{chatId}") {
+                val chatId = it.arguments?.getString("chatId")
+                if (chatId != null) {
+                    ChatScreen(chatId, innerNavController)
+                }
+
+            }
+            composable("settings"){
+                SettingsScreen(innerNavController)
+            }
+            composable("shared"){
+                SharedScreen(innerNavController)
+            }
+            composable("likes"){
+                LikesScreen(innerNavController)
+            }
+            composable("mydogs"){
+                MyDogsScreen(innerNavController)
             }
         }
 

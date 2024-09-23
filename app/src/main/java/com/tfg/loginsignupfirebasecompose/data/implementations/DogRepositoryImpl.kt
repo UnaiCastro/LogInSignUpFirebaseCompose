@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tfg.loginsignupfirebasecompose.data.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
+import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -70,6 +71,23 @@ class DogRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             // Aquí puedes manejar el error, por ejemplo, registrarlo o mostrar un mensaje al usuario
             Log.e("DogRepository", "Error updating sharedBy field: ${e.message}")
+        }
+    }
+
+    override suspend fun getDogById(dogId: String): Dog? {
+        return try {
+            // Referencia a la colección de usuarios en Firestore
+            val document = db.collection(FirestoreCollections.dogs).document(dogId).get().await()
+
+            // Si el documento existe, mapeamos los datos al objeto User
+            if (document.exists()) {
+                document.toObject(Dog::class.java) // Convierte el documento en un objeto User
+            } else {
+                null // En caso de que no exista el documento, devolvemos null
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error fetching user details for userId: $dogId", e)
+            null // En caso de error, devolvemos null
         }
     }
 

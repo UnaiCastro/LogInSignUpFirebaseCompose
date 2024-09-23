@@ -47,11 +47,11 @@ class ChatRoomViewModel @Inject constructor(
                             email = "",
                             profileImageUrl = "",
                             type = "",
-                            adress = "",
+                            address = "",
                             phone = "",
                             coordinates = emptyMap(),
                             likedEstablishments = emptyList(),
-                            starredDogs = emptyList(),
+                            starred_dogs = emptyList(),
                             sharedDogs = emptyList(),
                             chat_rooms = emptyList(),
                             dogs = emptyList()

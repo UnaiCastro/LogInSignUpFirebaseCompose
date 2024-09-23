@@ -6,6 +6,7 @@ data class Chat(
     val user1id: String = "",
     val user2id: String = "",
     val lastMessage: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val created_at: Long = System.currentTimeMillis(),
+    val messages: List<Message> = emptyList()
 )
 

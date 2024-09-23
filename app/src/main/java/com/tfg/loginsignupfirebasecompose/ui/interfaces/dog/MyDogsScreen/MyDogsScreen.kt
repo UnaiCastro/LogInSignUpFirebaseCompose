@@ -1,23 +1,19 @@
-package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen
+package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.MyDogsScreen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,66 +23,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.compose.backgroundLight
-import com.example.compose.onBackgroundLight
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 
 
 @Composable
-fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = hiltViewModel()) {
-    val starredDogs by viewModel.starredDogs.collectAsState()
+fun MyDogsScreen(navController: NavController,viewModel: MyDogsViewModel = hiltViewModel()) {
 
-    // Fondo decorativo
-    Box(
+    val myDogs by viewModel.myDogs.collectAsState()
+
+    IconButton(
+        onClick = { navController.popBackStack() },
         modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundLight), // Gradiente suave
-
+            .padding(16.dp)
     ) {
-        // Encabezado decorativo
-        Column {
-            Text(
-                text = "Tus Perros Guardados 🐾",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                ),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            if (starredDogs.isEmpty()) {
-                // Texto decorativo si no hay perros guardados
-                Text(
-                    text = "No tienes perros guardados todavía.",
-                    style = MaterialTheme.typography.bodyLarge.copy(color = onBackgroundLight),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .wrapContentSize(Alignment.Center)
-                )
-            } else {
-                // LazyColumn para mostrar los perros guardados
-                LazyColumn(
-
-                ) {
-                    items(starredDogs) { dog ->
-                        DogCardStar(
-                            dog = dog,
-                            viewModel=viewModel
-                            )
-                    }
-                }
-            }
+        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+    }
+    Text(text = "My Dogs Screen")
+    LazyColumn {
+        items(myDogs) { dog ->
+            DogItemCard(dog = dog)
         }
+
     }
 }
 
 @Composable
-fun DogCardStar(dog: Dog, viewModel: StarViewModel) {
+fun DogItemCard(dog: Dog) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth().padding(8.dp)
     ){
@@ -107,7 +73,7 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel) {
                 contentScale = ContentScale.Crop
             )
             IconButton(
-                onClick = {viewModel.toggleStarredDog(dog)},
+                onClick = {},
             ){
                 Icon(
                     imageVector = Icons.Default.Star,

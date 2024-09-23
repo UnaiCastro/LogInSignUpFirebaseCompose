@@ -73,7 +73,7 @@ class UserRepositoryImpl @Inject constructor(
                     user1id = document.getString("user1id") ?: "",
                     user2id = document.getString("user2id") ?: "",
                     lastMessage = document.getString("last_message") ?: "",
-                    timestamp = timestamp
+                    created_at = timestamp
                 )
             }
 
@@ -220,6 +220,82 @@ class UserRepositoryImpl @Inject constructor(
                 "Error al eliminar el perro compartidos para el usuario: $uid",
                 e
             )
+        }
+    }
+
+    override suspend fun updateName(userId: String, newName: String) {
+        updateUserField(userId, "name", newName)
+    }
+
+    override suspend fun updatePhone(userId: String, newPhone: String) {
+        updateUserField(userId, "phone", newPhone)
+    }
+
+    override suspend fun updateAddress(userId: String, newAddress: String) {
+        updateUserField(userId, "address", newAddress)
+    }
+
+    override suspend fun updateUserType(userId: String, newType: String) {
+        updateUserField(userId, "type", newType)
+    }
+
+    override suspend fun updateProfileImage(userId: String, newImageUrl: String) {
+        updateUserField(userId, "profileImageUrl", newImageUrl)
+    }
+
+    override suspend fun getSharedDogsObject(currentUser: String): List<Dog> {
+        val userRepository = UserRepositoryImpl(db)
+        return try {
+            // Recupera al usuario actual desde la base de datos
+            val user = userRepository.getUserDetailsById(currentUser)
+
+            // Si el usuario tiene una lista de perros compartidos
+            val sharedDogIds = user!!.sharedDogs ?: emptyList()
+
+            // Obtener el objeto de cada perro usando su ID
+            sharedDogIds.mapNotNull { dogId ->
+                userRepository.getDogDetailsById(dogId) // Esto asume que tienes un método que obtiene un perro por su ID
+            }
+        } catch (e: Exception) {
+            // Manejar la excepción, puedes retornar una lista vacía o lanzar de nuevo la excepción
+            emptyList()
+        }
+    }
+
+    override suspend fun getStarredDogsObject(currentUser: String): List<Dog> {
+        val userRepository = UserRepositoryImpl(db)
+        return try {
+            // Recupera al usuario actual desde la base de datos
+            val user = userRepository.getUserDetailsById(currentUser)
+
+            // Si el usuario tiene una lista de perros compartidos
+            val starredDogIds = user!!.starred_dogs ?: emptyList()
+
+            // Obtener el objeto de cada perro usando su ID
+            starredDogIds.mapNotNull { dogId ->
+                userRepository.getDogDetailsById(dogId)
+            }
+        } catch (e: Exception) {
+            // Manejar la excepción, puedes retornar una lista vacía o lanzar de nuevo la excepción
+            emptyList()
+        }
+    }
+
+    override suspend fun updateStarredDogsById(uid: String, dogId: String) {
+        try {
+            db.collection("users").document(uid).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al actualizar perros favoritos", e)
+        }
+    }
+
+    private suspend fun updateUserField(userId: String, field: String, value: Any) {
+        try {
+            db.collection("users").document(userId)
+                .update(field, value)
+                .await()
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al actualizar $field", e)
         }
     }
 

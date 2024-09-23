@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
@@ -44,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,25 +57,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.compose.primaryContainerDark
 import com.example.compose.tertiaryContainerLight
-import com.example.compose.tertiaryLight
 import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(navController: NavController, innerNavController: NavHostController, viewModel: HomeViewModel = hiltViewModel()) {
     var query by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     var selectedGender by remember { mutableStateOf("") }
     var selectedBreed by remember { mutableStateOf("") }
 
     val filteredDogs by viewModel.filteredDogs.collectAsState()
+
+    val navigationEvent by viewModel.navigationEvent.collectAsState()
 
     val profileImageUrl by viewModel.profileImageUrl.collectAsState() // Cambiado a collectAsState
     val currentUser by viewModel.currentUser.collectAsState()
@@ -104,6 +102,13 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     LaunchedEffect(query, selectedBreed, selectedGender, selectedFilter) {
         updateFilters()
     }
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.let { destination ->
+            innerNavController.navigate(destination)
+            viewModel.clearNavigationEvent() // Limpiar el evento después de navegar
+        }
+    }
+
 
     // Function to toggle drawer
 
@@ -201,7 +206,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                             isStarred = starredDogs.contains(dog.dogId),
                             isShared = sharedDogs.contains(dog.dogId),
                             onToggleStarred = { viewModel.toggleStarredDog(dog.dogId) },
-                            onToggleShared = { viewModel.toggleSharedDog(dog.dogId) }
+                            onToggleShared = { viewModel.toggleSharedDog(dog.dogId) },
+                            viewModel = viewModel,
                         )
                     }
                 }
@@ -216,8 +222,10 @@ fun DogCard(
     isStarred: Boolean,
     onToggleStarred: (String) -> Unit,
     onToggleShared: (String) -> Unit,
-    isShared: Boolean  // Ahora recibimos si el perro está compartido
-) {
+    isShared: Boolean, // Ahora recibimos si el perro está compartido,
+    viewModel: HomeViewModel,
+
+    ) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -278,10 +286,10 @@ fun DogCard(
 
                 // Botón de compartir con icono dinámico
                 Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                    Button(onClick = { /* Comprar */ }) {
+                    Button(onClick = {  viewModel.navigateToPurchaseDescription(dog.dogId) }) {
                         Text(text = dog.status)
                     }
-                    TextButton(onClick = { /* Contactar */ }) {
+                    TextButton(onClick = { viewModel.navigateToChat(dog.dogId) }) {
                         Text(text = "Chat with me")
                     }
 
