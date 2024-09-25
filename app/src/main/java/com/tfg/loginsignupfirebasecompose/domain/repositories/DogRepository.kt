@@ -7,4 +7,6 @@ interface DogRepository {
     suspend fun getDogs(): List<Dog>
     suspend fun updateSharedBy(dogId: String, uid: String, add: Boolean)
     suspend fun getDogById(dogId: String): Dog?
+    suspend fun uploadDog(dog:Dog)
+    suspend fun adoptOrBuy(dogId: String, uid: String, status: String)
 }

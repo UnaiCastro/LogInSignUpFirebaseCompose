@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tfg.loginsignupfirebasecompose.data.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
-import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -88,6 +87,44 @@ class DogRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error fetching user details for userId: $dogId", e)
             null // En caso de error, devolvemos null
+        }
+    }
+
+    override suspend fun uploadDog(
+        dog:Dog
+    ) {
+        try {
+            val dogData = mapOf(
+                "name" to dog.name,
+                "gender" to dog.gender,
+                "breed" to dog.breed,
+                "description" to dog.description,
+                "age" to dog.age,
+                "price" to dog.price,
+                "status" to dog.status,
+                "owner_id" to dog.owner_id,
+                "shared_dog_userId" to dog.shared_dog_userId,
+                "profileImageUrl" to dog.imageUrl
+            )
+            db.collection(FirestoreCollections.dogs).add(dogData).await()
+        } catch (e: Exception) {
+            Log.e("DogRepository", "Error uploading dog: ${e.message}")
+        }
+    }
+
+    override suspend fun adoptOrBuy(dogId: String, uid: String, status: String) {
+        Log.d("DogRepository", "Adopting or buying dog with ID: $dogId, UID: $uid, Status: $status")
+        try {
+            db.collection(FirestoreCollections.dogs).document(dogId).update("owner_id", uid).await()
+            if (status == "Adopt") {
+                db.collection(FirestoreCollections.dogs).document(dogId).update("status", "Adopted").await()
+
+            }
+            if (status == "Buy") {
+                db.collection(FirestoreCollections.dogs).document(dogId).update("status", "Bought").await()
+            }
+        } catch (e: Exception) {
+            Log.e("DogRepository", "Error adopting or buying dog: ${e.message}")
         }
     }
 

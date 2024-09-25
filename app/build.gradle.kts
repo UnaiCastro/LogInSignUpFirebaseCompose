@@ -71,7 +71,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
     implementation(libs.pagingCompose)
     implementation(libs.dagger.hilt)
     implementation(libs.dagger.hilt.navigation)
@@ -82,8 +81,7 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.compose.material3)
+    /*implementation(libs.androidx.compose.material3)*/
     implementation(libs.androidx.ui.test.android)
     implementation(libs.play.services.location)
     kapt(libs.dagger.hilt.compiler)

@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TextFieldDefaults.textFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -152,7 +151,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                     label = { Text("Name") },
                     placeholder = { Text("Astrolopitecus") },
                     singleLine = true,
-                    colors = textFieldColors(
+                    /*colors = textFieldColors(
                         containerColor = Color.Transparent,
                         focusedIndicatorColor = Color.White,
                         unfocusedIndicatorColor = Color.White,
@@ -162,7 +161,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         cursorColor = Color.White,
                         focusedLabelColor = Color.White,
                         unfocusedLabelColor = Color.White
-                    ),
+                    ),*/
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -174,7 +173,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                     label = { Text("Email") },
                     placeholder = { Text("example@gmail.com") },
                     singleLine = true,
-                    colors = textFieldColors(
+                    /*colors = textFieldColors(
                         containerColor = Color.Transparent,
                         focusedIndicatorColor = Color.White,
                         unfocusedIndicatorColor = Color.White,
@@ -184,7 +183,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         cursorColor = Color.White,
                         focusedLabelColor = Color.White,
                         unfocusedLabelColor = Color.White
-                    ),
+                    ),*/
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -194,7 +193,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                     value = phone,
                     onValueChange = { phone = it },
                     label = { Text("Number phone") },
-                    colors = textFieldColors(
+                    /*colors = textFieldColors(
                         containerColor = Color.Transparent,
                         focusedIndicatorColor = Color.White,
                         unfocusedIndicatorColor = Color.White,
@@ -204,7 +203,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         cursorColor = Color.White,
                         focusedLabelColor = Color.White,
                         unfocusedLabelColor = Color.White
-                    ),
+                    ),*/
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -249,7 +248,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             Icon(imageVector = visibilityIcon, contentDescription = description)
                         }
                     },
-                    colors = textFieldColors(
+                    /*colors = textFieldColors(
                         containerColor = Color.Transparent,
                         focusedIndicatorColor = Color.White,
                         unfocusedIndicatorColor = Color.White,
@@ -259,7 +258,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         cursorColor = Color.White,
                         focusedLabelColor = Color.White,
                         unfocusedLabelColor = Color.White
-                    ),
+                    ),*/
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
@@ -316,7 +315,7 @@ fun DropdownMenuUserType(selectedType: String, onUserTypeChange: (String) -> Uni
             onValueChange = {},
             label = { Text("Tipo de Usuario") },
             readOnly = true,
-            colors = textFieldColors(
+            /*colors = textFieldColors(
                 containerColor = Color.Transparent,
                 focusedIndicatorColor = Color.White,
                 unfocusedIndicatorColor = Color.White,
@@ -326,7 +325,7 @@ fun DropdownMenuUserType(selectedType: String, onUserTypeChange: (String) -> Uni
                 cursorColor = Color.White,
                 focusedLabelColor = Color.White,
                 unfocusedLabelColor = Color.White
-            ),
+            ),*/
             modifier = Modifier.clickable { expanded = true }.fillMaxWidth()
         )
 
@@ -354,7 +353,7 @@ fun DropdownMenuRegions(regions: List<String>, selectedRegion: String, onRegionS
             onValueChange = {},
             label = { Text("Comunidad Autónoma") },
             readOnly = true,
-            colors = textFieldColors(
+            /*colors = textFieldColors(
                 containerColor = Color.Transparent,
                 focusedIndicatorColor = Color.White,
                 unfocusedIndicatorColor = Color.White,
@@ -364,7 +363,7 @@ fun DropdownMenuRegions(regions: List<String>, selectedRegion: String, onRegionS
                 cursorColor = Color.White,
                 focusedLabelColor = Color.White,
                 unfocusedLabelColor = Color.White
-            ),
+            ),*/
             modifier = Modifier.clickable { expanded = true }.fillMaxWidth()
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -392,7 +391,7 @@ fun CoordinatesInput(
             value = coordinates.first,
             onValueChange = { lat -> onCoordinatesChange(lat, coordinates.second) },
             label = { Text("Latitud") },
-            colors = textFieldColors(
+            /*colors = textFieldColors(
                 containerColor = Color.Transparent,
                 focusedIndicatorColor = Color.White,
                 unfocusedIndicatorColor = Color.White,
@@ -402,7 +401,7 @@ fun CoordinatesInput(
                 cursorColor = Color.White,
                 focusedLabelColor = Color.White,
                 unfocusedLabelColor = Color.White
-            ),
+            ),*/
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
         )
 

@@ -28,5 +28,7 @@ interface UserRepository {
     suspend fun getSharedDogsObject(currentUser: String): List<Dog>
     suspend fun getStarredDogsObject(currentUser: String): List<Dog>
     suspend fun updateStarredDogsById(uid: String, dogId: String)
+    suspend fun addNewDog(dogId: String, uid: String)
+    suspend fun deleteDog(dogId: String, uid: String)
 
 }

@@ -1,7 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.data.collectionsData
 
 data class User(
-    val userId: String = "",
+    var userId: String = "",
     val name: String = "",
     val email: String = "",
     val profileImageUrl: String = "",
@@ -13,6 +13,6 @@ data class User(
     val starred_dogs: List<String> = emptyList(), // Lista de identificadores de perros marcados como favoritos
     val sharedDogs: List<String> = emptyList(), // Lista de identificadores de perros compartidos
     val chat_rooms: List<String> = emptyList(), // Lista de identificadores de salas de chat
-    val dogs: List<Dog> = emptyList() // Lista de perros del usuario
+    val dogs: List<String> = emptyList() // Lista de perros del usuario
 )
 

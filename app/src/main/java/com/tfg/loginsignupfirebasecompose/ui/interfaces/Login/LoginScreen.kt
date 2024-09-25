@@ -131,7 +131,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         label = { Text("Email") },
                         placeholder = { Text("example@gmail.com") },
                         singleLine = true,
-                        colors = TextFieldDefaults.textFieldColors(
+                        /*colors = TextFieldDefaults.textFieldColors(
                             containerColor = Color.Transparent,
                             focusedIndicatorColor = Color.White,
                             unfocusedIndicatorColor = Color.White,
@@ -141,7 +141,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                             cursorColor = Color.White,
                             focusedLabelColor = Color.White,
                             unfocusedLabelColor = Color.White
-                        ),
+                        ),*/
                         modifier = Modifier
                             .fillMaxWidth()
                     )
@@ -166,7 +166,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                 Icon(imageVector = visibilityIcon, contentDescription = description)
                             }
                         },
-                        colors = TextFieldDefaults.textFieldColors(
+                        /*colors = TextFieldDefaults.textFieldColors(
                             containerColor = Color.Transparent,
                             focusedIndicatorColor = Color.White,
                             unfocusedIndicatorColor = Color.White,
@@ -176,7 +176,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                             cursorColor = Color.White,
                             focusedLabelColor = Color.White,
                             unfocusedLabelColor = Color.White
-                        ),
+                        ),*/
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp)

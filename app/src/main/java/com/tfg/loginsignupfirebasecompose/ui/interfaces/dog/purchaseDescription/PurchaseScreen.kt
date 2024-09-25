@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -25,14 +26,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material3.Button
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.surfaceContainerLight
 
@@ -47,31 +48,28 @@ fun PurchaseScreen(
         viewModel.getDogById(dogId)
     }
 
-    // Obteniendo los valores de dog y owner de los flujos de estado
     val dog by viewModel.dog.collectAsState()
     val owner by viewModel.owner.collectAsState()
 
-    // Mostramos un indicador de carga si el perro o el dueño no están cargados aún
     if (dog == null || owner == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
     } else {
-        // Si los datos están cargados, renderizamos la pantalla normalmente
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            // Imagen de fondo del perro
             Image(
                 painter = rememberAsyncImagePainter(dog?.imageUrl),
                 contentDescription = "Dog Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
                     .fillMaxWidth()
-                    .height(300.dp)  // Menos de la mitad de la pantalla
+                    .height(300.dp)
+
             )
-            // Botón de retroceso en la esquina superior izquierda
             IconButton(
                 onClick = { navController.popBackStack() },
                 modifier = Modifier
@@ -85,14 +83,14 @@ fun PurchaseScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 260.dp)  // Justo debajo de la imagen
+                    .padding(top = 240.dp)  // Justo debajo de la imagen
             ) {
                 // Tarjeta con la información del perro
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .shadow(10.dp, RoundedCornerShape(20.dp)),
+                        .shadow(6.dp, RoundedCornerShape(20.dp)),
                     colors = androidx.compose.material3.CardDefaults.cardColors(
                         containerColor = surfaceContainerLight
                     )
@@ -104,48 +102,64 @@ fun PurchaseScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
+                                fontSize = 28.sp,
                                 text = dog?.name ?: "Unknown",
                                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                             )
                             Text(
                                 text = "${dog?.price ?: "0"} USD",
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
 
                         // Género
                         Text(
-                            text = "Gender: ${dog?.gender ?: "Unknown"}",
-                            style = MaterialTheme.typography.bodyLarge
+                            text = "${dog?.gender ?: "Unknown"}",
+                            style = MaterialTheme.typography.bodyMedium
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Descripción del perro
                         Text(
                             text = if (dog?.gender == "Male") "About him" else "About her",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp
                         )
                         Text(
                             text = dog?.description ?: "No description available",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 16.sp
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Raza, edad y estado
-                        Text(text = "Breed: ${dog?.breed ?: "Unknown"}", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Age: ${dog?.age ?: "Unknown"} years", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Status: ${dog?.status ?: "Unknown"}", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = "   · ${dog?.breed ?: "Unknown"}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "   · ${dog?.age ?: "Unknown"} years",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "   · ${dog?.status ?: "Unknown"}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Información del dueño
+
                 ElevatedCard(
+                    elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                        defaultElevation = 6.dp
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
@@ -153,25 +167,50 @@ fun PurchaseScreen(
                         containerColor = surfaceContainerLight
                     )
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Owner: ${owner?.name ?: "Unknown"}", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Phone: ${owner?.phone ?: "Unknown"}", style = MaterialTheme.typography.bodyLarge)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Owner Information",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Text(
+                                text = "${owner?.name ?: "Unknown"}",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "${owner?.phone ?: "Unknown"}",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                        Image(
+                            painter = rememberAsyncImagePainter(owner?.profileImageUrl),
+                            contentDescription = "Owner Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .align(Alignment.CenterVertically)
+                        )
                     }
+
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Botón para adoptar o comprar
                 Button(
-                    onClick = { /* Acción para adoptar o comprar */ },
+                    onClick = { viewModel.adoptOrBuy(dog!!, owner!!.userId,dogId) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
                     Text(
                         text = when (dog?.status) {
-                            "Available" -> "Adopt"
-                            "For Sale" -> "Buy"
+                            "Adopt" -> "Adopt"
+                            "Buy" -> "Buy"
                             else -> "Contact"
                         }
                     )

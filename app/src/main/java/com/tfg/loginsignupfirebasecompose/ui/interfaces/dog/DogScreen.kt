@@ -1,14 +1,24 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,6 +36,7 @@ import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.SharedScreen.SharedS
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen.StarredScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.chat.ChatScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.purchaseDescription.PurchaseScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.uploadDog.UploadDogScreen
 
 @Composable
 fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewModel()) {
@@ -104,6 +115,10 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
             composable("mydogs"){
                 MyDogsScreen(innerNavController)
             }
+            composable("uploadDog"){
+                UploadDogScreen(innerNavController)
+            }
+
         }
 
         // Cambia la pantalla cuando se selecciona un nuevo item en la barra de navegación

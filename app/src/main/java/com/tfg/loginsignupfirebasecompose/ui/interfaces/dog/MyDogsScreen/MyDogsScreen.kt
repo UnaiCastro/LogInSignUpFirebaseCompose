@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,12 +27,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 
 
 @Composable
-fun MyDogsScreen(navController: NavController,viewModel: MyDogsViewModel = hiltViewModel()) {
+fun MyDogsScreen(navController: NavHostController, viewModel: MyDogsViewModel = hiltViewModel()) {
 
     val myDogs by viewModel.myDogs.collectAsState()
 
@@ -48,6 +50,11 @@ fun MyDogsScreen(navController: NavController,viewModel: MyDogsViewModel = hiltV
             DogItemCard(dog = dog)
         }
 
+    }
+    Button(
+        modifier = Modifier.padding(top = 100.dp),
+        onClick = { navController.navigate("uploadDog") }) {
+        Text(text = "Upload Dog")
     }
 }
 

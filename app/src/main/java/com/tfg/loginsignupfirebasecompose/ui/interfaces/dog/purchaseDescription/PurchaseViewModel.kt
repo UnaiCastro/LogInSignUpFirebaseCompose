@@ -1,11 +1,13 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.purchaseDescription
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.PurchaseRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,10 +19,11 @@ import javax.inject.Inject
 class PurchaseViewModel @Inject constructor(
     private val dogRepository: DogRepository,
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val purchaseRepository: PurchaseRepository
 ) : ViewModel() {
 
-    // Estado para el perro y el propietario
+    val uid = authRepository.getCurrentUser()?.uid ?: ""
     private val _dog = MutableStateFlow<Dog?>(null)
     val dog: StateFlow<Dog?> = _dog
 
@@ -42,6 +45,16 @@ class PurchaseViewModel @Inject constructor(
         viewModelScope.launch {
             val fetchedOwner = userRepository.getUserDetailsById(ownerId)
             _owner.value = fetchedOwner
+        }
+    }
+
+    fun adoptOrBuy(dog: Dog, userOwnerId: String, dogId: String) {
+        Log.d("PurchaseViewModel", "Adopción o compra iniciada para el perro con ID: ${dogId}, propietario ID: ${this.owner.value?.userId}")
+        viewModelScope.launch {
+            purchaseRepository.newPurchase(dogId,dog.price,uid,userOwnerId)
+            dogRepository.adoptOrBuy(dogId,uid,dog.status)
+            userRepository.addNewDog(dogId,uid)
+            userRepository.deleteDog(dogId,userOwnerId)
         }
     }
 }

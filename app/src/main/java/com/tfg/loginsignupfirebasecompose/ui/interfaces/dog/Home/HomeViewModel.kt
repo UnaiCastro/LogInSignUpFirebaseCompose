@@ -18,11 +18,12 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val dogRepository: DogRepository,
-    private val authRepository: AuthRepository, // Supongo que usas Firebase Auth para identificar al usuario
+    private val authRepository: AuthRepository,
     private val chatRepository: ChatRepository
 ) : ViewModel()
 {
 
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     private val _navigationEvent = MutableStateFlow<String?>(null)
     val navigationEvent: StateFlow<String?> = _navigationEvent
 
@@ -54,10 +55,6 @@ class HomeViewModel @Inject constructor(
         loadStarredDogs()
         loadSharedDogs()
         loadDogs()
-        viewModelScope.launch {
-            allDogs = dogRepository.getDogs()
-            _filteredDogs.value = allDogs // Mostrar todos los perros por defecto
-        }
     }
 
     // Cargar información del usuario actual
@@ -81,7 +78,17 @@ class HomeViewModel @Inject constructor(
 
     // Cargar todos los perros
     private fun loadDogs() = viewModelScope.launch {
-        _filteredDogs.value = dogRepository.getDogs()
+        val allDogs = dogRepository.getDogs()
+        val allDogsNotMine = mutableListOf<Dog>()
+
+        for (dog in allDogs) {
+            println("Dog: dog.name = ${dog.name}")
+            if (dog.owner_id != uid) {
+                allDogsNotMine.add(dog)
+            }
+        }
+
+        _filteredDogs.value = allDogs // Mostrar solo perros que no son míos
     }
 
     // Actualizar la lista de perros guardados

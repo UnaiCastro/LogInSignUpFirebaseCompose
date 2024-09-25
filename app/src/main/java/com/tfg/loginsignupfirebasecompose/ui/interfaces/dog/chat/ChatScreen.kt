@@ -94,9 +94,9 @@ fun ChatScreen(
                 onValueChange = { newMessageText.value = it },
                 placeholder = { Text(text = "Escribe un mensaje...") },
                 maxLines = 1,
-                colors = TextFieldDefaults.textFieldColors(
+                /*colors = TextFieldDefaults.textFieldColors(
                     containerColor = surfaceContainerLight
-                )
+                )*/
             )
 
             Spacer(modifier = Modifier.width(8.dp))

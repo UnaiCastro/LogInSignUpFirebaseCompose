@@ -1,8 +1,5 @@
 package com.tfg.loginsignupfirebasecompose.data.di
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -11,12 +8,14 @@ import com.tfg.loginsignupfirebasecompose.data.implementations.ChatRepositoryImp
 import com.tfg.loginsignupfirebasecompose.data.implementations.DogRepositoryImpl
 import com.tfg.loginsignupfirebasecompose.data.implementations.EstablishmentRepositoryImpl
 import com.tfg.loginsignupfirebasecompose.data.implementations.MessageRepositoryImpl
+import com.tfg.loginsignupfirebasecompose.data.implementations.PurchaseRepositoryImpl
 import com.tfg.loginsignupfirebasecompose.data.implementations.UserRepositoryImpl
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.ChatRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.EstablishmentRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.MessageRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.PurchaseRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -79,6 +78,14 @@ object FirebaseModule {
     @Singleton
     fun provideStorageFirestore(): FirebaseStorage {
         return FirebaseStorage.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun providePurchaseRepository(db: FirebaseFirestore): PurchaseRepository {
+
+        return PurchaseRepositoryImpl(db)
+
     }
 
 

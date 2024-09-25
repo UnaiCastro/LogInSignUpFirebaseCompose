@@ -105,7 +105,11 @@ class UserRepositoryImpl @Inject constructor(
 
             // Si el documento existe, mapeamos los datos al objeto User
             if (document.exists()) {
-                document.toObject(User::class.java) // Convierte el documento en un objeto User
+                val user = document.toObject(User::class.java) // Convierte el documento en un objeto User
+                user?.let {
+                    it.userId = document.id // Asignamos el id del documento al objeto User
+                }
+                user
             } else {
                 null // En caso de que no exista el documento, devolvemos null
             }
@@ -114,6 +118,7 @@ class UserRepositoryImpl @Inject constructor(
             null // En caso de error, devolvemos null
         }
     }
+
 
     override suspend fun getDogDetailsById(dogId: String): Dog? {
         return try {
@@ -286,6 +291,22 @@ class UserRepositoryImpl @Inject constructor(
             db.collection("users").document(uid).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al actualizar perros favoritos", e)
+        }
+    }
+
+    override suspend fun addNewDog(dogId: String, uid: String) {
+        try {
+            db.collection("users").document(uid).update("dogs", FieldValue.arrayUnion(dogId)).await()
+        } catch (e: Exception){
+            Log.e("FirestoreError", "Error al actualizar perros ", e)
+        }
+    }
+
+    override suspend fun deleteDog(dogId: String, uid: String) {
+        try {
+            db.collection("users").document(uid).update("dogs", FieldValue.arrayRemove(dogId)).await()
+        } catch (e: Exception){
+            Log.e("FirestoreError", "Error al actualizar perros ", e)
         }
     }
 
