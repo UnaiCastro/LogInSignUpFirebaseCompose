@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.tfg.loginsignupfirebasecompose.data.FirestoreCollections
+import com.tfg.loginsignupfirebasecompose.data.Firebase.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Chat
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
@@ -66,14 +66,14 @@ class UserRepositoryImpl @Inject constructor(
                 .await()
 
             snapshot.documents.map { document ->
-                val timestamp = document.getTimestamp("created_at")?.toDate()?.time
-                    ?: System.currentTimeMillis()
                 Chat(
-
+                    chatId = document.id,
+                    dogId = document.getString("dog_id") ?: "",
                     user1id = document.getString("user1id") ?: "",
                     user2id = document.getString("user2id") ?: "",
                     lastMessage = document.getString("last_message") ?: "",
-                    created_at = timestamp
+                    created_at = document.getString("created_at") ?: "",
+                    messages = document.get("messages") as? List<String> ?: emptyList()
                 )
             }
 
@@ -298,7 +298,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection("users").document(uid).update("dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception){
-            Log.e("FirestoreError", "Error al actualizar perros ", e)
+            Log.e("FirestoreError", "Error al actualizar perros union ", e)
         }
     }
 
@@ -306,7 +306,15 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection("users").document(uid).update("dogs", FieldValue.arrayRemove(dogId)).await()
         } catch (e: Exception){
-            Log.e("FirestoreError", "Error al actualizar perros ", e)
+            Log.e("FirestoreError", "Error al actualizar perros delete", e)
+        }
+    }
+
+    override suspend fun addChatToRoomChat(createdChat: String, uid: String) {
+        try {
+            db.collection("users").document(uid).update("chat_rooms", FieldValue.arrayUnion(createdChat)).await()
+        } catch (e: Exception){
+            Log.e("FirestoreError", "Error al actualizar chatroom", e)
         }
     }
 

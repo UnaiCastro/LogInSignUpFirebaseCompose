@@ -1,4 +1,4 @@
-package com.tfg.loginsignupfirebasecompose.data
+package com.tfg.loginsignupfirebasecompose.data.Firebase
 
 object FirestoreCollections {
     const val users: String = "users"

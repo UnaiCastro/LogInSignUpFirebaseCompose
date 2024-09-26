@@ -38,7 +38,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.compose.errorLightHighContrast
 import com.tfg.loginsignupfirebasecompose.R
-import com.tfg.loginsignupfirebasecompose.data.AppScreens
+import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 
 
 @Composable

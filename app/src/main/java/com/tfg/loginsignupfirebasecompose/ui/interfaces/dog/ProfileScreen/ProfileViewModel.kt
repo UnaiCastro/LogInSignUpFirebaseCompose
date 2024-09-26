@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tfg.loginsignupfirebasecompose.data.AppScreens
+import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

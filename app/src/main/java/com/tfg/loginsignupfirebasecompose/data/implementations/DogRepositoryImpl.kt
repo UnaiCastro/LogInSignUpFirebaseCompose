@@ -2,7 +2,7 @@ package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.tfg.loginsignupfirebasecompose.data.FirestoreCollections
+import com.tfg.loginsignupfirebasecompose.data.Firebase.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import kotlinx.coroutines.tasks.await

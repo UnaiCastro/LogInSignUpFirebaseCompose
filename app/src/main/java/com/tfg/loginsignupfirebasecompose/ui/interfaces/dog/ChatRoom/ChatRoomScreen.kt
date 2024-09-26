@@ -40,19 +40,18 @@ fun ChatRoomScreen(
     viewModel: ChatRoomViewModel = hiltViewModel()
 ) {
     val chats by viewModel.chats.collectAsState()
+    val lastMessages by viewModel.lastMessages.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
         Button(modifier = Modifier.padding(8.dp), onClick = {
             navController.navigate(BottomNavItem.Perfil.route)
         }) {
             Text(text = "Go Back")
         }
-
 
         Text(
             "Chats",
@@ -66,8 +65,9 @@ fun ChatRoomScreen(
                     chat = chat,
                     userDetails = userDetails,
                     dogDetails = dogDetails,
+                    lastMessage = lastMessages[chat.chatId] ?: "No messages yet",
                     onChatClicked = { chatId ->
-                        navController.navigate("messages/$chatId")
+                        navController.navigate("chat/${chat.chatId}")
                     }
                 )
             }
@@ -75,46 +75,48 @@ fun ChatRoomScreen(
     }
 }
 
+
 @Composable
 fun ChatItem(
     chat: Chat,
     userDetails: User,
     dogDetails: Dog,
+    lastMessage: String,
     onChatClicked: (String) -> Unit
-){
+) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onChatClicked(chat.dogId) },
+            .clickable { onChatClicked(chat.chatId) },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(modifier = Modifier.padding(16.dp)) {
             // Mostrar la imagen del usuario
-            if (userDetails != null) {
-                AsyncImage(
-                    model = userDetails.profileImageUrl,
-                    contentDescription = "Profile Image",
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, Color.Gray, CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            AsyncImage(
+                model = userDetails.profileImageUrl,
+                contentDescription = "Profile Image",
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape),
+                contentScale = ContentScale.Crop
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Mostrar los detalles del usuario y del perro
             Column {
                 Text(
-                    text = "${userDetails?.name ?: "Unknown User"} · ${dogDetails?.name ?: "Unknown Dog"}",
-                    color = Color.Black)
+                    text = "${userDetails.name} · ${dogDetails.name}",
+                    color = Color.Black
+                )
                 Text(
-                    text = chat.lastMessage,
-                    style = MaterialTheme.typography.bodySmall
+                    text = lastMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
                 )
             }
         }
     }
 }
+

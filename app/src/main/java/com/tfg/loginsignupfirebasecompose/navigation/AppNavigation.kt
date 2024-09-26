@@ -7,13 +7,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.tfg.loginsignupfirebasecompose.data.AppScreens
-import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Explore.ExploreScreen
+import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose.FirebaseComposeScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.Login.LoginScreen
-import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen.ProfileScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.SignUp.SignUpScreen
-import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen.StarredScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.DogScreen
 
 @Composable

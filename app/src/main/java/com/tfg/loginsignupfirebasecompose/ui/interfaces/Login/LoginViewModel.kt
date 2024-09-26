@@ -1,11 +1,9 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.Login
 
-import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.tfg.loginsignupfirebasecompose.data.AppScreens
+import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

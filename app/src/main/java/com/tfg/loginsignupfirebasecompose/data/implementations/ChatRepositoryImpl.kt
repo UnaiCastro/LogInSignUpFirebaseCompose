@@ -1,23 +1,29 @@
 package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import android.util.Log
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tfg.loginsignupfirebasecompose.data.collectionsData.Chat
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Message
 import com.tfg.loginsignupfirebasecompose.domain.repositories.ChatRepository
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore
 ) : ChatRepository {
+
+
     override suspend fun getMessageIdsForChat(chatId: String): List<String> {
         return try {
             val querySnapshot = db.collection("chats")
                 .document(chatId)
                 .get()
                 .await()
-            querySnapshot.get("messageIds") as? List<String> ?: emptyList()
+            querySnapshot.get("messages") as? List<String> ?: emptyList()
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener los IDs de mensajes", e)
             emptyList()
@@ -26,23 +32,20 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun getMessageById(messageId: String): Message? {
         return try {
-            val document = db.collection("messages")
-                .document(messageId)
-                .get()
-                .await()
-            document.toObject(Message::class.java)
+            if (messageId.isNotEmpty()) {
+                val document = db.collection("messages")
+                    .document(messageId)
+                    .get()
+                    .await()
+
+                document.toObject(Message::class.java)
+            } else {
+                Log.e("FirestoreError", "El ID del mensaje está vacío o es inválido")
+                null
+            }
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener el mensaje", e)
             null
-        }
-    }
-
-    override suspend fun addMessage(newMessage: Message) {
-        try {
-            db.collection("messages").add(newMessage).await()
-            Log.d("Firestore", "Mensaje agregado exitosamente")
-        } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al agregar el mensaje", e)
         }
     }
 
@@ -52,8 +55,9 @@ class ChatRepositoryImpl @Inject constructor(
                 .document(chatId)
                 .get()
                 .await()
-            document.getString("senderId") ?: ""
-
+            document.getString("user1id")?.let {
+                if (it == senderId) document.getString("user2id") else it
+            } ?: ""
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener el ID del otro usuario", e)
             ""
@@ -61,49 +65,61 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isCreatedChat(
-        userId: StateFlow<String>,
+        userId: String,
         dogId: String,
         ownerId: String
     ): String {
         return try {
-            // Obtener todos los chats de Firestore
-            val chats = db.collection("chats").get().await()
-
-            // Buscar si ya existe un chat con los criterios dados (dogId, user1Id, user2Id)
-            val existingChat = chats.documents.find { document ->
-                val chatDogId = document.getString("dog_id")
-                val user1Id = document.getString("user1id")
-                val user2Id = document.getString("user2id")
-
-                (chatDogId == dogId) && (
-                        (user1Id == userId.value && user2Id == ownerId) ||
-                                (user1Id == ownerId && user2Id == userId.value)
-                        )
+            val querySnapshot = db.collection("chats")
+                .whereEqualTo("dog_id", dogId)
+                .whereIn("user1id", listOf(userId, ownerId))
+                .whereIn("user2id", listOf(userId, ownerId))
+                .get().await()
+            val existingChat = querySnapshot.documents.firstOrNull()
+            existingChat?.id ?: run {
+                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                val newChatData = hashMapOf(
+                    "dog_id" to dogId,
+                    "user1id" to userId,
+                    "user2id" to ownerId,
+                    "created_at" to currentDate,
+                    "lastMessage" to "",
+                    "messages" to emptyList<String>()
+                )
+                val newChatRef = db.collection("chats").add(newChatData).await()
+                newChatRef.id
             }
-
-            // Si se encuentra un chat que cumple con los criterios, devolvemos el chatId
-            if (existingChat != null) {
-                return existingChat.id // Retorna el ID del chat existente
-            }
-
-            // Si no existe el chat, creamos uno nuevo
-            val newChatData = hashMapOf(
-                "dog_id" to dogId,
-                "user1id" to userId.value,
-                "user2id" to ownerId,
-                "created_at" to System.currentTimeMillis(),
-                "last_message" to ""
-            )
-
-            // Agregamos el nuevo chat a Firestore
-            val newChatRef = db.collection("chats").add(newChatData).await()
-
-            // Devolvemos el ID del nuevo chat creado
-            return newChatRef.id
-
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener o crear el chat", e)
             ""
+        }
+    }
+
+    override suspend fun getChatById(chatId: String): Chat? {
+        return try {
+            val document = db.collection("chats").document(chatId).get().await()
+            document.toObject(Chat::class.java)?.apply {
+                messages = document.get("messages") as? List<String> ?: emptyList()
+                this.chatId = document.id
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al obtener el chat con ID: $chatId", e)
+            null
+        }
+    }
+
+    override suspend fun updateChatWithNewMessage(chatId: String, messageId: String) {
+        try {
+            db.collection("chats").document(chatId).update(
+                mapOf(
+                    "lastMessage" to messageId,
+                    "messages" to FieldValue.arrayUnion(messageId)
+                )
+            ).await()
+
+            Log.d("Firestore", "Chat actualizado con el nuevo mensaje")
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al actualizar el chat con el nuevo mensaje", e)
         }
     }
 

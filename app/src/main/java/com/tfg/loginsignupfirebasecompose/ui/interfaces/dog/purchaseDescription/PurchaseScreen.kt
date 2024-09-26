@@ -202,7 +202,10 @@ fun PurchaseScreen(
 
                 // Botón para adoptar o comprar
                 Button(
-                    onClick = { viewModel.adoptOrBuy(dog!!, owner!!.userId,dogId) },
+                    onClick = {
+                        viewModel.adoptOrBuy(dog!!, owner!!.userId, dogId)
+                        navController.navigateUp()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)

@@ -20,8 +20,7 @@ class HomeViewModel @Inject constructor(
     private val dogRepository: DogRepository,
     private val authRepository: AuthRepository,
     private val chatRepository: ChatRepository
-) : ViewModel()
-{
+) : ViewModel() {
 
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     private val _navigationEvent = MutableStateFlow<String?>(null)
@@ -83,12 +82,12 @@ class HomeViewModel @Inject constructor(
 
         for (dog in allDogs) {
             println("Dog: dog.name = ${dog.name}")
-            if (dog.owner_id != uid) {
+            if (dog.owner_id != uid && (dog.status == "Adopt"|| dog.status == "Buy")) {
                 allDogsNotMine.add(dog)
             }
         }
 
-        _filteredDogs.value = allDogs // Mostrar solo perros que no son míos
+        _filteredDogs.value = allDogsNotMine // Mostrar solo perros que no son míos
     }
 
     // Actualizar la lista de perros guardados
@@ -174,9 +173,11 @@ class HomeViewModel @Inject constructor(
 
     fun navigateToChat(dogId: String) {
         viewModelScope.launch {
-            val userId= currentUser
+            val userId = uid
             val dog = dogRepository.getDogById(dogId)
-            val createdChat:String= chatRepository.isCreatedChat(userId,dogId, dog!!.owner_id)
+            val createdChat: String = chatRepository.isCreatedChat(uid, dogId, dog!!.owner_id)
+            userRepository.addChatToRoomChat(createdChat,uid)
+            userRepository.addChatToRoomChat(createdChat,dog.owner_id)
             _navigationEvent.value = "chat/$createdChat"
         }
 

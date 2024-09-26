@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,30 +60,24 @@ fun ChatScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Encabezado con el nombre del receptor
         TopAppBar(
             title = { Text(text = currentUser?.name ?: "Chat") },
             navigationIcon = {
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
         )
 
-        // Lista de mensajes (tipo chat)
         LazyColumn(
-            modifier = Modifier.weight(1f),  // El chat ocupará la mayor parte de la pantalla
-            reverseLayout = true  // Para que empiece desde abajo, como en WhatsApp
+            modifier = Modifier.weight(1f),
+            reverseLayout = false
         ) {
             items(messages) { message ->
                 ChatMessageBubble(message = message, currentUserId = currentUserId)
             }
         }
 
-        // Caja de texto para escribir un nuevo mensaje
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,9 +90,6 @@ fun ChatScreen(
                 onValueChange = { newMessageText.value = it },
                 placeholder = { Text(text = "Escribe un mensaje...") },
                 maxLines = 1,
-                /*colors = TextFieldDefaults.textFieldColors(
-                    containerColor = surfaceContainerLight
-                )*/
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -105,11 +98,11 @@ fun ChatScreen(
                 onClick = {
                     if (newMessageText.value.isNotEmpty()) {
                         viewModel.sendMessage(newMessageText.value, chatId, currentUserId)
-                        newMessageText.value = ""  // Limpiar el campo de texto
+                        newMessageText.value = ""
                     }
                 }
             ) {
-                Icon(imageVector = Icons.Default.Send, contentDescription = "Send Message")
+                Icon(imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = "Send Message")
             }
         }
     }
@@ -117,9 +110,8 @@ fun ChatScreen(
 
 @Composable
 fun ChatMessageBubble(message: Message, currentUserId: String) {
-    // El bocadillo sale del lado derecho si el mensaje es del usuario actual, o del izquierdo si es del receptor
     val isCurrentUser = message.senderId == currentUserId
-    val backgroundColor = if (isCurrentUser) primaryLight else surfaceContainerLight
+    val backgroundColor = if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
 
     Row(
         modifier = Modifier

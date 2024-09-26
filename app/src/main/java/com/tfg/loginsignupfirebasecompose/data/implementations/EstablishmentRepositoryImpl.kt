@@ -2,10 +2,9 @@ package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.tfg.loginsignupfirebasecompose.data.FirestoreCollections
+import com.tfg.loginsignupfirebasecompose.data.Firebase.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Establishment
 import com.tfg.loginsignupfirebasecompose.domain.repositories.EstablishmentRepository
-import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 

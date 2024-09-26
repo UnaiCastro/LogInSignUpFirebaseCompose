@@ -49,12 +49,13 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun adoptOrBuy(dog: Dog, userOwnerId: String, dogId: String) {
-        Log.d("PurchaseViewModel", "Adopción o compra iniciada para el perro con ID: ${dogId}, propietario ID: ${this.owner.value?.userId}")
+        Log.d("PurchaseViewModel", "Adopción o compra iniciada para el perro con ID: ${dogId}, propietario ID: $userOwnerId")
         viewModelScope.launch {
             purchaseRepository.newPurchase(dogId,dog.price,uid,userOwnerId)
             dogRepository.adoptOrBuy(dogId,uid,dog.status)
             userRepository.addNewDog(dogId,uid)
             userRepository.deleteDog(dogId,userOwnerId)
+
         }
     }
 }

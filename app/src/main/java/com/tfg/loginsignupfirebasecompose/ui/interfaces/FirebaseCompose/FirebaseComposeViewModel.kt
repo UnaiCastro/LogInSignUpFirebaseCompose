@@ -1,8 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import com.tfg.loginsignupfirebasecompose.data.AppScreens
+import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

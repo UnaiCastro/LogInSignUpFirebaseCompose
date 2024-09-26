@@ -1,6 +1,4 @@
-package com.tfg.loginsignupfirebasecompose.data
-
-import com.tfg.loginsignupfirebasecompose.R
+package com.tfg.loginsignupfirebasecompose.data.Firebase
 
 sealed class AppScreens(val route: String) {
     object FirebaseComposeScreen : AppScreens("firebase_compose")

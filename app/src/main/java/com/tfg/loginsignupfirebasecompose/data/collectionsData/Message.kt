@@ -1,10 +1,12 @@
 package com.tfg.loginsignupfirebasecompose.data.collectionsData
 
+import com.google.firebase.Timestamp
+
 data class Message(
-    val messageId: String = "",
+    var messageId: String = "",
     val chatId: String = "",
     val senderId: String = "",
     val receiverId: String = "",
     val messageContent: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Timestamp = Timestamp.now()
 )

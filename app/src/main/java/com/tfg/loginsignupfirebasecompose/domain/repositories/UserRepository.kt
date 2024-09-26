@@ -30,5 +30,5 @@ interface UserRepository {
     suspend fun updateStarredDogsById(uid: String, dogId: String)
     suspend fun addNewDog(dogId: String, uid: String)
     suspend fun deleteDog(dogId: String, uid: String)
-
+    suspend fun addChatToRoomChat(createdChat: String, uid: String)
 }

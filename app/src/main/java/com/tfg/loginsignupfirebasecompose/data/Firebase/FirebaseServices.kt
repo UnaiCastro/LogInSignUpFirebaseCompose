@@ -1,4 +1,4 @@
-package com.tfg.loginsignupfirebasecompose.data
+package com.tfg.loginsignupfirebasecompose.data.Firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
