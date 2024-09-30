@@ -33,6 +33,9 @@ class ChatViewModel @Inject constructor(
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
 
+    private val _otherUser = MutableStateFlow<User?>(null) // Estado para el otro usuario
+    val otherUser: StateFlow<User?> = _otherUser
+
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
 
@@ -89,6 +92,23 @@ class ChatViewModel @Inject constructor(
             val messageId = messageRepository.addMessage(newMessage)
             chatRepository.updateChatWithNewMessage(chatId, messageId)
             loadMessageIds(chatId)
+        }
+    }
+
+    fun loadOtherUser(chatId: String) {
+        viewModelScope.launch {
+            val chat = chatRepository.getChatById(chatId)
+
+            // Determinar quién es el "otro usuario"
+            val otherUserId = if (chat?.user1id == currentIdUser) {
+                chat?.user2id
+            } else {
+                chat?.user1id
+            }
+
+            // Obtener los detalles del otro usuario usando su ID
+            val user = userRepository.getUserDetailsById(otherUserId.toString())
+            _otherUser.value = user
         }
     }
 }

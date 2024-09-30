@@ -1,6 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,10 +37,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.compose.primaryLight
 import com.example.compose.surfaceContainerLight
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Message
@@ -53,15 +59,36 @@ fun ChatScreen(
     val newMessageText = remember { mutableStateOf("") }  // Texto del nuevo mensaje
     val currentUser by viewModel.currentUser.collectAsState()
     val currentUserId = viewModel.currentIdUser
+    val otherUser by viewModel.otherUser.collectAsState() // Detalles del otro usuario en el chat
 
     LaunchedEffect(chatId) {
         viewModel.loadMessageIds(chatId)
         viewModel.loadCurrentUser(currentUserId)
+        viewModel.loadOtherUser(chatId) // Supongo que tienes una función para cargar el otro usuario del chat
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text(text = currentUser?.name ?: "Chat") },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Mostrar la imagen de perfil de la otra persona
+                    if (otherUser?.profileImageUrl != null) {
+                        AsyncImage(
+                            model = otherUser?.profileImageUrl,
+                            contentDescription = "Other user profile picture",
+                            modifier = Modifier
+                                .size(40.dp)  // Tamaño de la imagen
+                                .clip(CircleShape)  // Forma circular
+                                .border(1.dp, Color.Gray, CircleShape),  // Borde alrededor
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))  // Espacio entre la imagen y el nombre
+                    }
+
+                    // Mostrar el nombre del otro usuario
+                    Text(text = otherUser?.name ?: "Chat")
+                }
+            },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

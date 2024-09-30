@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +32,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,43 +57,24 @@ fun SettingsScreen(navController: NavHostController, viewModel: SettingsViewMode
     val profileImageUrl by viewModel.profileImageUrl.collectAsState()
     val userType by viewModel.userType.collectAsState()
 
+    // Estado para controlar la visibilidad del diálogo para el establecimiento
+    var showBusinessDialog by remember { mutableStateOf(false) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
+    // Variables para almacenar temporalmente los datos del establecimiento
+    var businessName by remember { mutableStateOf("") }
+    var businessPhone by remember { mutableStateOf("") }
+    var businessAddress by remember { mutableStateOf("") }
 
-    // Launcher para tomar una foto con la cámara
-    val launcherCamera = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview(),
-        onResult = { bitmap ->
-            bitmap?.let {
-                viewModel.uploadProfileImageFromCamera(it)
-            }
-        }
-    )
+    // Función para mostrar el diálogo de establecimiento
+    fun showBusinessDialog() {
+        showBusinessDialog = true
+    }
 
-    // Launcher para solicitar el permiso de la cámara
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                // Si el permiso es concedido, abrir la cámara
-                launcherCamera.launch()
-            } else {
-                Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
-            }
-        }
-    )
-
-    // Launcher para seleccionar una imagen desde la galería
-    val launcherGallery = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            uri?.let {
-                viewModel.uploadProfileImage(it, context.contentResolver)
-            }
-        }
-    )
-
-
+    // Función para mostrar el diálogo de confirmación
+    fun showConfirmDialog() {
+        showConfirmDialog = true
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         IconButton(
@@ -105,36 +90,17 @@ fun SettingsScreen(navController: NavHostController, viewModel: SettingsViewMode
         Spacer(modifier = Modifier.height(16.dp))
 
         // Imagen de perfil
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape1)
-                .background(Color.LightGray)
-                .clickable {
-                    launcherGallery.launch("image/*") // Abre la galería
-                },
-            contentAlignment = Alignment.Center
-        ) {
+        Box {
             if (profileImageUrl.isNotEmpty()) {
                 Image(
                     painter = rememberAsyncImagePainter(profileImageUrl),
                     contentDescription = "Imagen de perfil",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.size(80.dp)
                 )
             } else {
                 Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(80.dp))
             }
-        }
-
-        Row {
-            Button(onClick = { launcherGallery.launch("image/*") }) {
-                Text("Seleccionar de la galería")
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            /*Button(onClick = { launcherCamera.launch() }) {
-                Text("Tomar foto")
-            }*/
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -176,11 +142,99 @@ fun SettingsScreen(navController: NavHostController, viewModel: SettingsViewMode
         Row {
             Text("Tipo de usuario: ", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.width(8.dp))
-            RadioButton(selected = userType == "Particular", onClick = { viewModel.updateUserType("Particular") })
+            RadioButton(selected = userType == "Particular", onClick = {
+                if (userType == "Empresa") {
+                    // Si cambia de Empresa a Particular, mostrar el diálogo de confirmación
+                    showConfirmDialog()
+                } else {
+                    viewModel.updateUserType("Particular")
+                }
+            })
             Text("Particular", modifier = Modifier.align(Alignment.CenterVertically))
             Spacer(modifier = Modifier.width(16.dp))
-            RadioButton(selected = userType == "Empresa", onClick = { viewModel.updateUserType("Empresa") })
+            RadioButton(selected = userType == "Empresa", onClick = {
+                if (userType == "Particular") {
+                    // Si cambia de Particular a Empresa, mostrar el diálogo del establecimiento
+                    showBusinessDialog()
+                } else {
+                    viewModel.updateUserType("Empresa")
+                }
+            })
             Text("Empresa", modifier = Modifier.align(Alignment.CenterVertically))
+        }
+
+        // Diálogo para el establecimiento (Particular a Empresa)
+        if (showBusinessDialog) {
+            AlertDialog(
+                onDismissRequest = { showBusinessDialog = false },
+                title = { Text("Información del establecimiento") },
+                text = {
+                    Column {
+                        TextField(
+                            value = businessName,
+                            onValueChange = { businessName = it },
+                            label = { Text("Nombre del establecimiento") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = businessAddress,
+                            onValueChange = { businessAddress = it },
+                            label = { Text("Dirección del establecimiento") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = businessPhone,
+                            onValueChange = { businessPhone = it },
+                            label = { Text("Teléfono del establecimiento") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.updateUserType("Empresa")
+                            viewModel.saveBusinessInfo(businessName, businessAddress, businessPhone)
+                            showBusinessDialog = false
+                        }
+                    ) {
+                        Text("Guardar")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showBusinessDialog = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
+
+        // Diálogo de confirmación (Empresa a Particular)
+        if (showConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = { showConfirmDialog = false },
+                title = { Text("Confirmación") },
+                text = { Text("¿Está seguro que quiere cambiar a particular? Esto eliminará el establecimiento asociado.") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.deleteBusinessInfo()
+                            viewModel.updateUserType("Particular")
+                            showConfirmDialog = false
+                        }
+                    ) {
+                        Text("Sí, cambiar")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showConfirmDialog = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
     }
 }

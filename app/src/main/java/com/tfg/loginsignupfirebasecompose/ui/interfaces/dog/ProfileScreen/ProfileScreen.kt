@@ -1,7 +1,16 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen
 
+import android.app.AlertDialog
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,24 +20,33 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,17 +55,29 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.compose.errorLightHighContrast
+import com.example.compose.primaryContainerLightHighContrast
 import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController, innerNavController: NavHostController, viewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    navController: NavController,
+    innerNavController: NavHostController,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
 
     val currentUser by viewModel.currentUser.collectAsState()
     val email by viewModel.email.collectAsState()
+    val adress by viewModel.adress.collectAsState()
     val profileImageUrl by remember { viewModel.profileImageUrl }
     val navigationEvent by viewModel.navigationEvent.collectAsState()
+
+    val scrollState = rememberScrollState()
+
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+
 
 
     LaunchedEffect(navigationEvent) {
@@ -60,214 +90,252 @@ fun ProfileScreen(navController: NavController, innerNavController: NavHostContr
         }
     }
 
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            Button(
-                modifier = Modifier.padding(end = 16.dp),
-                onClick = { innerNavController.navigate("chatroom") })
-            {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_message),
-                    contentDescription = "Chat Icon"
-                )
-                Text(text = "Chat")
-
+    val context = LocalContext.current
+    val changeImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                viewModel.changeProfileImage(context, it)
             }
         }
-        profileImageUrl?.let { url ->
-            Image(
-                painter = rememberImagePainter(data = url),
-                contentDescription = "Profile Image",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .width(150.dp)
-                    .height(150.dp),
-                contentScale = ContentScale.Crop
-            )
-        } ?: run {
-            // Imagen de reserva si la URL es nula
-            Image(
-                painter = painterResource(id = R.drawable.perrosonriente),
-                contentDescription = "Default Profile Image",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .width(150.dp)
-                    .height(150.dp),
-                contentScale = ContentScale.Crop
+    )
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success: Boolean ->
+            if (success) {
+                photoUri?.let { uri ->
+                    viewModel.changeProfileImage(context, uri)
+                }
+            }
+        }
+    )
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Profile",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            text = "Welcome, $currentUser",
-            style = MaterialTheme.typography.headlineLarge,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = email,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Primera Card
-        ElevatedCard(
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 4.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            onClick = { innerNavController.navigate("settings")}
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 32.dp, paddingValues.calculateTopPadding()),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Settings Icon",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                )
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Segunda Card
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 4.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            onClick = { innerNavController.navigate("shared") }
-        ) {
-            Row(
+            // Imagen de perfil
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .size(150.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Shared Icon",
-                    contentScale = ContentScale.Crop,
+                // Imagen de perfil
+                profileImageUrl?.let { url ->
+                    Image(
+                        painter = rememberImagePainter(data = url),
+                        contentDescription = "Profile Image",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: run {
+                    Image(
+                        painter = painterResource(id = R.drawable.perrosonriente),
+                        contentDescription = "Default Profile Image",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                // Ícono de lápiz para cambiar la imagen
+                IconButton(
+                    onClick = {
+                        // Aquí puedes llamar a la función para cambiar la imagen
+                        showImageSelectionDialog(context, changeImageLauncher, takePictureLauncher,photoUri)
+                    },
                     modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                )
-                Text(
-                    text = "Shared",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
+                        .align(Alignment.TopEnd)
+                        .size(36.dp)
+                        .padding(4.dp), // Ajusta el padding según lo necesites
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Profile Image",
+                            tint = primaryContainerLightHighContrast
+
+                        )
+                    }
                 )
             }
 
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 4.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            onClick = { innerNavController.navigate("likes") }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Shared Icon",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                )
-                Text(
-                    text = "Establishments Likes",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-            }
+            Spacer(modifier = Modifier.height(12.dp))
 
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 4.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            onClick = { innerNavController.navigate("mydogs") }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Shared Icon",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 16.dp)
-                )
-                Text(
-                    text = "My dogs",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-            }
-
-        }
-        TextButton(onClick = { viewModel.logout() }) {
             Text(
-                modifier = Modifier
-                    .padding(vertical = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                text = "Log Out",
-                style = MaterialTheme.typography.bodyMedium,
-                /*onTextLayout = { viewModel.logout()},*/
-                color = errorLightHighContrast,
+                text = "Welcome $currentUser",
+                style = MaterialTheme.typography.headlineLarge,
+                color = Color.Black
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = email,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_location),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp).clip(CircleShape).fillMaxWidth(),
+                    tint = Color.Unspecified
+                )
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = adress,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Black
+                )
+            }
+
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Fila para Settings
+            ProfileRowItem(
+                iconResId = R.drawable.ic_settings,
+                text = "Settings",
+                onClick = { innerNavController.navigate("settings") }
+            )
+
+            ProfileRowItem(
+                iconResId = R.drawable.ic_messages,
+                text = "Chats",
+                onClick = { innerNavController.navigate("chatroom") }
+            )
+
+            // Fila para Shared
+            ProfileRowItem(
+                iconResId = R.drawable.ic_compartir,
+                text = "Shared",
+                onClick = { innerNavController.navigate("shared") }
+            )
+
+            // Fila para Establishments Likes
+            ProfileRowItem(
+                iconResId = R.drawable.ic_megusta,
+                text = "Establishments Likes",
+                onClick = { innerNavController.navigate("likes") }
+            )
+
+            // Fila para My Dogs
+            ProfileRowItem(
+                iconResId = R.drawable.ic_mydogs,
+                text = "My dogs",
+                onClick = { innerNavController.navigate("mydogs") }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextButton(onClick = { viewModel.logout() }) {
+                Text(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp),
+                    textAlign = TextAlign.Center,
+                    text = "Log Out",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = errorLightHighContrast, // Puedes cambiar esto a errorLightHighContrast si es un color definido en tu tema
+                )
+            }
         }
-
     }
-    // Mostrar la imagen de perfil
+}
 
+private fun showImageSelectionDialog(
+    context: Context,
+    changeImageLauncher: ManagedActivityResultLauncher<String, Uri?>,
+    takePictureLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
+    photoUri: Uri?
+) {
+    val options = arrayOf("Tomar Foto", "Seleccionar de Galería")
+    AlertDialog.Builder(context).apply {
+        setTitle("Cambiar imagen de perfil")
+        setItems(options) { _, which ->
+            when (which) {
+                0 -> {
+                    // Tomar foto
+                    if (photoUri != null) {
+                        takePictureLauncher.launch(photoUri)
+                    } else {
+                        Toast.makeText(context, "Error al crear el archivo para la imagen", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                1 -> {
+                    // Seleccionar de galería
+                    changeImageLauncher.launch("image/*")
+                }
+            }
+        }
+        create().show()
+    }
+}
 
+@Composable
+fun ProfileRowItem(
+    iconResId: Int,
+    text: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = iconResId),
+                contentDescription = null,
+                modifier = Modifier.size(60.dp).clip(CircleShape),
+                tint = Color.Unspecified
+
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = text, style = MaterialTheme.typography.titleLarge)
+        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null
+        )
+    }
 }
 

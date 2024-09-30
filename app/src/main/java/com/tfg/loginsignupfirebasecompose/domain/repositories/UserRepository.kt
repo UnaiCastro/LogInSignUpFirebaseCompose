@@ -31,4 +31,14 @@ interface UserRepository {
     suspend fun addNewDog(dogId: String, uid: String)
     suspend fun deleteDog(dogId: String, uid: String)
     suspend fun addChatToRoomChat(createdChat: String, uid: String)
+    suspend fun getAddress(uid: String): String?
+    suspend fun updateUserProfileImage(imageUrl: String?, uid: String)
+    suspend fun saveBusinessInfo(
+        userId: String,
+        name: String,
+        address: String,
+        phone: String,
+        coordinates: Map<String, Any>
+    )
+    suspend fun deleteBusinessInfo(userId: String)
 }

@@ -318,6 +318,23 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAddress(uid: String): String? {
+        return try {
+            db.collection(FirestoreCollections.users).document(uid).get().await().getString("address")
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al obtener la dirección del usuario", e)
+            null
+        }
+    }
+
+    override suspend fun updateUserProfileImage(imageUrl: String?, uid: String) {
+        try {
+            db.collection("users").document(uid).update("profileImageUrl", imageUrl).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al actualizar la imagen de perfil", e)
+        }
+    }
+
     private suspend fun updateUserField(userId: String, field: String, value: Any) {
         try {
             db.collection("users").document(userId)
@@ -326,6 +343,44 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al actualizar $field", e)
         }
+    }
+
+    override suspend fun saveBusinessInfo(
+        userId: String,
+        name: String,
+        address: String,
+        phone: String,
+        coordinates: Map<String, Any>
+    ) {
+        val establishment = hashMapOf(
+            "name" to name,
+            "address" to address,
+            "phone" to phone,
+            "coordinates" to coordinates,
+            "owner_id" to userId,
+            "likes" to 0
+        )
+        db.collection(FirestoreCollections.establishments).document().set(establishment)
+    }
+
+    override suspend fun deleteBusinessInfo(userId: String) {
+        try {
+            val establishments = db.collection(FirestoreCollections.establishments)
+                .whereEqualTo("owner_id", userId)
+                .get() // Esto retorna un QuerySnapshot
+                .await()
+
+            // Iterar sobre los documentos y eliminarlos uno por uno
+            for (document in establishments.documents) {
+                db.collection(FirestoreCollections.establishments)
+                    .document(document.id)
+                    .delete()
+                    .await() // Esperar que se complete la eliminación
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al eliminar la información del establecimiento", e)
+        }
+
     }
 
 

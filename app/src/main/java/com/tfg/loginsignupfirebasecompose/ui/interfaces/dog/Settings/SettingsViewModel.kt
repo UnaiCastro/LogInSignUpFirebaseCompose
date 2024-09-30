@@ -1,8 +1,4 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Settings
-import android.content.ContentResolver
-import android.graphics.Bitmap
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.storage.FirebaseStorage
@@ -12,8 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,55 +16,6 @@ class SettingsViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val storage: FirebaseStorage
 ) : ViewModel() {
-
-    // Subir imagen desde la galería
-    fun uploadProfileImage(imageUri: Uri, contentResolver: ContentResolver) = viewModelScope.launch {
-        val userId = authRepository.getCurrentUser() ?: return@launch
-        val currentUser= userId.uid
-
-        try {
-            // Subir imagen a Firebase Storage
-            val storageRef = storage.reference.child("profileImages/$currentUser.jpg")
-            val uploadTask = storageRef.putFile(imageUri)
-            uploadTask.await()
-
-            // Obtener URL pública de la imagen
-            val downloadUrl = storageRef.downloadUrl.await()
-
-            // Actualizar URL de la imagen en Firestore
-            userRepository.updateProfileImage(currentUser, downloadUrl.toString())
-
-        } catch (e: Exception) {
-            Log.e("UploadImage", "Error al subir la imagen", e)
-        }
-    }
-
-    // Subir imagen desde la cámara (Bitmap)
-    fun uploadProfileImageFromCamera(bitmap: Bitmap) = viewModelScope.launch {
-        val userId = authRepository.getCurrentUser() ?: return@launch
-        val currentUser= userId.uid
-
-        try {
-            // Convertir Bitmap a ByteArray para subir a Firebase Storage
-            val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-            val imageData = baos.toByteArray()
-
-            // Subir imagen a Firebase Storage
-            val storageRef = storage.reference.child("profileImages/$userId.jpg")
-            val uploadTask = storageRef.putBytes(imageData)
-            uploadTask.await()
-
-            // Obtener URL pública de la imagen
-            val downloadUrl = storageRef.downloadUrl.await()
-
-            // Actualizar URL de la imagen en Firestore
-            userRepository.updateProfileImage(currentUser, downloadUrl.toString())
-
-        } catch (e: Exception) {
-            Log.e("UploadImage", "Error al subir la imagen", e)
-        }
-    }
 
     val currentUser = authRepository.getCurrentUser()
 
@@ -126,8 +71,16 @@ class SettingsViewModel @Inject constructor(
         userRepository.updateUserType(currentUser!!.uid, newType)
     }
 
-    fun updateProfileImage(newImageUrl: String) = viewModelScope.launch {
-        _profileImageUrl.value = newImageUrl
-        userRepository.updateProfileImage(currentUser!!.uid, newImageUrl)
+    fun saveBusinessInfo(name: String, address: String, phone: String) = viewModelScope.launch {
+        val userId = authRepository.getCurrentUser()?.uid ?: return@launch
+        val user = userRepository.getUserDetailsById(userId)
+        userRepository.saveBusinessInfo(userId, name, address, phone, user!!.coordinates)
+    }
+
+    // Función para eliminar la información del establecimiento
+    fun deleteBusinessInfo() = viewModelScope.launch {
+
+        val userId = authRepository.getCurrentUser()?.uid ?: return@launch
+        userRepository.deleteBusinessInfo(userId)
     }
 }
