@@ -19,6 +19,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +47,14 @@ fun PurchaseScreen(
 
     LaunchedEffect(dogId) {
         viewModel.getDogById(dogId)
+    }
+    val navigationEvent by viewModel.navigationEvent.collectAsState()
+
+
+    LaunchedEffect(navigationEvent) {
+        navigationEvent?.let { destination ->
+            navController.navigate(destination)
+        }
     }
 
     val dog by viewModel.dog.collectAsState()
@@ -217,6 +226,16 @@ fun PurchaseScreen(
                             else -> "Contact"
                         }
                     )
+                }
+                OutlinedButton(
+                    onClick = {
+                        viewModel.navigateToChat(dogId)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(text = "Chat with me",fontSize = 12.sp)
                 }
             }
         }

@@ -28,10 +28,17 @@ class MyDogsViewModel @Inject constructor(
         fetchMyDogs()
     }
 
-    private fun fetchMyDogs() {
+    fun fetchMyDogs() {
         viewModelScope.launch {
             // Llama a la función getSharedDogsObject para obtener la lista de perros compartidos
             _myDogs.value = dogRepository.getDogsByOwner(currentUser)
+        }
+    }
+
+    fun deleteDog(dogId: String) {
+        viewModelScope.launch {
+            dogRepository.deleteDog(dogId)
+            userRepository.deleteDog(dogId, currentUser)
         }
     }
 

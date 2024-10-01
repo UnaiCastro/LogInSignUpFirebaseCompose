@@ -128,4 +128,12 @@ class DogRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteDog(dogId: String) {
+        try {
+            db.collection(FirestoreCollections.dogs).document(dogId).delete().await()
+        } catch (e: Exception) {
+            Log.e("DogRepository", "Error deleting dog: ${e.message}")
+        }
+    }
+
 }

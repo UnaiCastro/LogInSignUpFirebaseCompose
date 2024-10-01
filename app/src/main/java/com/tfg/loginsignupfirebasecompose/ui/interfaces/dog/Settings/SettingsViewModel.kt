@@ -37,6 +37,12 @@ class SettingsViewModel @Inject constructor(
     private val _userType = MutableStateFlow("")
     val userType: StateFlow<String> = _userType
 
+    private val _communityState = MutableStateFlow("")
+    val communityState: StateFlow<String> = _communityState
+
+    private val _coordinatesState = MutableStateFlow<Pair<Double, Double>?>(null)
+    val coordinatesState: StateFlow<Pair<Double, Double>?> = _coordinatesState
+
     init {
         loadUserData()
     }
@@ -83,4 +89,21 @@ class SettingsViewModel @Inject constructor(
         val userId = authRepository.getCurrentUser()?.uid ?: return@launch
         userRepository.deleteBusinessInfo(userId)
     }
+
+    fun updateCommunityInfo(community: String, coords: Pair<Double, Double>?) {
+        // Actualiza el estado de la comunidad y las coordenadas
+        viewModelScope.launch {
+            _communityState.value = community // Asumiendo que tienes un estado para la comunidad
+            _coordinatesState.value = coords // Asumiendo que tienes un estado para las coordenadas
+
+            // Guarda en Firestore o donde sea necesario
+            userRepository.saveCommunityInfo(currentUser!!.uid, coords)
+        }
+    }
+
+    private suspend fun saveCommunityInfo(community: String, coords: Pair<Double, Double>?) {
+        // Lógica para guardar la información en Firestore o en el repositorio
+        // Puedes seguir un patrón similar a saveBusinessInfo
+    }
+
 }
