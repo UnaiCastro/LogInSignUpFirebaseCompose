@@ -383,16 +383,5 @@ class UserRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?) {
-        try {
-            db.collection(FirestoreCollections.users)
-                .document(userId)
-                .update("coordinates", mapOf("latitude" to coords?.first, "longitude" to coords?.second))
-                .await()
-        } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al guardar la información de la comunidad", e)
-        }
-    }
-
 
 }

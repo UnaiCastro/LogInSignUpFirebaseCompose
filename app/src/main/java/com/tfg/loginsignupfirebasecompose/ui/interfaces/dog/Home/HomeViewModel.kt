@@ -77,13 +77,17 @@ class HomeViewModel @Inject constructor(
 
     // Cargar todos los perros
     private fun loadDogs() = viewModelScope.launch {
-        val allDogsList = dogRepository.getDogs()
-        val allDogsNotMine = allDogsList.filter { dog ->
-            dog.owner_id != uid && (dog.status == "Adopt" || dog.status == "Buy")
+        val allDogs = dogRepository.getDogs()
+        val allDogsNotMine = mutableListOf<Dog>()
+
+        for (dog in allDogs) {
+            println("Dog: dog.name = ${dog.name}")
+            if (dog.owner_id != uid && (dog.status == "Adopt"|| dog.status == "Buy")) {
+                allDogsNotMine.add(dog)
+            }
         }
 
-        allDogs = allDogsNotMine // Actualiza allDogs con los perros no míos
-        _filteredDogs.value = allDogs // Inicializa filteredDogs con todos los perros
+        _filteredDogs.value = allDogsNotMine // Mostrar solo perros que no son míos
     }
 
     // Actualizar la lista de perros guardados
@@ -154,7 +158,7 @@ class HomeViewModel @Inject constructor(
         }
 
         // Filtro por género (si hay un género seleccionado)
-        if (selectedGender.isNotBlank() && selectedGender != "All") {
+        if (selectedGender.isNotBlank() && selectedGender != "Todos") {
             filteredList = filteredList.filter { dog ->
                 dog.gender.equals(selectedGender, ignoreCase = true)
             }

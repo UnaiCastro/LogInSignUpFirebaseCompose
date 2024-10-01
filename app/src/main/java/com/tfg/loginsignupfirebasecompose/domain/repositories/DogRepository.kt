@@ -9,5 +9,4 @@ interface DogRepository {
     suspend fun getDogById(dogId: String): Dog?
     suspend fun uploadDog(dog:Dog)
     suspend fun adoptOrBuy(dogId: String, uid: String, status: String)
-    suspend fun deleteDog(dogId: String)
 }

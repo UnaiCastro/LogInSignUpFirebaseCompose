@@ -1,10 +1,8 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.uploadDog
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +70,7 @@ fun UploadDogScreen(
         "Pug", "Rottweiler", "Shih Tzu", "Staffordshire Bull Terrier", "Yorkshire Terrier"
     ).sorted()
 
-    val genderOptions = listOf("Male", "Female")
+    val genderOptions = listOf("Macho", "Hembra")
     val statusOptions =
         if (currentUser.type == "empresa") listOf("Adoptar", "Vender") else listOf("Adoptar")
 
@@ -129,31 +126,24 @@ fun UploadDogScreen(
         )
 
         var expandedGender by remember { mutableStateOf(false) }
-
-        // ExposedDropdownMenuBox para el género
         ExposedDropdownMenuBox(
             expanded = expandedGender,
-            onExpandedChange = {
-                expandedGender = !expandedGender
-            }
+            onExpandedChange = { expandedGender = !expandedGender }
         ) {
             OutlinedTextField(
                 value = viewModel.gender,
                 onValueChange = { viewModel.gender = it },
                 label = { Text("Género") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),  // Necesario para que el dropdown se alinee correctamente
                 readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth(),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGender)
                 }
             )
-
             ExposedDropdownMenu(
                 expanded = expandedGender,
-                onDismissRequest = { expandedGender = false },
-                /*modifier = Modifier.fillMaxWidth()*/
+                onDismissRequest = { expandedGender = false }
             ) {
                 genderOptions.forEach { gender ->
                     DropdownMenuItem(
@@ -176,10 +166,9 @@ fun UploadDogScreen(
                 value = viewModel.breed,
                 onValueChange = { viewModel.breed = it },
                 label = { Text("Raza") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
                 readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth(),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedBreed)
                 }
@@ -244,12 +233,12 @@ fun UploadDogScreen(
             label = { Text("Precio") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
+                imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Number
             ),
             keyboardActions = KeyboardActions(
                 onNext = {
-                    focusManager.clearFocus()
+                    focusManager.moveFocus(FocusDirection.Down)
                 }
             ),
             placeholder = { Text("Precio del perro") }
@@ -293,6 +282,7 @@ fun UploadDogScreen(
         // Subir foto
         Button(onClick = {
             launcher.launch("image/*")
+            /*focusRequester.requestFocus()*/
         }) {
             Text(text = if (viewModel.imageUri == null) "Subir Foto" else "Cambiar Foto")
         }
@@ -323,7 +313,6 @@ fun UploadDogScreen(
                     status = viewModel.status,
                     imageUri = viewModel.imageUri
                 )
-                navController.navigateUp()
             },
             modifier = Modifier.fillMaxWidth()
         ) {

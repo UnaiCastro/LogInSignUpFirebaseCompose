@@ -52,7 +52,4 @@ class StarViewModel @Inject constructor (
         userRepository.updateStarredDogsById(uid, dog.dogId)
     }
 
-
-
-
 }

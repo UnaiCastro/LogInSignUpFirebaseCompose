@@ -28,8 +28,6 @@ class ChatViewModel @Inject constructor(
     private val db: FirebaseFirestore
 ): ViewModel() {
 
-
-
     val currentIdUser = authRepository.getCurrentUser()!!.uid
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())

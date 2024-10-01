@@ -2,27 +2,18 @@ package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,8 +34,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.backgroundLight
 import com.example.compose.onBackgroundLight
-import com.example.compose.onSurfaceLight
-import com.example.compose.primaryLight
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 
 
@@ -56,8 +45,7 @@ fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = h
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .background(backgroundLight),
+            .background(backgroundLight), // Gradiente suave
 
     ) {
         // Encabezado decorativo
@@ -72,6 +60,7 @@ fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = h
             )
 
             if (starredDogs.isEmpty()) {
+                // Texto decorativo si no hay perros guardados
                 Text(
                     text = "No tienes perros guardados todavía.",
                     style = MaterialTheme.typography.bodyLarge.copy(color = onBackgroundLight),
@@ -80,15 +69,15 @@ fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = h
                         .wrapContentSize(Alignment.Center)
                 )
             } else {
+                // LazyColumn para mostrar los perros guardados
                 LazyColumn(
 
                 ) {
                     items(starredDogs) { dog ->
                         DogCardStar(
                             dog = dog,
-                            viewModel=viewModel,
-                            navController = navController
-                        )
+                            viewModel=viewModel
+                            )
                     }
                 }
             }
@@ -97,108 +86,35 @@ fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = h
 }
 
 @Composable
-fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostController) {
+fun DogCardStar(dog: Dog, viewModel: StarViewModel) {
     ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 8.dp)
-            .border(
-                width = 2.dp,
-                color = Color.Transparent,
-                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
-            ),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF9C4) // Amarillo suave
-        ),
-        elevation = CardDefaults.cardElevation(8.dp) // Elevación para dar efecto de profundidad
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(8.dp)
+    ){
+        Column(
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            // Imagen del perro
-            Box (modifier = Modifier.size(110.dp)) {
-                Image(
-                    painter = rememberAsyncImagePainter(dog.imageUrl),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "Dog Image",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .border(1.dp, Color.Black, CircleShape)
-                )
-
-                IconButton(
-                    onClick = { viewModel.toggleStarredDog(dog) },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Desmarcar como guardado",
-                        tint = Color(0xFFFFF9C4)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Información del perro
-            Column(
+            Text(text = dog.name)
+            Text(text = dog.breed)
+            Text(text = dog.age.toString())
+            Text(text = dog.gender)
+            Text(text = dog.description)
+            Image(
+                painter = rememberAsyncImagePainter(dog.imageUrl),
+                contentDescription = null,
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    text = dog.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = onBackgroundLight,
-                    maxLines = 1
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+            IconButton(
+                onClick = {viewModel.toggleStarredDog(dog)},
+            ){
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Compartir",
+                    tint = Color.Black
                 )
-
-                // Información de la raza y edad
-                Row(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = dog.breed,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = onSurfaceLight
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "·",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = onSurfaceLight
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "${dog.age} años",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = onSurfaceLight
-                    )
-                }
-
-                // Descripción
-                Text(
-                    text = dog.description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = onBackgroundLight
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = { navController.navigate("purchaseDescription/${dog.dogId}") },
-                    modifier = Modifier.align(Alignment.End)
-                    ) {
-                    Text(text = dog.status)
-                }
             }
         }
     }
 }
-
-

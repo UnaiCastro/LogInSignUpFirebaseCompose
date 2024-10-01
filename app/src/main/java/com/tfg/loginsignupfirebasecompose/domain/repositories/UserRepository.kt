@@ -41,5 +41,4 @@ interface UserRepository {
         coordinates: Map<String, Any>
     )
     suspend fun deleteBusinessInfo(userId: String)
-    suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?)
 }

@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,14 +26,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
-import com.example.compose.onErrorContainerLight
+import com.example.compose.errorLightHighContrast
 import com.example.compose.primaryContainerLightHighContrast
 import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
@@ -166,12 +164,7 @@ fun ProfileScreen(
                 IconButton(
                     onClick = {
                         // Aquí puedes llamar a la función para cambiar la imagen
-                        showImageSelectionDialog(
-                            context,
-                            changeImageLauncher,
-                            takePictureLauncher,
-                            photoUri
-                        )
+                        showImageSelectionDialog(context, changeImageLauncher, takePictureLauncher,photoUri)
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -210,31 +203,25 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally),
+            Row (
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
-            ) {
+            ){
                 Icon(
                     painter = painterResource(id = R.drawable.ic_location),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(18.dp) // Tamaño del icono
-                        .clip(CircleShape), // Espacio entre el icono y el texto
+                    modifier = Modifier.size(18.dp).clip(CircleShape).fillMaxWidth(),
                     tint = Color.Unspecified
                 )
-
-                // Texto justo a la derecha del icono
                 Text(
-                    text = adress, // Cambia `adress` por `address` si ese es el nombre correcto
+                    modifier = Modifier.fillMaxWidth(),
+                    text = adress,
+                    textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Black,
-                    modifier = Modifier.padding(start = 8.dp) // Espacio entre el icono y el texto
+                    color = Color.Black
                 )
             }
-
 
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -275,24 +262,14 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                onClick = {
-                    viewModel.logout()
-
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = onErrorContainerLight, // Color de fondo inicial del botón
-                    contentColor = Color.White, // Color de las letras en el estado inicial
-                ),
-                border = BorderStroke(
-                    1.dp,
-                    onErrorContainerLight
-                ), // Borde con el mismo rojo que el fondo
-                modifier = Modifier.padding(vertical = 8.dp),
-            ) {
+            TextButton(onClick = { viewModel.logout() }) {
                 Text(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp),
+                    textAlign = TextAlign.Center,
                     text = "Log Out",
                     style = MaterialTheme.typography.bodyMedium,
+                    color = errorLightHighContrast, // Puedes cambiar esto a errorLightHighContrast si es un color definido en tu tema
                 )
             }
         }
@@ -315,14 +292,9 @@ private fun showImageSelectionDialog(
                     if (photoUri != null) {
                         takePictureLauncher.launch(photoUri)
                     } else {
-                        Toast.makeText(
-                            context,
-                            "Error al crear el archivo para la imagen",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, "Error al crear el archivo para la imagen", Toast.LENGTH_SHORT).show()
                     }
                 }
-
                 1 -> {
                     // Seleccionar de galería
                     changeImageLauncher.launch("image/*")
@@ -353,9 +325,7 @@ fun ProfileRowItem(
             Icon(
                 painter = painterResource(id = iconResId),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape),
+                modifier = Modifier.size(60.dp).clip(CircleShape),
                 tint = Color.Unspecified
 
             )
