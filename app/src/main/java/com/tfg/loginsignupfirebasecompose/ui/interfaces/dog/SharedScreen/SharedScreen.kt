@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
@@ -78,7 +77,7 @@ fun DogItem(dog: Dog) {
             // Asumiendo que tu clase Dog tiene un campo 'name' y 'imageUri'
             Text(text = dog.name, style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(4.dp))
-            dog.imageUrl?.let { uri ->
+            dog.profileImageUrl?.let { uri ->
                 Image(
                     painter = rememberImagePainter(uri),
                     contentDescription = "Image of ${dog.name}",

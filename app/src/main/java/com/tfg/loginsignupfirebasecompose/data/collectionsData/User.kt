@@ -8,7 +8,7 @@ data class User(
     val type: String = "", // Tipo de usuario (particular o empresa)
     val address: String = "",
     val phone: String = "",
-    val coordinates: Map<String, Any> = emptyMap(), // Coordenadas del usuario
+    val region: String = "",
     val likedEstablishments: List<String> = emptyList(), // Lista de identificadores de establecimientos dados me gusta
     val starred_dogs: List<String> = emptyList(), // Lista de identificadores de perros marcados como favoritos
     val sharedDogs: List<String> = emptyList(), // Lista de identificadores de perros compartidos

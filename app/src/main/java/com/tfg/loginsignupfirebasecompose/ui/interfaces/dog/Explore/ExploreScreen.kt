@@ -10,7 +10,6 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.type.LatLng
 
 @Composable
 fun ExploreScreen(navController: NavHostController, viewModel: ExploreViewModel = hiltViewModel()) {
@@ -44,7 +43,6 @@ fun ExploreScreen(navController: NavHostController, viewModel: ExploreViewModel 
                         state = MarkerState(position = com.google.android.gms.maps.model.LatLng(latitude, longitude)),
                         title = establishment.name,
                         onInfoWindowClick = {
-                            // Navegar a la pantalla de descripción del establecimiento
                             navController.navigate("establishmentDescription/${establishment.establishmentId}")
                         }
                     )

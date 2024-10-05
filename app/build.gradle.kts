@@ -81,7 +81,6 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.espresso.core)
-    /*implementation(libs.androidx.compose.material3)*/
     implementation(libs.androidx.ui.test.android)
     implementation(libs.play.services.location)
     kapt(libs.dagger.hilt.compiler)

@@ -7,13 +7,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import com.example.compose.primaryContainerDark
 import com.example.compose.primaryLightHighContrast
-import com.example.compose.scrimLight
-import com.example.compose.secondaryContainerLightHighContrast
-import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.navigation.BottomNavItem
 
 

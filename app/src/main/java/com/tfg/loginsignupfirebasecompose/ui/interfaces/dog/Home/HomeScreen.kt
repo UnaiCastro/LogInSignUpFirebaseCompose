@@ -1,8 +1,9 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,16 +22,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -40,7 +36,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -55,29 +50,33 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.compose.tertiaryContainerLight
+import com.example.compose.onBackgroundLight
+import com.example.compose.onSurfaceLight
+import com.example.compose.primaryLight
 import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, innerNavController: NavHostController, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    innerNavController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
     var query by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     var selectedGender by remember { mutableStateOf("") }
@@ -89,9 +88,6 @@ fun HomeScreen(navController: NavController, innerNavController: NavHostControll
 
     val profileImageUrl by viewModel.profileImageUrl.collectAsState() // Cambiado a collectAsState
     val currentUser by viewModel.currentUser.collectAsState()
-/*
-    val dogs by viewModel.dogs.collectAsState()
-*/
 
     val starredDogs by viewModel.starredDogs.collectAsState()  // Asegúrate de recolectar esto si es necesario
     val sharedDogs by viewModel.sharedDogs.collectAsState()
@@ -108,20 +104,17 @@ fun HomeScreen(navController: NavController, innerNavController: NavHostControll
 
     }
 
-    // Llamar a la función cada vez que cambie algo
     LaunchedEffect(query, selectedBreed, selectedGender, selectedFilter) {
         updateFilters()
     }
+
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { destination ->
             innerNavController.navigate(destination)
-            viewModel.clearNavigationEvent() // Limpiar el evento después de navegar
+            viewModel.clearNavigationEvent()
         }
     }
-
-
-    // Function to toggle drawer
-
+    
     fun toggleDrawer() {
         scope.launch {
             if (drawerState.isClosed) {
@@ -151,7 +144,15 @@ fun HomeScreen(navController: NavController, innerNavController: NavHostControll
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                 // Fondo más claro y limpio
         ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.background4),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            )
 
             // Column that contains all elements
             Column(
@@ -160,46 +161,54 @@ fun HomeScreen(navController: NavController, innerNavController: NavHostControll
                     .padding(16.dp)
             ) {
 
-                Row (modifier = Modifier.padding(vertical = 16.dp)){
+                // Header con imagen de perfil y bienvenida
+                Row(modifier = Modifier.padding(vertical = 16.dp)) {
                     val painter = rememberAsyncImagePainter(profileImageUrl)
                     Image(
                         painter = painter,
                         contentDescription = "Default Profile Image",
                         modifier = Modifier
                             .clip(CircleShape)
-                            .width(60.dp)
-                            .height(60.dp),
+                            .size(60.dp),
                         contentScale = ContentScale.Crop
                     )
 
                     Text(
-                        modifier = Modifier.padding(start = 8.dp).align(Alignment.CenterVertically),
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .align(Alignment.CenterVertically),
                         text = "Welcome, $currentUser",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.headlineSmall,
                         color = Color.Black
                     )
-
-
-
                 }
+
                 Text(
                     text = "FIND YOUR DOG",
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium,
-
+                    style = MaterialTheme.typography.titleLarge,
                 )
 
-                // Search Bar placed after "Dogs" text
                 SearchBar(
                     query = query,
                     onQueryChange = { newQuery -> query = newQuery },
                     onSearch = { /* Perform search action */ },
-                    placeholder = { Text("Search...") },
-                    leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
+                    placeholder = { Text("Search...", color = onSurfaceLight) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = null,
+                            tint = primaryLight  // Ícono gris claro
+                        )
+                    },
                     trailingIcon = {
                         IconButton(onClick = { toggleDrawer() }) {
-                            Icon(painter = painterResource(id = R.drawable.ic_tune), contentDescription = "Filter")
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_tune),
+                                contentDescription = "Filter",
+                                tint = primaryLight  // Ícono verde para consistencia
+                            )
                         }
                     },
                     modifier = Modifier
@@ -210,6 +219,7 @@ fun HomeScreen(navController: NavController, innerNavController: NavHostControll
                     content = {}
                 )
 
+                // Lista de perros
                 LazyColumn {
                     items(filteredDogs) { dog ->
                         DogCard(
@@ -226,7 +236,6 @@ fun HomeScreen(navController: NavController, innerNavController: NavHostControll
         }
     }
 }
-
 
 
 @Composable
@@ -246,92 +255,132 @@ fun DogCard(
             .border(
                 width = 2.dp,
                 color = Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
             ),
         colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = if (isStarred) Color.Yellow else tertiaryContainerLight
-        )
-
+            containerColor = if (isStarred) Color(0xFFFFF9C4) else Color(0xFFF5F5F5)
+        ),
+        elevation = CardDefaults.cardElevation(8.dp) // Elevación para dar efecto de profundidad
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Imagen del perro
+            Box (modifier = Modifier.size(110.dp)) {
+                Image(
+                    painter = rememberAsyncImagePainter(dog.profileImageUrl),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "Dog Image",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .border(1.dp, Color.Black, CircleShape)
+                )
+
+                IconButton(
+                    onClick = { onToggleStarred(dog.dogId) },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                ) {
+                    Icon(
+                        imageVector = if (isStarred) Icons.Filled.Star else Icons.Filled.Star,
+                        contentDescription = if (isStarred) "Guardado" else "Guardar",
+                        tint = if (isStarred) Color(0xFFFFF9C4) else Color.Black, // Amarillo si está guardado
+                        modifier = Modifier
+                            .size(25.dp)
+                            .background(primaryLight.copy(alpha = 0.7f), CircleShape)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Información del perro y botones
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(end = 16.dp)
             ) {
                 Text(
                     text = dog.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
+                    color = onBackgroundLight,
                     maxLines = 1
                 )
-                Row(modifier = Modifier.padding(vertical = 8.dp)) {
-                    Text(text = dog.breed, style = MaterialTheme.typography.bodyLarge)
+
+                // Información de la raza y edad
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = dog.breed,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = onSurfaceLight
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "·",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(horizontal = 2.dp)
+                        color = onSurfaceLight
                     )
-                    Text(text = "${dog.age} years", style = MaterialTheme.typography.bodyLarge)
-                }
-                Text(text = "${dog.price} USD", style = MaterialTheme.typography.bodyLarge)
-
-                // Botón de estrella para marcar como favorito
-                Row(
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                        .fillMaxWidth()
-                ) {
-                    IconButton(onClick = { onToggleStarred(dog.dogId) }) {
-                        Icon(
-                            imageVector = if (isStarred) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = "Star",
-                            tint = if (isStarred) Color.Yellow else Color.Gray
-                        )
-                    }
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (isStarred) "Guardado" else "Guardar",
+                        text = "${dog.age} años",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        color = onSurfaceLight
                     )
                 }
 
-                // Botón de compartir con icono dinámico
-                Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                    Button(onClick = {  viewModel.navigateToPurchaseDescription(dog.dogId) }) {
-                        Text(text = dog.status)
-                    }
-                    TextButton(onClick = { viewModel.navigateToChat(dog.dogId) }) {
-                        Text(text = "Chat with me")
+                // Precio
+                Text(
+                    text = "${dog.price} USD",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = onBackgroundLight
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    TextButton(
+                        onClick = { onToggleShared(dog.dogId) },
+                        modifier = Modifier.padding(end = 8.dp) // Espacio entre botones
+                    ) {
+                        if (isShared) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "Compartido",
+                                tint = Color.Green,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                        } else {
+                            Text(text = "Share")
+                        }
                     }
 
-                    // Botón de compartir
-                    IconButton(onClick = { onToggleShared(dog.dogId) }) {
-                        Icon(
-                            imageVector = if (isShared) Icons.Filled.Check else Icons.Filled.Share,  // Si está compartido, icono de check
-                            contentDescription = if (isShared) "Shared" else "Share",
-                            tint = if (isShared) Color.Green else Color.DarkGray  // Verde si está compartido
-                        )
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = { viewModel.navigateToPurchaseDescription(dog.dogId) },
+
+                    ) {
+                        Text(text = dog.status)
                     }
                 }
             }
-
-            // Imagen del perro
-            Image(
-                painter = rememberAsyncImagePainter(dog.imageUrl),
-                contentScale = ContentScale.Crop,
-                contentDescription = "Dog Image",
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.CenterVertically),
-            )
         }
     }
 }
-
-
 
 
 @Composable
@@ -344,28 +393,16 @@ fun DrawerContent(
     onGenderChange: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
-        /*Text("Map", style = MaterialTheme.typography.titleLarge,fontWeight = FontWeight.Bold,)
-        FilterChipCage(
-            text = "All",
-            isSelected = selectedFilter == "All",
-            onSelectionChange = { onFilterChange("All") }
-        )
-        FilterChipCage(
-            text = "Around me",
-            isSelected = selectedFilter == "Around me",
-            onSelectionChange = { onFilterChange("Around me") }
-        )*/
 
-        /*Spacer(modifier = Modifier.height(16.dp))*/
-
-        Text("Breed", style = MaterialTheme.typography.titleLarge,fontWeight = FontWeight.Bold,)
+        // Sección de filtro por raza
+        Text("Breed", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         FilterChipCage(
             text = "All",
             isSelected = selectedBreed == "All",
             onSelectionChange = { onBreedChange("All") }
         )
         FilterChipCage(
-            text = "GoldenRetriever",
+            text = "Golden Retriever",
             isSelected = selectedBreed == "Golden Retriever",
             onSelectionChange = { onBreedChange("Golden Retriever") }
         )
@@ -382,7 +419,8 @@ fun DrawerContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Gender", style = MaterialTheme.typography.titleLarge,fontWeight = FontWeight.Bold,)
+        // Sección de filtro por género
+        Text("Gender", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         FilterChipCage(
             text = "Male",
             isSelected = selectedGender == "Male",
@@ -397,9 +435,8 @@ fun DrawerContent(
 }
 
 
-
 @Composable
-private fun FilterChipCage(
+fun FilterChipCage(
     text: String,
     isSelected: Boolean,
     onSelectionChange: (Boolean) -> Unit
@@ -407,18 +444,19 @@ private fun FilterChipCage(
     FilterChip(
         modifier = Modifier.padding(horizontal = 4.dp),
         onClick = { onSelectionChange(!isSelected) },
-        label = { Text(text) },
+        label = { Text(text)}, // Texto cambia de color si está seleccionado
         selected = isSelected,
         leadingIcon = if (isSelected) {
             {
                 Icon(
                     imageVector = Icons.Filled.Done,
                     contentDescription = "Done icon",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
                 )
             }
         } else {
             null
-        }
+        },
+
     )
 }

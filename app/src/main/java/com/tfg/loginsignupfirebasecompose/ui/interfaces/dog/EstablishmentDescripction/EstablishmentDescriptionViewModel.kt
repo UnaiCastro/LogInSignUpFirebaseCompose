@@ -22,6 +22,7 @@ class EstablishmentDescriptionViewModel @Inject constructor(
 
 
     suspend fun getEstablishmentDetails(establishmentId: String): Establishment? {
+        Log.d("EstablishmentDetails", "Obteniendo detalles del establecimiento con ID: $establishmentId")
         return try {
             establishmentRepository.getEstablishmentById(establishmentId)
         } catch (e: Exception) {

@@ -18,11 +18,11 @@ class DogRepositoryImpl @Inject constructor(
             val querySnapshot = db.collection(FirestoreCollections.dogs)
                 .whereEqualTo("owner_id", ownerId)
                 .get()
-                .await() // Espera el resultado de la llamada asíncrona
+                .await()
             querySnapshot.toObjects(Dog::class.java)
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener los perros", e)
-            emptyList() // Si hay un error, retornamos una lista vacía
+            emptyList()
         }
     }
 
@@ -104,9 +104,10 @@ class DogRepositoryImpl @Inject constructor(
                 "status" to dog.status,
                 "owner_id" to dog.owner_id,
                 "shared_dog_userId" to dog.shared_dog_userId,
-                "profileImageUrl" to dog.imageUrl
+                "profileImageUrl" to dog.profileImageUrl
             )
             db.collection(FirestoreCollections.dogs).add(dogData).await()
+            Log.d("DogRepository", "Dog uploaded successfully")
         } catch (e: Exception) {
             Log.e("DogRepository", "Error uploading dog: ${e.message}")
         }
@@ -125,6 +126,14 @@ class DogRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("DogRepository", "Error adopting or buying dog: ${e.message}")
+        }
+    }
+
+    override suspend fun deleteDog(dogId: String) {
+        try {
+            db.collection(FirestoreCollections.dogs).document(dogId).delete().await()
+        } catch (e: Exception) {
+            Log.e("DogRepository", "Error deleting dog: ${e.message}")
         }
     }
 

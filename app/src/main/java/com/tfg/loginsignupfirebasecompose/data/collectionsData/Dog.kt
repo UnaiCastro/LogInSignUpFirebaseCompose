@@ -7,7 +7,7 @@ data class Dog(
     val age: Int = 0,
     val gender: String = "",
     val description: String = "",
-    val imageUrl: String = "",
+    val profileImageUrl: String = "",
     val owner_id: String = "",
     val status: String = "",
     val price: Int = 0,

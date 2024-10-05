@@ -1,6 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.EstablishmentDescripction
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,20 +19,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,214 +57,273 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.tfg.loginsignupfirebasecompose.R
+import com.example.compose.onBackgroundLight
+import com.example.compose.onSurfaceLight
+import com.example.compose.primaryLight
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Establishment
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EstablishmentDescriptionScreen(
     establishmentId: String,
     navController: NavHostController,
     viewModel: EstablishmentDescriptionViewModel = hiltViewModel()
 ){
-    // Estados para almacenar los datos del establecimiento y los perros
     var establishment by remember { mutableStateOf<Establishment?>(null) }
     var dogs by remember { mutableStateOf<List<Dog>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) } // Estado de carga
+    var isLoading by remember { mutableStateOf(true) }
 
-    // Ejecutamos la corutina dentro de LaunchedEffect para cargar los datos
+
     LaunchedEffect(establishmentId) {
         isLoading = true
-        // Llamar a la función suspendida para obtener los detalles del establecimiento
         establishment = viewModel.getEstablishmentDetails(establishmentId)
         establishment?.let {
-            // Si se obtiene el establecimiento, buscar los perros asociados
             dogs = viewModel.getDogsByOwner(it.owner_id)
         }
         isLoading = false
     }
 
-    // Mostrar un indicador de carga mientras se obtienen los datos
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White,
+
+                ),
+                actions = {
+                    IconButton(onClick = { /* Acción del ícono */ }) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Settings")  // Puedes cambiar el ícono aquí
+                    }
+                },
+            )
         }
-    } else {
-        // Mostrar la interfaz solo si ya no estamos cargando
-        establishment?.let {
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Imagen de fondo
-                Image(
-                    painter = painterResource(id = R.drawable.goldenretrieverbaby), // reemplaza con tu imagen
-                    contentDescription = "Establishment Image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp) // Ocupa la parte superior (200.dp alto ajustable)
-                )
+    ) { paddingValues ->
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
 
-                // Botón de retroceso en la esquina superior izquierda
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(16.dp)
-                ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                }
-
-                // Card con información del establecimiento
-                OutlinedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .align(Alignment.TopCenter)
-                        .offset(y = 120.dp) // Colocarlo debajo de la imagen
-                ) {
-                    Column(
+            establishment?.let { est ->
+                val painter = rememberAsyncImagePainter(est.establishmentImage)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = painter,
+                        contentDescription = "Establishment Image",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .height(350.dp)
+                            .padding(paddingValues)
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 0.dp)
                     ) {
-                        Text(
-                            text = "Nombre: ${it.name}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "Dirección: ${it.adress}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "Teléfono: ${it.phone}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Spacer(modifier = Modifier.height(220.dp))
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = "Likes")
-                            Text(text = " ${it.liked_users.size}", style = MaterialTheme.typography.bodyLarge)
+                        ElevatedCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .offset(y = 40.dp),
+                            elevation = CardDefaults.elevatedCardElevation(8.dp),
+                            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) // Curvatura para que la tarjeta se vea elegante
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Nombre: ${est.name}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = est.adress,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = est.phone,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Favorite, contentDescription = "Likes")
+                                    Text(text = " ${est.liked_users.size}", style = MaterialTheme.typography.bodyLarge)
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    text = "Perros:",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.align(Alignment.Start)
+                                )
+
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(300.dp)
+                                ) {
+                                    items(dogs) { dog ->
+                                        DogCard(dog = dog)
+                                    }
+                                }
+                            }
                         }
-                    }
-
-                }
-
-                // Espacio entre la Card y el LazyColumn
-                /*Spacer(modifier = Modifier.height(16.dp))*/
-
-
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(top = 290.dp, start = 16.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Start,
-                    style = MaterialTheme.typography.titleLarge,
-                    text = "Perros:",
-                )
-                // LazyColumn con los perros asociados al dueño del establecimiento
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 320.dp) // Ajusta para que empiece debajo de la Card
-                ) {
-                    items(dogs) { dog ->
-                        DogCard(dog = dog) // Muestra cada perro en una tarjeta
                     }
                 }
             }
         }
     }
+
+
 }
 
 @Composable
 fun DogCard(dog: Dog) {
-    ElevatedCard (
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .border(color = Color.Yellow, width = 2.dp),
+            .padding(horizontal = 10.dp, vertical = 8.dp)
+            .border(
+                width = 2.dp,
+                color = Color.Transparent,
+                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
+            ),
         colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = /*if (isStarred) Color(0xFFFFF9C4) else */Color(0xFFF5F5F5)
         ),
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        )
-
+        elevation = CardDefaults.cardElevation(8.dp) // Elevación para dar efecto de profundidad
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Imagen del perro
+            Box (modifier = Modifier.size(110.dp)) {
+                Image(
+                    painter = rememberAsyncImagePainter(dog.profileImageUrl),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "Dog Image",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .border(1.dp, Color.Black, CircleShape)
+                )
 
-            Column(modifier = Modifier.weight(1f).fillMaxHeight().padding(end = 16.dp)) {
+                IconButton(
+                    onClick = { /*onToggleStarred(dog.dogId) */},
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                ) {
+                    Icon(
+                        imageVector = /*if (isStarred) */Icons.Filled.Star /*else Icons.Filled.Star*/,
+                        contentDescription = /*if (isStarred) */"Guardado" /*else "Guardar"*/,
+                        tint = /*if (isStarred) Color(0xFFFFF9C4) else */Color.Black, // Amarillo si está guardado
+                        modifier = Modifier
+                            .size(25.dp)
+                            .background(primaryLight.copy(alpha = 0.7f), CircleShape)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Información del perro y botones
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
                 Text(
                     text = dog.name,
-                    style = MaterialTheme.typography.titleMedium ,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
+                    color = onBackgroundLight,
                     maxLines = 1
                 )
-                Row(modifier = Modifier.padding(vertical = 8.dp)) {
+
+                // Información de la raza y edad
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         text = dog.breed,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = onSurfaceLight
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "·",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(horizontal = 2.dp).align(Alignment.CenterVertically)
+                        color = onSurfaceLight
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = dog.age.toString(),
+                        text = "${dog.age} años",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 0.dp)
+                        color = onSurfaceLight
                     )
                 }
 
+                // Precio
                 Text(
-                    text = dog.price.toString(),
-                    style = MaterialTheme.typography.bodyLarge
+                    text = "${dog.price} USD",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = onBackgroundLight
                 )
-                Row(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()) {
-                    IconButton(
-                        onClick = { /* Handle button click */ },
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                    ) {
-                        Icon(imageVector = Icons.Filled.Star, contentDescription = "Star")
-                    }
-                    Text(
-                        text = " 100",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 1.dp).align(Alignment.CenterVertically)
-                    )
-                }
-                Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                    Button(
-                        onClick = { /* Handle button click */ },
-                        modifier = Modifier.padding(end = 2.dp),
-                    ) {
-                        Text(text = "Buy")
-                    }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
                     TextButton(
-                        onClick = { /* Handle button click */ },
-                        modifier = Modifier.padding(end = 2.dp),
+                        onClick = { /*onToggleShared(dog.dogId)*/ },
+                        modifier = Modifier.padding(end = 8.dp) // Espacio entre botones
                     ) {
-                        Text(text = "Contactar")
-                    }
-                    IconButton(
-                        onClick = { /* Handle button click */ },
-                        modifier = Modifier.padding(end = 2.dp).size(20.dp).align(Alignment.CenterVertically),
-                    ) {
-                        Icon(imageVector = Icons.Filled.Share, contentDescription = "Share",tint = Color.DarkGray)
+                        Text(text = "Share")
+                        /*if (isShared) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "Compartido",
+                                tint = Color.Green,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                        } else {*/
+
+                        /*}*/
                     }
 
+                    Spacer(modifier = Modifier.width(8.dp))
 
+                    Button(
+                        onClick = { /*viewModel.navigateToPurchaseDescription(dog.dogId)*/ },
+
+                        ) {
+                        Text(text = dog.status)
+                    }
                 }
             }
-            val painter = rememberAsyncImagePainter(dog.imageUrl)
-            Image(
-                painter = painter,
-                contentScale = ContentScale.Crop,
-                contentDescription = "Default Profile Image",
-                modifier = Modifier
-                    .size(90.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.CenterVertically),
-            )
         }
-        
     }
 }

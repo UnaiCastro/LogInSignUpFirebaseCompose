@@ -3,7 +3,6 @@ package com.tfg.loginsignupfirebasecompose.domain.repositories
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Chat
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
-import java.io.Serializable
 
 interface UserRepository {
     suspend fun getUserName(uid: String): String?
@@ -14,7 +13,7 @@ interface UserRepository {
     suspend fun getUserChatRooms(uid: String): List<String>
     suspend fun getUserDetailsById(otherUserId: String): User?
     suspend fun getDogDetailsById(dogId: String): Dog?
-    suspend fun saveEstablishment(uid: String, establishment: HashMap<String, Serializable>): Result<Unit>
+    suspend fun saveEstablishment(establishment: HashMap<String, Any>): Result<String>
     suspend fun getStarredDogs(uid: String): List<String>?
     suspend fun updateStarredDogs(uid: String, currentStarred: MutableList<String>)
     suspend fun getSharedDogs(uid: String): List<String>
@@ -38,7 +37,9 @@ interface UserRepository {
         name: String,
         address: String,
         phone: String,
-        coordinates: Map<String, Any>
+        latitude: Double,
+        longitude: Double
     )
     suspend fun deleteBusinessInfo(userId: String)
+    suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?)
 }

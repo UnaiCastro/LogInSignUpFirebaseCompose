@@ -10,7 +10,6 @@ import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import kotlinx.coroutines.tasks.await
-import java.io.Serializable
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -59,12 +58,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getChatsByIds(chatRoomIds: List<String>): List<Chat> {
         return try {
-
-            val snapshot = db.collection("chats")
+            val snapshot = db.collection(FirestoreCollections.chats)
                 .whereIn(FieldPath.documentId(), chatRoomIds)
                 .get()
                 .await()
-
             snapshot.documents.map { document ->
                 Chat(
                     chatId = document.id,
@@ -76,8 +73,6 @@ class UserRepositoryImpl @Inject constructor(
                     messages = document.get("messages") as? List<String> ?: emptyList()
                 )
             }
-
-
         } catch (e: Exception) {
             Log.e("ChatRepository", "Error fetching chats", e)
             emptyList()
@@ -90,7 +85,6 @@ class UserRepositoryImpl @Inject constructor(
                 .document(userId)
                 .get()
                 .await()
-
             document.get("chat_rooms") as? List<String> ?: emptyList()
         } catch (e: Exception) {
             Log.e("ChatRepository", "Error fetching chat rooms", e)
@@ -100,48 +94,49 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getUserDetailsById(userId: String): User? {
         return try {
-            // Referencia a la colección de usuarios en Firestore
-            val document = db.collection("users").document(userId).get().await()
-
-            // Si el documento existe, mapeamos los datos al objeto User
+            val document = db.collection(FirestoreCollections.users).document(userId).get().await()
             if (document.exists()) {
-                val user = document.toObject(User::class.java) // Convierte el documento en un objeto User
+                val user = document.toObject(User::class.java)
                 user?.let {
-                    it.userId = document.id // Asignamos el id del documento al objeto User
+                    it.userId = document.id
                 }
                 user
             } else {
-                null // En caso de que no exista el documento, devolvemos null
+                null
             }
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error fetching user details for userId: $userId", e)
-            null // En caso de error, devolvemos null
+            null
         }
     }
 
-
     override suspend fun getDogDetailsById(dogId: String): Dog? {
         return try {
-            // Referencia a la colección de perros en Firestore
-            val document = db.collection("dogs").document(dogId).get().await()
-
-            // Si el documento existe, mapeamos los datos al objeto Dog
+            val document = db.collection(FirestoreCollections.dogs).document(dogId).get().await()
             if (document.exists()) {
-                document.toObject(Dog::class.java) // Convierte el documento en un objeto Dog
+                document.toObject(Dog::class.java)
             } else {
-                null // En caso de que no exista el documento, devolvemos null
+                null
             }
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error fetching dog details for dogId: $dogId", e)
-            null // En caso de error, devolvemos null
+            null
         }
     }
 
     override suspend fun saveEstablishment(
-        uid: String,
-        establishment: HashMap<String, Serializable>
-    ): Result<Unit> {
-        TODO("Not yet implemented")
+        establishment: HashMap<String, Any>
+    ): Result<String> { // Cambiar a devolver un String que será el ID del establecimiento
+        return try {
+            // Suponiendo que estás usando Firestore
+            val db = FirebaseFirestore.getInstance()
+            val documentReference = db.collection(FirestoreCollections.establishments) // Nombre de la colección
+                .add(establishment) // Usa add para crear el documento y obtener el ID
+                .await() // Espera a que se complete la operación
+            Result.success(documentReference.id) // Devuelve el ID del documento creado
+        } catch (e: Exception) {
+            Result.failure(e) // Devuelve el error si falla
+        }
     }
 
     override suspend fun getStarredDogs(uid: String): List<String> {
@@ -161,7 +156,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateStarredDogs(uid: String, currentStarred: MutableList<String>) {
         try {
-            val documentRef = db.collection("users").document(uid)
+            val documentRef = db.collection(FirestoreCollections.users).document(uid)
             val documentSnapshot = documentRef.get().await()
 
             if (documentSnapshot.exists()) {
@@ -251,18 +246,12 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getSharedDogsObject(currentUser: String): List<Dog> {
         val userRepository = UserRepositoryImpl(db)
         return try {
-            // Recupera al usuario actual desde la base de datos
             val user = userRepository.getUserDetailsById(currentUser)
-
-            // Si el usuario tiene una lista de perros compartidos
             val sharedDogIds = user!!.sharedDogs ?: emptyList()
-
-            // Obtener el objeto de cada perro usando su ID
             sharedDogIds.mapNotNull { dogId ->
-                userRepository.getDogDetailsById(dogId) // Esto asume que tienes un método que obtiene un perro por su ID
+                userRepository.getDogDetailsById(dogId)
             }
         } catch (e: Exception) {
-            // Manejar la excepción, puedes retornar una lista vacía o lanzar de nuevo la excepción
             emptyList()
         }
     }
@@ -270,25 +259,19 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getStarredDogsObject(currentUser: String): List<Dog> {
         val userRepository = UserRepositoryImpl(db)
         return try {
-            // Recupera al usuario actual desde la base de datos
             val user = userRepository.getUserDetailsById(currentUser)
-
-            // Si el usuario tiene una lista de perros compartidos
             val starredDogIds = user!!.starred_dogs ?: emptyList()
-
-            // Obtener el objeto de cada perro usando su ID
             starredDogIds.mapNotNull { dogId ->
                 userRepository.getDogDetailsById(dogId)
             }
         } catch (e: Exception) {
-            // Manejar la excepción, puedes retornar una lista vacía o lanzar de nuevo la excepción
             emptyList()
         }
     }
 
     override suspend fun updateStarredDogsById(uid: String, dogId: String) {
         try {
-            db.collection("users").document(uid).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
+            db.collection(FirestoreCollections.users).document(uid).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al actualizar perros favoritos", e)
         }
@@ -296,7 +279,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun addNewDog(dogId: String, uid: String) {
         try {
-            db.collection("users").document(uid).update("dogs", FieldValue.arrayUnion(dogId)).await()
+            db.collection(FirestoreCollections.users).document(uid).update("dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception){
             Log.e("FirestoreError", "Error al actualizar perros union ", e)
         }
@@ -304,7 +287,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun deleteDog(dogId: String, uid: String) {
         try {
-            db.collection("users").document(uid).update("dogs", FieldValue.arrayRemove(dogId)).await()
+            db.collection(FirestoreCollections.users).document(uid).update("dogs", FieldValue.arrayRemove(dogId)).await()
         } catch (e: Exception){
             Log.e("FirestoreError", "Error al actualizar perros delete", e)
         }
@@ -312,7 +295,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun addChatToRoomChat(createdChat: String, uid: String) {
         try {
-            db.collection("users").document(uid).update("chat_rooms", FieldValue.arrayUnion(createdChat)).await()
+            db.collection(FirestoreCollections.users).document(uid).update("chat_rooms", FieldValue.arrayUnion(createdChat)).await()
         } catch (e: Exception){
             Log.e("FirestoreError", "Error al actualizar chatroom", e)
         }
@@ -329,7 +312,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUserProfileImage(imageUrl: String?, uid: String) {
         try {
-            db.collection("users").document(uid).update("profileImageUrl", imageUrl).await()
+            db.collection(FirestoreCollections.users).document(uid).update("profileImageUrl", imageUrl).await()
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al actualizar la imagen de perfil", e)
         }
@@ -337,7 +320,7 @@ class UserRepositoryImpl @Inject constructor(
 
     private suspend fun updateUserField(userId: String, field: String, value: Any) {
         try {
-            db.collection("users").document(userId)
+            db.collection(FirestoreCollections.users).document(userId)
                 .update(field, value)
                 .await()
         } catch (e: Exception) {
@@ -350,8 +333,13 @@ class UserRepositoryImpl @Inject constructor(
         name: String,
         address: String,
         phone: String,
-        coordinates: Map<String, Any>
+        latitude: Double,
+        longitude: Double
     ) {
+        val coordinates = hashMapOf(
+            "latitude" to latitude,
+            "longitude" to longitude
+        )
         val establishment = hashMapOf(
             "name" to name,
             "address" to address,
@@ -381,6 +369,17 @@ class UserRepositoryImpl @Inject constructor(
             Log.e("FirestoreError", "Error al eliminar la información del establecimiento", e)
         }
 
+    }
+
+    override suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?) {
+        try {
+            db.collection(FirestoreCollections.users)
+                .document(userId)
+                .update("coordinates", mapOf("latitude" to coords?.first, "longitude" to coords?.second))
+                .await()
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al guardar la información de la comunidad", e)
+        }
     }
 
 

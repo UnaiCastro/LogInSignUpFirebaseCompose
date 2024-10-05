@@ -20,7 +20,8 @@ class EstablishmentRepositoryImpl @Inject constructor(
                 val data = document.data
                 val name = data?.get("name") as? String ?: "Unknown"
                 val coordinates = data?.get("coordinates") as? Map<String, Double> ?: emptyMap()
-                val phone = data?.get("phone") as? Long ?: 0
+                val phone = data?.get("phone") as? String ?: ""
+                val establishmentImage = data?.get("establishmentImage") as? String ?: ""
                 val adress = data?.get("adress") as? String ?: "Unknown"
                 val owner_id = data?.get("owner_id") as? String ?: "Unknown"
                 val liked_users = data?.get("likes") as? List<String> ?: emptyList()
@@ -31,13 +32,14 @@ class EstablishmentRepositoryImpl @Inject constructor(
 
                 if (latitude != null && longitude != null) {
                     Establishment(
+                        establishmentId = document.id,
                         name = name,
+                        adress = adress,
+                        establishmentImage = establishmentImage,
                         coordinates = coordinates,
                         phone = phone,
-                        adress = adress,
                         owner_id = owner_id,
                         liked_users = liked_users,
-                        establishmentId = document.id,
 
                     )
                 } else {
@@ -63,19 +65,21 @@ class EstablishmentRepositoryImpl @Inject constructor(
                 val data = document.data
                 val name = data?.get("name") as? String ?: "Unknown"
                 val coordinates = data?.get("coordinates") as? Map<String, Double> ?: emptyMap()
-                val phone = data?.get("phone") as? Long ?: 0
-                val address = data?.get("adress") as? String ?: "Unknown"
+                val phone = data?.get("phone") as? String ?: "0"
+                val establishmentImage = data?.get("establishmentImage") as? String ?: ""
+                val address = data?.get("address") as? String ?: "Unknown"
                 val ownerId = data?.get("owner_id") as? String ?: "Unknown"
                 val liked_users = data?.get("likes") as? List<String> ?: emptyList()
 
                 Establishment(
+                    establishmentId = document.id,
                     name = name,
+                    adress = address,
+                    establishmentImage = establishmentImage,
                     coordinates = coordinates,
                     phone = phone,
-                    adress = address,
                     owner_id = ownerId,
-                    liked_users = liked_users,
-                    establishmentId = document.id
+                    liked_users = liked_users
                 )
             } else {
                 null

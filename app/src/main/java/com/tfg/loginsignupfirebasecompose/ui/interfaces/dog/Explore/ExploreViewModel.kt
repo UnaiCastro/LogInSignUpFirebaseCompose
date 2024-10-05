@@ -22,7 +22,6 @@ class ExploreViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val establishmentRepository: EstablishmentRepository
 ) : ViewModel() {
-    // Aquí puedes agregar lógica específica para la pantalla de exploración
 
     var establishments by mutableStateOf<List<Establishment>>(emptyList())
         private set

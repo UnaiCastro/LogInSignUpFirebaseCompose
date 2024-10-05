@@ -118,7 +118,7 @@ class ProfileViewModel @Inject constructor(
             val storageRef = storage.reference.child("profile_images/${UUID.randomUUID()}.jpg")
             if (newImageUri != null) {
                 storageRef.putFile(newImageUri).await()
-            } // Utiliza Kotlin Coroutines para esperar la subida
+            }
 
             // Obtener el URL de descarga
             storageRef.downloadUrl.await().toString()
