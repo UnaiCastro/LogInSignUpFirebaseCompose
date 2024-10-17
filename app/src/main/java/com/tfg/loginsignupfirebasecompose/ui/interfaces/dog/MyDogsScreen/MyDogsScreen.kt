@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -29,16 +30,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,6 +53,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.compose.onBackgroundLight
 import com.example.compose.onSurfaceLight
 import com.example.compose.primaryLight
+import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 
 
@@ -67,7 +74,7 @@ fun MyDogsScreen(navController: NavHostController, viewModel: MyDogsViewModel = 
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = 35.dp), // Compensamos el espacio del icono de la izquierda
+                            .padding(end = 35.dp),
 
                         contentAlignment = Alignment.Center
                     ) {
@@ -82,9 +89,20 @@ fun MyDogsScreen(navController: NavHostController, viewModel: MyDogsViewModel = 
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                )
             )
         }
     ){
+
+        Image(
+            painter = painterResource(id = R.drawable.background4),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+        )
+
        Column(
            modifier = Modifier
                .fillMaxSize()
@@ -92,9 +110,25 @@ fun MyDogsScreen(navController: NavHostController, viewModel: MyDogsViewModel = 
                .padding(16.dp),
 
        ) {
-           Button(
-               onClick = { navController.navigate("uploadDog") }) {
-               Text(text = "Upload Dog")
+           Box(
+               modifier = Modifier.fillMaxWidth(),
+               contentAlignment = Alignment.TopEnd // Alinea el contenido dentro de Box a la derecha
+           ) {
+               TextButton(
+                   onClick = { navController.navigate("uploadDog") },
+                   modifier = Modifier
+                       .padding(vertical = 8.dp)
+               ) {
+                   Row(
+                       verticalAlignment = Alignment.CenterVertically
+                   ) {
+                       Icon(
+                           imageVector = Icons.Default.Add, // Usar el ícono de más
+                           contentDescription = "Add Dog",
+                       )
+                       Text(text = "Upload Dog")
+                   }
+               }
            }
 
            LazyColumn {

@@ -1,5 +1,6 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Settings
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,9 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
@@ -34,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,6 +46,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -49,6 +55,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -56,6 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.primaryLight
+import com.tfg.loginsignupfirebasecompose.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,25 +75,21 @@ fun SettingsScreen(
     val phone by viewModel.phone.collectAsState()
     val address by viewModel.address.collectAsState()
     val profileImageUrl by viewModel.profileImageUrl.collectAsState()
-    val userType by viewModel.userType.collectAsState()
+    val type by viewModel.type.collectAsState()
+    val regions by viewModel.regions.collectAsState()
+
+    // Campos para empresa
+    val companyName by viewModel.companyName.collectAsState()
+    val companyPhone by viewModel.companyPhone.collectAsState()
+    val companyAddress by viewModel.companyAddress.collectAsState()
+    val companyCoordinates by viewModel.companyCoordinates.collectAsState()
 
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
 
     var showBusinessDialog by remember { mutableStateOf(false) }
     var showConfirmDialog by remember { mutableStateOf(false) }
-
-    var businessName by remember { mutableStateOf("") }
-    var businessPhone by remember { mutableStateOf("") }
-    var businessAddress by remember { mutableStateOf("") }
-
-    fun showBusinessDialog() {
-        showBusinessDialog = true
-    }
-
-    fun showConfirmDialog() {
-        showConfirmDialog = true
-    }
 
     val autonomousCommunities = listOf(
         "Andalucía" to Pair(37.3891, -5.9845), // Sevilla
@@ -116,7 +120,7 @@ fun SettingsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = 35.dp), // Compensamos el espacio del icono de la izquierda
+                            .padding(end = 35.dp),
 
                         contentAlignment = Alignment.Center
                     ) {
@@ -131,23 +135,34 @@ fun SettingsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         }
     ) { paddingValues ->
 
+        Image(
+            painter = painterResource(id = R.drawable.background4),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // Aquí agregamos el padding
+                .padding(paddingValues)
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, // Centra el contenido horizontalmente
+            horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(
-                modifier = Modifier.size(120.dp), // Tamaño de la imagen
+                modifier = Modifier.size(120.dp),
                 contentAlignment = Alignment.Center
             ) {
                 if (profileImageUrl.isNotEmpty()) {
@@ -222,8 +237,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             var expanded by remember { mutableStateOf(false) }
-            var selectedCommunity by remember { mutableStateOf("") }
-            var coordinates by remember { mutableStateOf<Pair<Double, Double>?>(null) }
+
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = {
@@ -231,8 +245,8 @@ fun SettingsScreen(
                 }
             ) {
                 OutlinedTextField(
-                    value = selectedCommunity,
-                    onValueChange = { },
+                    value = regions,
+                    onValueChange = { viewModel.updateRegions(it) },
                     label = { Text("Comunidad Autónoma") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -240,27 +254,19 @@ fun SettingsScreen(
                     readOnly = true,
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    }
+                    },
                 )
 
                 ExposedDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    autonomousCommunities.forEach { (community, coord) -> // Usamos desestructuración
+                    autonomousCommunities.forEach { (communityName, coordinates) ->
                         DropdownMenuItem(
-                            text = { Text(community) },
+                            text = { Text(text = communityName) },
                             onClick = {
-                                selectedCommunity = community
-                                coordinates =
-                                    coord // Guardar las coordenadas de la comunidad
+                                viewModel.updateRegions(communityName)
                                 expanded = false
-
-                                // Guardar automáticamente en el ViewModel
-                                viewModel.updateCommunityInfo(
-                                    selectedCommunity,
-                                    coordinates
-                                )
                             }
                         )
                     }
@@ -286,111 +292,72 @@ fun SettingsScreen(
                     }
                 )
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            // Selección de tipo de usuario (Particular o Empresa)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Tipo de usuario: ", style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.width(8.dp))
-                RadioButton(selected = userType == "Particular", onClick = {
-                    if (userType == "Empresa") {
-                        showConfirmDialog()
-                    } else {
-                        viewModel.updateUserType("Particular")
-                    }
-                })
-                Text("Particular", modifier = Modifier.align(Alignment.CenterVertically))
-                Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = userType == "Empresa", onClick = {
-                    if (userType == "Particular") {
-                        // Si cambia de Particular a Empresa, mostrar el diálogo del establecimiento
-                        showBusinessDialog()
-                    } else {
-                        viewModel.updateUserType("Empresa")
-                    }
-                })
-                Text("Empresa", modifier = Modifier.align(Alignment.CenterVertically))
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Diálogo para el establecimiento (Particular a Empresa)
-            if (showBusinessDialog) {
-                AlertDialog(
-                    onDismissRequest = { showBusinessDialog = false },
-                    title = { Text("Información del establecimiento") },
-                    text = {
-                        Column {
-                            TextField(
-                                value = businessName,
-                                onValueChange = { businessName = it },
-                                label = { Text("Nombre del establecimiento") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            TextField(
-                                value = businessAddress,
-                                onValueChange = { businessAddress = it },
-                                label = { Text("Dirección del establecimiento") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            TextField(
-                                value = businessPhone,
-                                onValueChange = { businessPhone = it },
-                                label = { Text("Teléfono del establecimiento") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                viewModel.updateUserType("Empresa")
-                                viewModel.saveBusinessInfo(
-                                    businessName,
-                                    businessAddress,
-                                    businessPhone
-                                )
-                                showBusinessDialog = false
-                            }
-                        ) {
-                            Text("Guardar")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showBusinessDialog = false }) {
-                            Text("Cancelar")
-                        }
-                    }
-                )
-            }
 
-            // Diálogo de confirmación (Empresa a Particular)
-            if (showConfirmDialog) {
-                AlertDialog(
-                    onDismissRequest = { showConfirmDialog = false },
-                    title = { Text("Confirmación") },
-                    text = { Text("¿Está seguro que quiere cambiar a particular? Esto eliminará el establecimiento asociado.") },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                viewModel.deleteBusinessInfo()
-                                viewModel.updateUserType("Particular")
-                                showConfirmDialog = false
-                            }
-                        ) {
-                            Text("Sí, cambiar")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showConfirmDialog = false }) {
-                            Text("Cancelar")
-                        }
-                    }
+            if (type == "Enterprise") {
+                Log.d("SettingsScreen", "Empresa seleccionada")
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text("Información de la Empresa", style = MaterialTheme.typography.titleMedium)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = companyName,
+                    onValueChange = { viewModel.updateCompanyName(it) },
+                    label = { Text("Nombre de la Empresa") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Dirección de la empresa
+                OutlinedTextField(
+                    value = companyAddress,
+                    onValueChange = { viewModel.updateCompanyAddress(it) },
+                    label = { Text("Dirección de la Empresa") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Teléfono de la empresa
+                OutlinedTextField(
+                    value = companyPhone,
+                    onValueChange = { viewModel.updateCompanyPhone(it) },
+                    label = { Text("Teléfono de la Empresa") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Coordenadas de la empresa (latitud y longitud)
+                OutlinedTextField(
+                    value = companyCoordinates?.first?.toString() ?: "",
+                    onValueChange = { viewModel.updateCompanyLatitude(it.toDoubleOrNull() ?: 0.0) },
+                    label = { Text("Latitud") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = companyCoordinates?.second?.toString() ?: "",
+                    onValueChange = { viewModel.updateCompanyLongitude(it.toDoubleOrNull() ?: 0.0) },
+                    label = { Text("Longitud") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

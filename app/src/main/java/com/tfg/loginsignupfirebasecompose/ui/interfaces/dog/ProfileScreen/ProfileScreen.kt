@@ -79,12 +79,7 @@ fun ProfileScreen(
     val adress by viewModel.adress.collectAsState()
     val profileImageUrl by remember { viewModel.profileImageUrl }
     val navigationEvent by viewModel.navigationEvent.collectAsState()
-
     val scrollState = rememberScrollState()
-
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
-
-
 
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { route ->
@@ -95,27 +90,6 @@ fun ProfileScreen(
             viewModel.clearNavigationEvent()
         }
     }
-
-    val context = LocalContext.current
-    val changeImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            uri?.let {
-                viewModel.changeProfileImage(context, it)
-            }
-        }
-    )
-
-    val takePictureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { success: Boolean ->
-            if (success) {
-                photoUri?.let { uri ->
-                    viewModel.changeProfileImage(context, uri)
-                }
-            }
-        }
-    )
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -178,31 +152,6 @@ fun ProfileScreen(
                         contentScale = ContentScale.Crop
                     )
                 }
-
-                // Ícono de lápiz para cambiar la imagen
-                IconButton(
-                    onClick = {
-                        // Aquí puedes llamar a la función para cambiar la imagen
-                        showImageSelectionDialog(
-                            context,
-                            changeImageLauncher,
-                            takePictureLauncher,
-                            photoUri
-                        )
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(36.dp)
-                        .padding(4.dp), // Ajusta el padding según lo necesites
-                    content = {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Profile Image",
-                            tint = primaryContainerLightHighContrast
-
-                        )
-                    }
-                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

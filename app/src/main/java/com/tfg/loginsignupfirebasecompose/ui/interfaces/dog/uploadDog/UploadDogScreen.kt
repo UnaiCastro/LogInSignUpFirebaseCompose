@@ -41,7 +41,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -52,6 +55,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -60,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -72,6 +78,7 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
+import com.tfg.loginsignupfirebasecompose.R
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -83,7 +90,6 @@ fun UploadDogScreen(
     navController: NavHostController,
     viewModel: UploadDogViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val currentUser by viewModel.currentUser.collectAsState()
     val breedOptions = listOf(
         "Beagle", "Bichon Frise", "Border Collie", "Boxer", "Bulldog",
@@ -97,36 +103,6 @@ fun UploadDogScreen(
     val genderOptions = listOf("Male", "Female")
     val statusOptions =
         if (currentUser.type == "empresa") listOf("Adopt", "Buy") else listOf("Adopt")
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri -> viewModel.imageUri = uri }
-    )
-    val takePictureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview(),
-        onResult = { bitmap ->
-            bitmap?.let {
-                // Convertir el Bitmap a Uri y asignarlo al viewModel
-                val uri = saveBitmapToFile(context, bitmap)
-                viewModel.imageUri = uri
-            }
-        }
-    )
-
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                takePictureLauncher.launch()
-            } else {
-                Log.d("UploadDogScreen", "Camera permission denied")
-            }
-        }
-    )
-
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    var showBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold (
         topBar = {
@@ -146,67 +122,21 @@ fun UploadDogScreen(
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         }
 
     ) { contentPadding ->
 
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                sheetState = sheetState
-            ) {
-                // Sheet content
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Choose an option", style = MaterialTheme.typography.titleMedium)
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Option to pick photo from gallery
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                sheetState.hide() // Hide the BottomSheet
-                                launcher.launch("image/*") // Open gallery
-                            }
-                            showBottomSheet = false
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Choose from Gallery")
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-
-                    Button(
-                        onClick = {
-                            if (ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.CAMERA
-                                ) == PackageManager.PERMISSION_GRANTED
-                            ) {
-                                takePictureLauncher.launch()
-                            } else {
-                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                            }
-                            showBottomSheet = false
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Take a Photo")
-                    }
-                }
-            }
-        }
+        Image(
+            painter = painterResource(id = R.drawable.background4),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+        )
 
         Column(
             modifier = Modifier
@@ -219,12 +149,18 @@ fun UploadDogScreen(
         ) {
             val focusRequester = remember { FocusRequester() }
             val focusManager = LocalFocusManager.current
-            OutlinedTextField(
+            TextField(
                 value = viewModel.name,
                 onValueChange = { viewModel.name = it },
                 label = { Text("Nombre") },
                 maxLines = 1,
                 singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
@@ -239,20 +175,25 @@ fun UploadDogScreen(
 
             var expandedGender by remember { mutableStateOf(false) }
 
-            // ExposedDropdownMenuBox para el género
             ExposedDropdownMenuBox(
                 expanded = expandedGender,
                 onExpandedChange = {
                     expandedGender = !expandedGender
                 }
             ) {
-                OutlinedTextField(
+                TextField(
                     value = viewModel.gender,
                     onValueChange = { viewModel.gender = it },
                     label = { Text("Género") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(),  // Necesario para que el dropdown se alinee correctamente
+                        .menuAnchor(),
                     readOnly = true,
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGender)
@@ -262,7 +203,6 @@ fun UploadDogScreen(
                 ExposedDropdownMenu(
                     expanded = expandedGender,
                     onDismissRequest = { expandedGender = false },
-                    /*modifier = Modifier.fillMaxWidth()*/
                 ) {
                     genderOptions.forEach { gender ->
                         DropdownMenuItem(
@@ -281,10 +221,16 @@ fun UploadDogScreen(
                 expanded = expandedBreed,
                 onExpandedChange = { expandedBreed = !expandedBreed }
             ) {
-                OutlinedTextField(
+                TextField(
                     value = viewModel.breed,
                     onValueChange = { viewModel.breed = it },
                     label = { Text("Raza") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
@@ -313,13 +259,19 @@ fun UploadDogScreen(
                 }
             }
 
-            OutlinedTextField(
+            TextField(
                 value = viewModel.description,
                 onValueChange = { viewModel.description = it },
                 label = { Text("Descripcion") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Descripcion del perro") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                ),
                 keyboardActions = KeyboardActions(
                     onNext = {
                         focusManager.moveFocus(FocusDirection.Down)
@@ -327,7 +279,7 @@ fun UploadDogScreen(
                 )
             )
 
-            OutlinedTextField(
+            TextField(
                 value = viewModel.age,
                 maxLines = 1,
                 onValueChange = { viewModel.age = it },
@@ -338,6 +290,12 @@ fun UploadDogScreen(
                     imeAction = ImeAction.Next,
                     keyboardType = KeyboardType.Number
                 ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                ),
                 keyboardActions = KeyboardActions(
                     onNext = {
                         focusManager.moveFocus(FocusDirection.Down)
@@ -346,7 +304,7 @@ fun UploadDogScreen(
 
             )
 
-            OutlinedTextField(
+            TextField(
                 maxLines = 1,
                 value = viewModel.price,
                 onValueChange = { viewModel.price = it },
@@ -361,81 +319,15 @@ fun UploadDogScreen(
                         focusManager.clearFocus()
                     }
                 ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                ),
                 placeholder = { Text("Precio del perro") }
 
             )
-
-            /*if (currentUser.type == "empresa") {
-                OutlinedTextField(
-                    value = viewModel.status,
-                    maxLines = 1,
-                    readOnly = true,
-                    onValueChange = { viewModel.status = it },
-                    label = { Text("Status") },
-                    modifier = Modifier.fillMaxWidth()
-                        .clickable { expandedStatus = true },
-                    placeholder = { Text("Seleccione el status") },
-                    trailingIcon = {
-                        Icon(
-                            if (expandedStatus) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                            contentDescription = "Toggle Dropdown",
-                            Modifier.clickable { expandedStatus = !expandedStatus }
-                        )
-                    }
-                )
-                DropdownMenu(
-                    expanded = expandedStatus,
-                    onDismissRequest = { expandedStatus = false }
-                ) {
-                    statusOptions.forEach { status ->
-                        DropdownMenuItem(
-                            text = { Text(text = status) },
-                            onClick = {
-                                viewModel.status = status
-                                expandedStatus = false
-                            }
-                        )
-                    }
-                }
-            }*/
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                    .clickable { scope.launch { showBottomSheet = true } },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add photo",
-                        modifier = Modifier.size(50.dp),
-                        tint = Color.Gray
-                    )
-                    Text(
-                        text = "Resume photo",
-                        color = Color.Blue,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
-            }
-
-            viewModel.imageUri?.let { uri ->
-                Image(
-                    painter = rememberImagePainter(uri),
-                    contentDescription = "Dog Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            }
 
             Button(
                 onClick = {
@@ -447,35 +339,16 @@ fun UploadDogScreen(
                         age = viewModel.age.toInt(),
                         price = viewModel.price.toInt(),
                         status = viewModel.status,
-                        imageUri = viewModel.imageUri
                     )
                     navController.navigateUp()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Subir Perro")
+                Text("Upload Dog")
             }
         }
 
     }
 
-
-}
-
-fun saveBitmapToFile(context: Context, bitmap: Bitmap): Uri? {
-        return try {
-            val file = File(context.cacheDir, "${UUID.randomUUID()}.jpg")
-            file.outputStream().use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            }
-            FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.provider",
-                file
-            )
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
 
 }

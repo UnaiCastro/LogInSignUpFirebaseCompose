@@ -9,9 +9,15 @@ import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,10 +28,8 @@ class SignUpViewModel @Inject constructor(
     var name: String by mutableStateOf("")
     var email: String by mutableStateOf("")
     var password: String by mutableStateOf("")
-    var passwordHidden by mutableStateOf(true)
     var userType: String by mutableStateOf("")
 
-    // Nuevos campos para dirección y teléfono para todos los usuarios
     var address: String by mutableStateOf("")
     var phone: String by mutableStateOf("")
 
@@ -39,6 +43,7 @@ class SignUpViewModel @Inject constructor(
     var longitud: String by mutableStateOf("")
     var coordinates: Pair<Double, Double> by mutableStateOf(Pair(0.0, 0.0))
 
+    private val client = OkHttpClient()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -46,12 +51,33 @@ class SignUpViewModel @Inject constructor(
     private val _navigationEvent = MutableStateFlow<String?>(null)
     val navigationEvent: StateFlow<String?> = _navigationEvent
 
+    private suspend fun getRandomDogImage(): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = Request.Builder()
+                    .url("https://random.dog/woof.json")
+                    .build()
+
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) throw IOException("Error en la solicitud: $response")
+
+                    val responseBody = response.body?.string()
+                    val jsonObject = JSONObject(responseBody)
+                    jsonObject.getString("url")
+                }
+            } catch (e: Exception) {
+                "https://example.com/default-dog-image.jpg"
+            }
+        }
+    }
+
     fun signUp() {
         viewModelScope.launch {
             val result = authRepository.signUp(email, password)
             result.fold(
                 onSuccess = { firebaseUser ->
                     val uid = firebaseUser.uid
+                    val profileImageUrl = getRandomDogImage()
                     val user = hashMapOf(
                         "name" to name,
                         "address" to address,
@@ -62,7 +88,7 @@ class SignUpViewModel @Inject constructor(
                         "starred_dogs" to arrayListOf<String>(),
                         "sharedDogs" to arrayListOf<String>(),
                         "chat_rooms" to arrayListOf<String>(),
-                        "profileImageUrl" to "",
+                        "profileImageUrl" to profileImageUrl,
                         "email" to email,
                         "dogs" to arrayListOf<String>()
                     )
@@ -74,13 +100,14 @@ class SignUpViewModel @Inject constructor(
                                 val establishment = hashMapOf(
                                     "name" to companyName,
                                     "address" to companyAddress,
-                                    "coordinates" to mapOf( // Guarda las coordenadas como un mapa
+                                    "coordinates" to mapOf(
                                         "latitude" to coordinates.first,
                                         "longitude" to coordinates.second
                                     ),
                                     "phone" to phone,
                                     "owner_id" to uid,
-                                    "likes" to 0 // Inicializa los likes en 0
+                                    "likes" to emptyList<String>(),
+                                    "establishmentImage" to "https://static.fundacion-affinity.org/cdn/farfuture/wA2M2WIdWb-muHHNOHC_YxBPkEhxd0F7uoyJs8MGjuE/mtime:1593587079/sites/default/files/impacto-del-confinamiento-protectoras-y-adopcion-de-animales.jpg",
                                 )
                                 val establishmentResult = userRepository.saveEstablishment(establishment)
                                 establishmentResult.fold(
@@ -111,7 +138,7 @@ class SignUpViewModel @Inject constructor(
         _navigationEvent.value = null
     }
     private fun updateCoordinates() {
-        val lat = latitud.toDoubleOrNull() ?: 0.0 // Convierte a Double, si falla pone 0.0
+        val lat = latitud.toDoubleOrNull() ?: 0.0
         val lon = longitud.toDoubleOrNull() ?: 0.0
         coordinates = Pair(lat, lon)
     }

@@ -1,5 +1,6 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.MyDogsScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
@@ -30,8 +31,8 @@ class MyDogsViewModel @Inject constructor(
 
     fun fetchMyDogs() {
         viewModelScope.launch {
-            // Llama a la función getSharedDogsObject para obtener la lista de perros compartidos
             _myDogs.value = dogRepository.getDogsByOwner(currentUser)
+            Log.d("MyDogsViewModel", "My dogs: ${_myDogs.value}")
         }
     }
 
@@ -39,6 +40,7 @@ class MyDogsViewModel @Inject constructor(
         viewModelScope.launch {
             dogRepository.deleteDog(dogId)
             userRepository.deleteDog(dogId, currentUser)
+            fetchMyDogs()
         }
     }
 

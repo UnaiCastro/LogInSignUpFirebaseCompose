@@ -5,7 +5,7 @@ data class User(
     val name: String = "",
     val email: String = "",
     val profileImageUrl: String = "",
-    val type: String = "", // Tipo de usuario (particular o empresa)
+    val type: String = "",
     val address: String = "",
     val phone: String = "",
     val region: String = "",

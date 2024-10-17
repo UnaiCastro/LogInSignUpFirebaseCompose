@@ -1,5 +1,6 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -114,7 +116,11 @@ fun FirebaseComposeScreen(navController: NavController, viewModel: FirebaseCompo
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp)
                         .padding(top = 8.dp),
-                    onClick = { viewModel.onLoginClick() }
+                    onClick = { viewModel.onLoginClick() },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                 ) {
                     Text(text = "Log In")
                 }

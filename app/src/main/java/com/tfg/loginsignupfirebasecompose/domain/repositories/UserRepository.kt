@@ -42,4 +42,9 @@ interface UserRepository {
     )
     suspend fun deleteBusinessInfo(userId: String)
     suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?)
+    suspend fun updateRegion(uid: String, it: String)
+    suspend fun addToLikedEstablishments(currentUserId: String, establishmentId: String)
+    suspend fun removeFromLikedEstablishments(currentUserId: String, establishmentId: String)
+    suspend fun removeStarredDog(toString: String, dogId: String)
+    suspend fun addToStarredDogs(toString: String, dogId: String)
 }

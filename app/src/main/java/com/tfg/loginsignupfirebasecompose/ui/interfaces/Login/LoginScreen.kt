@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -56,13 +58,10 @@ import com.example.compose.primaryLight
 
 import com.tfg.loginsignupfirebasecompose.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val navigationEvent by viewModel.navigationEvent.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { route ->
@@ -139,19 +138,15 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         label = { Text("Email") },
                         placeholder = { Text("example@gmail.com") },
                         singleLine = true,
-                        /*colors = TextFieldDefaults.textFieldColors(
-                            containerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.White,
-                            unfocusedIndicatorColor = Color.White,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
-                            cursorColor = Color.White,
-                            focusedLabelColor = Color.White,
-                            unfocusedLabelColor = Color.White
-                        ),*/
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                        ),
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password,imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(
                             onNext = {
@@ -186,17 +181,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                 Icon(imageVector = visibilityIcon, contentDescription = description)
                             }
                         },
-                        /*colors = TextFieldDefaults.textFieldColors(
-                            containerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.White,
-                            unfocusedIndicatorColor = Color.White,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedPlaceholderColor = Color.White.copy(alpha = 0.5f),
-                            cursorColor = Color.White,
-                            focusedLabelColor = Color.White,
-                            unfocusedLabelColor = Color.White
-                        ),*/
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp)

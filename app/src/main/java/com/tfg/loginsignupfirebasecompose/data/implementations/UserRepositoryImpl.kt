@@ -382,5 +382,52 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateRegion(uid: String, it: String) {
+        try {
+            db.collection(FirestoreCollections.users).document(uid).update("region", it).await()
+        } catch (e:Exception){
+            Log.e("FirestoreError", "Error al guardar la información de la region", e)
+        }
+    }
+
+    override suspend fun addToLikedEstablishments(currentUserId: String, establishmentId: String) {
+        try {
+            val userRef = db.collection(FirestoreCollections.users).document(currentUserId)
+            userRef.update("likedEstablishments", FieldValue.arrayUnion(establishmentId))
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al agregar establecimiento a favoritos", e)
+        }
+
+    }
+
+    override suspend fun removeFromLikedEstablishments(
+        currentUserId: String,
+        establishmentId: String
+    ) {
+        try {
+            val userRef = db.collection(FirestoreCollections.users).document(currentUserId)
+            userRef.update("likedEstablishments", FieldValue.arrayRemove(establishmentId))
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al eliminar establecimiento de favoritos", e)
+        }
+
+    }
+
+    override suspend fun removeStarredDog(toString: String, dogId: String) {
+        try {
+            db.collection(FirestoreCollections.users).document(toString).update("starred_dogs", FieldValue.arrayRemove(dogId)).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al eliminar perro de favoritos", e)
+        }
+    }
+
+    override suspend fun addToStarredDogs(toString: String, dogId: String) {
+        try {
+            db.collection(FirestoreCollections.users).document(toString).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error al añadir perro de favoritos", e)
+        }
+    }
+
 
 }

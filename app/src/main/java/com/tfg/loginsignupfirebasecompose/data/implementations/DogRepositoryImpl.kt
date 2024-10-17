@@ -1,6 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import android.util.Log
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tfg.loginsignupfirebasecompose.data.Firebase.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
@@ -19,7 +20,11 @@ class DogRepositoryImpl @Inject constructor(
                 .whereEqualTo("owner_id", ownerId)
                 .get()
                 .await()
-            querySnapshot.toObjects(Dog::class.java)
+            querySnapshot.documents.map { document ->
+                val dog = document.toObject(Dog::class.java)
+                dog?.dogId = document.id
+                dog
+            }.filterNotNull()
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener los perros", e)
             emptyList()
@@ -134,6 +139,28 @@ class DogRepositoryImpl @Inject constructor(
             db.collection(FirestoreCollections.dogs).document(dogId).delete().await()
         } catch (e: Exception) {
             Log.e("DogRepository", "Error deleting dog: ${e.message}")
+        }
+    }
+
+    override suspend fun getDogsByIds(sharedDogIds: List<String>): List<Dog> {
+        return try {
+            val dogs = mutableListOf<Dog>()
+            val snapshot = db.collection(FirestoreCollections.dogs)
+                .whereIn(FieldPath.documentId(), sharedDogIds)
+                .get()
+                .await()
+
+            for (document in snapshot.documents) {
+                val dog = document.toObject(Dog::class.java)
+                dog?.let {
+                    it.dogId = document.id
+                    dogs.add(it)
+                }
+            }
+            dogs
+        } catch (e: Exception) {
+            Log.e("DogRepository", "Error al obtener perros por ID", e)
+            emptyList()
         }
     }
 

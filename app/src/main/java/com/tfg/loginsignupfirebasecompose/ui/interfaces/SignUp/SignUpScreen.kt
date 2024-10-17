@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -48,11 +49,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -70,10 +76,13 @@ import com.tfg.loginsignupfirebasecompose.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hiltViewModel()) {
-    var userType by remember { mutableStateOf("") }
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
     val errorMessage by viewModel.errorMessage.collectAsState()
     val navigationEvent by viewModel.navigationEvent.collectAsState()
+
+
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     var expanded by remember { mutableStateOf(false) }
     val types = listOf("Particular", "Enterprise")
@@ -110,7 +119,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // Ajusta el fondo si es necesario
+                .background(Color.White)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.backgroundwelcome),
@@ -163,16 +172,23 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         label = { Text("Type of person") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(),
+                            .menuAnchor()
+                            .focusRequester(focusRequester),
                         readOnly = true,
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
-                        colors = OutlinedTextFieldDefaults.colors(
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
                         )
                     )
                     ExposedDropdownMenu(
@@ -209,13 +225,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         label = { Text("Name") },
                         placeholder = { Text("Astrolopitecus") },
                         singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
+                            .padding(top = 8.dp),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        )
                     )
 
                     // Email
@@ -225,13 +249,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         label = { Text("Email") },
                         placeholder = { Text("example@gmail.com") },
                         singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
+                            .padding(top = 8.dp),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        )
                     )
 
                     // Teléfono
@@ -239,13 +271,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         value = viewModel.phone,
                         onValueChange = { viewModel.phone = it },
                         label = { Text("Number phone") },
-                        colors = OutlinedTextFieldDefaults.colors(
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
+                            .padding(top = 8.dp),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        )
                     )
 
                     // Región
@@ -265,11 +305,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCities)
                             },
-                            colors = OutlinedTextFieldDefaults.colors(
+                            colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
                                 unfocusedContainerColor = Color.White,
                                 focusedTextColor = Color.Black,
                                 unfocusedTextColor = Color.Black,
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                }
                             )
                         )
                         ExposedDropdownMenu(
@@ -293,13 +339,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         onValueChange = { viewModel.address = it },
                         label = { Text("Your Address") },
                         placeholder = { Text("Calle falsa 123") },
-                        colors = OutlinedTextFieldDefaults.colors(
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
+                            .padding(top = 8.dp),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        ),
                     )
 
                     TextField(
@@ -310,7 +364,12 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         placeholder = { Text("") },
                         visualTransformation =
                         if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password,imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.clearFocus()
+                            }
+                        ),
                         trailingIcon = {
                             IconButton(onClick = {
                                 passwordHidden = !passwordHidden
@@ -322,16 +381,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                 Icon(imageVector = visibilityIcon, contentDescription = description)
                             }
                         },
-                        colors = OutlinedTextFieldDefaults.colors(
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp)
                     )
 
-                    // Condición para mostrar la sección de información de la empresa
                     if (viewModel.userType == "Enterprise") {
                         HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(top = 16.dp))
 
@@ -343,7 +403,6 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             color = Color.White
                         )
 
-                        // Nombre de la compañía
                         TextField(
                             value = viewModel.companyName,
                             onValueChange = { viewModel.companyName = it },
@@ -351,9 +410,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
+                            colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                unfocusedContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                }
                             ),
                         )
 
@@ -361,13 +428,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             value = viewModel.companyPhone,
                             onValueChange = { viewModel.companyPhone = it },
                             label = { Text("Phone") },
-                            colors = OutlinedTextFieldDefaults.colors(
+                            colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                unfocusedContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 8.dp)
+                                .padding(top = 8.dp),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                }
+                            ),
                         )
 
                         TextField(
@@ -378,9 +453,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
+                            colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                unfocusedContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                }
                             ),
                         )
 
@@ -392,9 +475,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
+                            colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                unfocusedContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                }
                             ),
                         )
 
@@ -406,14 +497,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
+                            colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                unfocusedContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
                             ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.clearFocus()
+                                }
+                            )
                         )
                     }
 
-                    // Botón de Sign Up
                     FilledTonalButton(
                         modifier = Modifier
                             .padding(top = 26.dp)
@@ -437,7 +535,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         .padding(top = 8.dp)
                 ) {
                     Text(
-                        "¿Don´t have an account? Sign in",
+                        "¿Do you have an account? Log in",
                         textAlign = TextAlign.Center,
                         color = Color.White,
                         fontSize = 16.sp
@@ -445,18 +543,6 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                 }
             }
         }
-    }
-}
-
-
-private fun openGoogleMaps(context: Context) {
-    val gmmIntentUri = Uri.parse("geo:0,0?q=") // Abre Google Maps en una ubicación general
-    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-    mapIntent.setPackage("com.google.android.apps.maps")
-
-    // Verifica que haya una aplicación que pueda manejar el Intent
-    if (mapIntent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(mapIntent)
     }
 }
 

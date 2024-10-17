@@ -28,17 +28,15 @@ class UploadDogViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val dogRepository: DogRepository,
     private val authRepository: AuthRepository
-): ViewModel()
-{
+) : ViewModel() {
 
-    var name: String by  mutableStateOf("")
-    var gender by  mutableStateOf("")
+    var name: String by mutableStateOf("")
+    var gender by mutableStateOf("")
     var breed by mutableStateOf("")
     var description by mutableStateOf("")
     var age by mutableStateOf("")
     var price by mutableStateOf("")
     var status by mutableStateOf("")
-    var imageUri by mutableStateOf<Uri?>(null)
 
     val uid: String by mutableStateOf(authRepository.getCurrentUser()?.uid ?: "")
     private val _currentUser = MutableStateFlow<User>(User())
@@ -55,6 +53,45 @@ class UploadDogViewModel @Inject constructor(
         }
     }
 
+    private fun getDogImageByBreed(breed: String): String {
+        return when (breed) {
+            "Beagle" -> "https://plus.unsplash.com/premium_photo-1663127048434-84db6f90f08d?q=80&w=1914&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Bichon Frise" -> "https://images.unsplash.com/photo-1728154638526-5b795e1bb017?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Border Collie" -> "https://images.unsplash.com/photo-1708787786119-9bcade6ffa21?q=80&w=2060&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Boxer" -> "https://images.unsplash.com/photo-1633949831162-5a03f2c7a59a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Bulldog" -> "https://plus.unsplash.com/premium_photo-1722859221349-26353eae4744?q=80&w=1936&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Bullmastiff" -> "https://images.unsplash.com/photo-1677899997050-950369b117b2?q=80&w=1791&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Cavalier King Charles Spaniel" -> "https://images.unsplash.com/photo-1556392210-ed91a8ad0cf6?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Chihuahua" -> "https://plus.unsplash.com/premium_photo-1661861069475-fea636a949e6?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Cocker Spaniel" -> "https://images.unsplash.com/photo-1515597849219-88a19d5f13f9?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Dachshund" -> "https://images.unsplash.com/photo-1504502080150-7ac132968c9e?q=80&w=2060&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Dalmatian" -> "https://plus.unsplash.com/premium_photo-1664303507729-8e7589fccf5c?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "Doberman" -> "https://images.unsplash.com/photo-1536677075446-821da10993a6?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "English Setter" -> "https://images.unsplash.com/photo-1605293311220-e753718cb345?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            "French Bulldog" -> "https://unsplash.com/s/photos/french-bulldog"
+            "German Shepherd" -> "https://unsplash.com/s/photos/german-shepherd"
+            "Golden Retriever" -> "https://unsplash.com/s/photos/golden-retriever"
+            "Great Dane" -> "https://unsplash.com/s/photos/great-dane"
+            "Greyhound" -> "https://unsplash.com/s/photos/greyhound"
+            "Husky" -> "https://unsplash.com/s/photos/husky"
+            "Jack Russell Terrier" -> "https://unsplash.com/s/photos/jack-russell-terrier"
+            "Labrador Retriever" -> "https://unsplash.com/s/photos/labrador-retriever"
+            "Maltese" -> "https://unsplash.com/s/photos/maltese-dog"
+            "Mastiff" -> "https://unsplash.com/s/photos/mastiff"
+            "Miniature Schnauzer" -> "https://unsplash.com/s/photos/miniature-schnauzer"
+            "Poodle" -> "https://unsplash.com/s/photos/poodle"
+            "Pomeranian" -> "https://unsplash.com/s/photos/pomeranian"
+            "Pug" -> "https://unsplash.com/s/photos/pug"
+            "Rottweiler" -> "https://unsplash.com/s/photos/rottweiler"
+            "Shih Tzu" -> "https://unsplash.com/s/photos/shih-tzu"
+            "Staffordshire Bull Terrier" -> "https://unsplash.com/s/photos/staffordshire-bull-terrier"
+            "Yorkshire Terrier" -> "https://unsplash.com/s/photos/yorkshire-terrier"
+            else -> "https://unsplash.com/s/photos/dog"
+        }
+    }
+
+
+
     fun uploadDog(
         name: String,
         gender: String,
@@ -63,45 +100,25 @@ class UploadDogViewModel @Inject constructor(
         age: Int,
         price: Int,
         status: String,
-        imageUri: Uri?
     ) {
-        Log.d("UploadDogViewModel", "Uploading dog with name: $name")
         viewModelScope.launch {
-            Log.d("UploadDogViewModel", "Coroutine launched for dog upload")
-            try {
-                Log.d("UploadDogViewModel", "Trying to upload dog image")
-                if (imageUri != null) {
-                    Log.d("UploadDogViewModel", "Image URI is not null")
-                    val storageRef = FirebaseStorage.getInstance().reference
-                    val imageRef = storageRef.child("dogs/${UUID.randomUUID()}.jpg")
-                    imageRef.putFile(imageUri).await()
-                    val downloadUri = imageRef.downloadUrl.await()
+            val imageUrl = getDogImageByBreed(breed)
 
-                    val dog = Dog(
-                        name = name,
-                        gender = gender,
-                        breed = breed,
-                        description = description,
-                        age = age,
-                        price = price,
-                        status = status,
-                        profileImageUrl = downloadUri.toString(),
-                        owner_id = uid
-                    )
+            val dog = Dog(
+                name = name,
+                gender = gender,
+                breed = breed,
+                description = description,
+                age = age,
+                price = price,
+                status = status,
+                profileImageUrl = imageUrl,
+                owner_id = uid
+            )
 
-                    // Subir los detalles del perro al repositorio (base de datos)
-                    dogRepository.uploadDog(dog = dog)
-                    Log.d("UploadDogViewModel", "Dog uploaded successfully")
-                } else {
-                    // Manejar el caso donde no hay imagen seleccionada
-                    Log.e("UploadDogViewModel", "No image selected")
-                }
-            } catch (e: CancellationException) {
-                Log.e("UploadDogViewModel", "Task was cancelled: ${e.message}")
-            } catch (e: Exception) {
-                // Manejar cualquier error que ocurra durante la subida
-                Log.e("UploadDogViewModel", "Error uploading dog: ${e.message}")
-            }
+            dogRepository.uploadDog(dog = dog)
+            Log.d("UploadDogViewModel", "Dog uploaded successfully")
+
         }
     }
 

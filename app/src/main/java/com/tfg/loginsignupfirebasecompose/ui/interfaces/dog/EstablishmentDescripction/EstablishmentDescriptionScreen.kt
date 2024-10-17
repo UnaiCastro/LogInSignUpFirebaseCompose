@@ -24,8 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -42,6 +41,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +51,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,17 +68,26 @@ fun EstablishmentDescriptionScreen(
     establishmentId: String,
     navController: NavHostController,
     viewModel: EstablishmentDescriptionViewModel = hiltViewModel()
-){
+) {
+
+
+    var isLiked by remember { mutableStateOf(false) }
     var establishment by remember { mutableStateOf<Establishment?>(null) }
-    var dogs by remember { mutableStateOf<List<Dog>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var likedUsersCount by remember { mutableStateOf(0) }
+
+    val dogs by viewModel.dogs.collectAsState()
+
+
 
 
     LaunchedEffect(establishmentId) {
         isLoading = true
         establishment = viewModel.getEstablishmentDetails(establishmentId)
         establishment?.let {
-            dogs = viewModel.getDogsByOwner(it.owner_id)
+            viewModel.getDogsByOwner(it.owner_id)
+            isLiked = viewModel.isEstablishmentLiked(establishmentId)
+            likedUsersCount = it.liked_users.size
         }
         isLoading = false
     }
@@ -96,10 +104,24 @@ fun EstablishmentDescriptionScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
 
-                ),
+                    ),
                 actions = {
-                    IconButton(onClick = { /* Acción del ícono */ }) {
-                        Icon(Icons.Default.Favorite, contentDescription = "Settings")  // Puedes cambiar el ícono aquí
+                    IconButton(onClick = {
+                        isLiked = if (isLiked) {
+                            viewModel.unlikeEstablishment(establishmentId)
+                            likedUsersCount--
+                            false // Cambia el estado a no guardado
+                        } else {
+                            viewModel.likeEstablishment(establishmentId)
+                            likedUsersCount++
+                            true // Cambia el estado a guardado
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Like",
+                            tint = if (isLiked) Color.Blue else Color.Black
+                        )
                     }
                 },
             )
@@ -137,7 +159,10 @@ fun EstablishmentDescriptionScreen(
                                 .fillMaxHeight()
                                 .offset(y = 40.dp),
                             elevation = CardDefaults.elevatedCardElevation(8.dp),
-                            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) // Curvatura para que la tarjeta se vea elegante
+                            shape = RoundedCornerShape(
+                                topStart = 16.dp,
+                                topEnd = 16.dp
+                            ) // Curvatura para que la tarjeta se vea elegante
                         ) {
                             Column(
                                 modifier = Modifier
@@ -159,14 +184,21 @@ fun EstablishmentDescriptionScreen(
                                 )
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Favorite, contentDescription = "Likes")
-                                    Text(text = " ${est.liked_users.size}", style = MaterialTheme.typography.bodyLarge)
+                                    Icon(
+                                        Icons.Default.Favorite,
+                                        contentDescription = "Likes",
+                                        tint = Color.Blue
+                                    )
+                                    Text(
+                                        text = " $likedUsersCount",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 Text(
-                                    text = "Perros:",
+                                    text = "Dogs Owned:",
                                     style = MaterialTheme.typography.titleLarge,
                                     modifier = Modifier.align(Alignment.Start)
                                 )
@@ -177,7 +209,19 @@ fun EstablishmentDescriptionScreen(
                                         .height(300.dp)
                                 ) {
                                     items(dogs) { dog ->
-                                        DogCard(dog = dog)
+                                        var isStarred by remember { mutableStateOf(false) }
+                                        var isShared by remember { mutableStateOf(false) }
+
+                                        LaunchedEffect(dog.dogId) {
+                                            isStarred = viewModel.isDogStarred(dog.dogId)
+                                            isShared = viewModel.isDogShared(dog.dogId)
+                                        }
+                                        DogCard(
+                                            dog = dog,
+                                            isStarred = isStarred,
+                                            isShared = isShared,
+                                            viewModel = viewModel
+                                        )
                                     }
                                 }
                             }
@@ -187,12 +231,15 @@ fun EstablishmentDescriptionScreen(
             }
         }
     }
-
-
 }
 
 @Composable
-fun DogCard(dog: Dog) {
+fun DogCard(
+    dog: Dog,
+    isStarred: Boolean,
+    isShared: Boolean,
+    viewModel: EstablishmentDescriptionViewModel
+) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,12 +247,12 @@ fun DogCard(dog: Dog) {
             .border(
                 width = 2.dp,
                 color = Color.Transparent,
-                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
+                shape = RoundedCornerShape(16.dp)
             ),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = /*if (isStarred) Color(0xFFFFF9C4) else */Color(0xFFF5F5F5)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isStarred) Color(0xFFFFF9C4) else Color(0xFFF5F5F5)
         ),
-        elevation = CardDefaults.cardElevation(8.dp) // Elevación para dar efecto de profundidad
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -213,8 +260,7 @@ fun DogCard(dog: Dog) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen del perro
-            Box (modifier = Modifier.size(110.dp)) {
+            Box(modifier = Modifier.size(110.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(dog.profileImageUrl),
                     contentScale = ContentScale.Crop,
@@ -226,14 +272,14 @@ fun DogCard(dog: Dog) {
                 )
 
                 IconButton(
-                    onClick = { /*onToggleStarred(dog.dogId) */},
+                    onClick = { viewModel.onToggleStarred(dog.dogId) },
                     modifier = Modifier
                         .align(Alignment.TopStart)
                 ) {
                     Icon(
-                        imageVector = /*if (isStarred) */Icons.Filled.Star /*else Icons.Filled.Star*/,
-                        contentDescription = /*if (isStarred) */"Guardado" /*else "Guardar"*/,
-                        tint = /*if (isStarred) Color(0xFFFFF9C4) else */Color.Black, // Amarillo si está guardado
+                        imageVector = if (isStarred) Icons.Filled.Star else Icons.Filled.Star,
+                        contentDescription = if (isStarred) "Guardado" else "Guardar",
+                        tint = if (isStarred) Color(0xFFFFF9C4) else Color.Black, // Amarillo si está guardado
                         modifier = Modifier
                             .size(25.dp)
                             .background(primaryLight.copy(alpha = 0.7f), CircleShape)
@@ -297,11 +343,10 @@ fun DogCard(dog: Dog) {
                 ) {
 
                     TextButton(
-                        onClick = { /*onToggleShared(dog.dogId)*/ },
-                        modifier = Modifier.padding(end = 8.dp) // Espacio entre botones
+                        onClick = { viewModel.onToggleShared(dog.dogId) },
+                        modifier = Modifier.padding(end = 8.dp)
                     ) {
-                        Text(text = "Share")
-                        /*if (isShared) {
+                        if (isShared) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
                                 contentDescription = "Compartido",
@@ -309,16 +354,13 @@ fun DogCard(dog: Dog) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                        } else {*/
-
-                        /*}*/
+                        } else {
+                            Text(text = "Share")
+                        }
                     }
-
                     Spacer(modifier = Modifier.width(8.dp))
-
                     Button(
                         onClick = { /*viewModel.navigateToPurchaseDescription(dog.dogId)*/ },
-
                         ) {
                         Text(text = dog.status)
                     }
