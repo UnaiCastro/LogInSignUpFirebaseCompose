@@ -50,7 +50,7 @@ class DogViewModel @Inject constructor(
     private fun getUserName() {
         viewModelScope.launch {
             val name = userRepository.getUserName(uid)
-            _currentUser.value = (name ?: "Usuario desconocido").toString()
+            _currentUser.value = (name ?: "Unknown user").toString()
         }
     }
 

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -45,8 +44,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.compose.primaryContainerLight
 import com.example.compose.primaryLightHighContrast
-import com.example.compose.secondaryContainerLightHighContrast
-import com.example.compose.surfaceContainerLight
 
 @Composable
 fun PurchaseScreen(
@@ -64,6 +61,7 @@ fun PurchaseScreen(
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { destination ->
             navController.navigate(destination)
+            viewModel.clearNavigationEvent()
         }
     }
 
@@ -78,7 +76,6 @@ fun PurchaseScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Imagen del perro
             Image(
                 painter = rememberAsyncImagePainter(dog?.profileImageUrl),
                 contentDescription = "Dog Image",
@@ -97,24 +94,22 @@ fun PurchaseScreen(
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
 
-            // Contenido
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 190.dp)
             ) {
                 ElevatedCard(
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), // Solo esquinas superiores redondeadas
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .offset(y = 60.dp) // Elevar la tarjeta desde más abajo
-                        .shadow(6.dp, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)), // Sombra alrededor de la tarjeta
-                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        .offset(y = 60.dp)
+                        .shadow(6.dp, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                    colors = CardDefaults.cardColors(
                         containerColor = primaryContainerLight
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        // Nombre del perro y precio
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -131,7 +126,6 @@ fun PurchaseScreen(
                             )
                         }
 
-                        // Género
                         Text(
                             text = "${dog?.gender ?: "Unknown"}",
                             style = MaterialTheme.typography.bodyMedium
@@ -139,7 +133,6 @@ fun PurchaseScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Descripción del perro
                         Text(
                             text = if (dog?.gender == "Male") "About him" else "About her",
                             style = MaterialTheme.typography.bodyMedium,
@@ -154,7 +147,6 @@ fun PurchaseScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Raza, edad y estado
                         Text(
                             text = "   · ${dog?.breed ?: "Unknown"}",
                             style = MaterialTheme.typography.bodyLarge
@@ -169,9 +161,8 @@ fun PurchaseScreen(
                         )
                     }
 
-                    // Información del dueño
                     ElevatedCard(
-                        elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                        elevation = CardDefaults.cardElevation(
                             defaultElevation = 6.dp
                         ),
                         modifier = Modifier
@@ -255,7 +246,7 @@ fun PurchaseScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.primary // Color del texto
+                            contentColor = MaterialTheme.colorScheme.primary
                         ),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
 
@@ -263,11 +254,10 @@ fun PurchaseScreen(
                         Text(text = "Chat with me", fontSize = 12.sp)
                     }
 
-                    Spacer(modifier = Modifier.height(200.dp)) // Espacio al final
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
         }
     }
-
 }
 

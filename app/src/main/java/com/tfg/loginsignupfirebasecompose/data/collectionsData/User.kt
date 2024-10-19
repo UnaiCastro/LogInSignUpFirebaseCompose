@@ -9,10 +9,10 @@ data class User(
     val address: String = "",
     val phone: String = "",
     val region: String = "",
-    val likedEstablishments: List<String> = emptyList(), // Lista de identificadores de establecimientos dados me gusta
-    val starred_dogs: List<String> = emptyList(), // Lista de identificadores de perros marcados como favoritos
-    val sharedDogs: List<String> = emptyList(), // Lista de identificadores de perros compartidos
-    val chat_rooms: List<String> = emptyList(), // Lista de identificadores de salas de chat
-    val dogs: List<String> = emptyList() // Lista de perros del usuario
+    val likedEstablishments: List<String> = emptyList(),
+    val starred_dogs: List<String> = emptyList(),
+    val sharedDogs: List<String> = emptyList(),
+    val chat_rooms: List<String> = emptyList(),
+    val dogs: List<String> = emptyList()
 )
 

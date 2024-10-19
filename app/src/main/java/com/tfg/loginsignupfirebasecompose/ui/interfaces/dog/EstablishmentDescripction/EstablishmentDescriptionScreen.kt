@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,14 +37,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,7 +55,6 @@ import com.example.compose.onBackgroundLight
 import com.example.compose.onSurfaceLight
 import com.example.compose.primaryLight
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
-import com.tfg.loginsignupfirebasecompose.data.collectionsData.Establishment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,159 +64,123 @@ fun EstablishmentDescriptionScreen(
     viewModel: EstablishmentDescriptionViewModel = hiltViewModel()
 ) {
 
-
-    var isLiked by remember { mutableStateOf(false) }
-    var establishment by remember { mutableStateOf<Establishment?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
-    var likedUsersCount by remember { mutableStateOf(0) }
-
+    val establishment by viewModel.establishment.collectAsState()
     val dogs by viewModel.dogs.collectAsState()
-
-
-
+    val userStarredDogs by viewModel.userStarredDogs.collectAsState()
+    val userSharedDogs by viewModel.userSharedDogs.collectAsState()
+    val establishmentLikes by viewModel.establishmentLikes.collectAsState()
 
     LaunchedEffect(establishmentId) {
-        isLoading = true
-        establishment = viewModel.getEstablishmentDetails(establishmentId)
-        establishment?.let {
-            viewModel.getDogsByOwner(it.owner_id)
-            isLiked = viewModel.isEstablishmentLiked(establishmentId)
-            likedUsersCount = it.liked_users.size
-        }
-        isLoading = false
+        viewModel.loadEstablishmentAndDogs(establishmentId)
+        viewModel.loadUserEstablishmentLikes()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "") },
+                title = { Text(text = establishment?.name ?: "Establishment") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-
-                    ),
                 actions = {
-                    IconButton(onClick = {
-                        isLiked = if (isLiked) {
-                            viewModel.unlikeEstablishment(establishmentId)
-                            likedUsersCount--
-                            false // Cambia el estado a no guardado
-                        } else {
-                            viewModel.likeEstablishment(establishmentId)
-                            likedUsersCount++
-                            true // Cambia el estado a guardado
-                        }
-                    }) {
+                    val isLiked = establishmentLikes.contains(establishmentId)
+                    IconButton(onClick = { viewModel.toggleEstablishmentLike(establishmentId) }) {
                         Icon(
-                            imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = "Like",
-                            tint = if (isLiked) Color.Blue else Color.Black
+                            imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            tint = Color.Blue,
+                            contentDescription = if (isLiked) "Unlike" else "Like"
                         )
                     }
-                },
+                }
             )
         }
     ) { paddingValues ->
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
+        establishment?.let { est ->
+            val painter = rememberAsyncImagePainter(est.establishmentImage)
+            Box(modifier = Modifier.fillMaxSize()) {
+                Image(
+                    painter = painter,
+                    contentDescription = "Establishment Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(350.dp)
+                        .padding(paddingValues)
+                )
 
-            establishment?.let { est ->
-                val painter = rememberAsyncImagePainter(est.establishmentImage)
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Image(
-                        painter = painter,
-                        contentDescription = "Establishment Image",
-                        contentScale = ContentScale.Crop,
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 0.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(220.dp))
+
+                    ElevatedCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(350.dp)
-                            .padding(paddingValues)
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 0.dp)
+                            .fillMaxHeight()
+                            .offset(y = 40.dp),
+                        elevation = CardDefaults.elevatedCardElevation(8.dp),
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp
+                        )
                     ) {
-                        Spacer(modifier = Modifier.height(220.dp))
-
-                        ElevatedCard(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .fillMaxHeight()
-                                .offset(y = 40.dp),
-                            elevation = CardDefaults.elevatedCardElevation(8.dp),
-                            shape = RoundedCornerShape(
-                                topStart = 16.dp,
-                                topEnd = 16.dp
-                            ) // Curvatura para que la tarjeta se vea elegante
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
+                            Text(
+                                text = "Name: ${est.name}",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = est.adress,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = est.phone,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Favorite,
+                                    contentDescription = "Likes",
+                                    tint = Color.Blue
+                                )
+                                Text(
+                                    text = " ${est.liked_users.size}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "Dogs Owned:",
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.align(Alignment.Start)
+                            )
+
+                            LazyColumn(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                    .height(300.dp)
                             ) {
-                                Text(
-                                    text = "Nombre: ${est.name}",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    text = est.adress,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    text = est.phone,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        Icons.Default.Favorite,
-                                        contentDescription = "Likes",
-                                        tint = Color.Blue
+                                items(dogs) { dog ->
+                                    DogCard(
+                                        dog = dog,
+                                        isStarred = userStarredDogs.contains(dog.dogId),
+                                        isShared = userSharedDogs.contains(dog.dogId),
+                                        onStarToggle = { viewModel.toggleStarredDog(dog.dogId) },
+                                        onShareToggle = { viewModel.toggleSharedDog(dog.dogId) },
+                                        navController = navController
                                     )
-                                    Text(
-                                        text = " $likedUsersCount",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text(
-                                    text = "Dogs Owned:",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.align(Alignment.Start)
-                                )
-
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(300.dp)
-                                ) {
-                                    items(dogs) { dog ->
-                                        var isStarred by remember { mutableStateOf(false) }
-                                        var isShared by remember { mutableStateOf(false) }
-
-                                        LaunchedEffect(dog.dogId) {
-                                            isStarred = viewModel.isDogStarred(dog.dogId)
-                                            isShared = viewModel.isDogShared(dog.dogId)
-                                        }
-                                        DogCard(
-                                            dog = dog,
-                                            isStarred = isStarred,
-                                            isShared = isShared,
-                                            viewModel = viewModel
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -238,7 +196,9 @@ fun DogCard(
     dog: Dog,
     isStarred: Boolean,
     isShared: Boolean,
-    viewModel: EstablishmentDescriptionViewModel
+    onStarToggle: () -> Unit,
+    onShareToggle: () -> Unit,
+    navController: NavHostController
 ) {
     ElevatedCard(
         modifier = Modifier
@@ -272,14 +232,14 @@ fun DogCard(
                 )
 
                 IconButton(
-                    onClick = { viewModel.onToggleStarred(dog.dogId) },
+                    onClick = onStarToggle,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                 ) {
                     Icon(
-                        imageVector = if (isStarred) Icons.Filled.Star else Icons.Filled.Star,
+                        imageVector = Icons.Filled.Star,
                         contentDescription = if (isStarred) "Guardado" else "Guardar",
-                        tint = if (isStarred) Color(0xFFFFF9C4) else Color.Black, // Amarillo si está guardado
+                        tint = if (isStarred) Color(0xFFFFF9C4) else Color.Black,
                         modifier = Modifier
                             .size(25.dp)
                             .background(primaryLight.copy(alpha = 0.7f), CircleShape)
@@ -289,7 +249,6 @@ fun DogCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información del perro y botones
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -303,7 +262,6 @@ fun DogCard(
                     maxLines = 1
                 )
 
-                // Información de la raza y edad
                 Row(
                     modifier = Modifier.padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -321,13 +279,12 @@ fun DogCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${dog.age} años",
+                        text = "${dog.age} years old",
                         style = MaterialTheme.typography.bodyLarge,
                         color = onSurfaceLight
                     )
                 }
 
-                // Precio
                 Text(
                     text = "${dog.price} USD",
                     style = MaterialTheme.typography.bodyLarge,
@@ -343,13 +300,13 @@ fun DogCard(
                 ) {
 
                     TextButton(
-                        onClick = { viewModel.onToggleShared(dog.dogId) },
+                        onClick = onShareToggle,
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
                         if (isShared) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
-                                contentDescription = "Compartido",
+                                contentDescription = "Shared",
                                 tint = Color.Green,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -360,8 +317,8 @@ fun DogCard(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { /*viewModel.navigateToPurchaseDescription(dog.dogId)*/ },
-                        ) {
+                        onClick = { navController.navigate("purchaseDescription/$dog.dogId") },
+                    ) {
                         Text(text = dog.status)
                     }
                 }

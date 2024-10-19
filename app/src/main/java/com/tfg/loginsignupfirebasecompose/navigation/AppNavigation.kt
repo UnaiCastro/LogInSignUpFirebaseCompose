@@ -12,6 +12,7 @@ import com.tfg.loginsignupfirebasecompose.ui.interfaces.FirebaseCompose.Firebase
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.Login.LoginScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.SignUp.SignUpScreen
 import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.DogScreen
+import com.tfg.loginsignupfirebasecompose.ui.interfaces.resetPassword.ResetPasswordScreen
 
 @Composable
 fun AppNavigation(){
@@ -43,6 +44,9 @@ fun AppNavigation(){
         }
         composable(route = AppScreens.DogScreen.route) {
             DogScreen(navController)
+        }
+        composable(route = AppScreens.ResetPasswordScreen.route) {
+            ResetPasswordScreen(navController)
         }
 
     }

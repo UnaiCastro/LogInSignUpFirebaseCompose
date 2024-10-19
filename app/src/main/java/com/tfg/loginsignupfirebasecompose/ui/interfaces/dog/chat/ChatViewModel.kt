@@ -9,7 +9,6 @@ import com.tfg.loginsignupfirebasecompose.data.collectionsData.Message
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.ChatRepository
-import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.MessageRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,12 +21,10 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val userRepository: UserRepository,
-    private val dogRepository: DogRepository,
     private val messageRepository: MessageRepository,
     private val authRepository: AuthRepository,
     private val db: FirebaseFirestore
-): ViewModel() {
-
+) : ViewModel() {
 
 
     val currentIdUser = authRepository.getCurrentUser()!!.uid
@@ -35,7 +32,7 @@ class ChatViewModel @Inject constructor(
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
 
-    private val _otherUser = MutableStateFlow<User?>(null) // Estado para el otro usuario
+    private val _otherUser = MutableStateFlow<User?>(null)
     val otherUser: StateFlow<User?> = _otherUser
 
     private val _currentUser = MutableStateFlow<User?>(null)
@@ -52,15 +49,12 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val ids = chatRepository.getMessageIdsForChat(chatId)
-
-                // Verificar si la lista no está vacía antes de ejecutar `whereIn`
                 if (ids.isNotEmpty()) {
-                    // Ejecutar la consulta solo si hay IDs en la lista
-                    val loadedMessages = ids.map { chatRepository.getMessageById(it) }
+                    val loadedMessages = ids.map { messageRepository.getMessageById(it) }
                     _messages.value = loadedMessages as List<Message>
                 } else {
                     Log.e("ChatViewModel", "No message IDs found for chat: $chatId")
-                    _messages.value = emptyList()  // Si no hay mensajes, la lista se vacía
+                    _messages.value = emptyList()
                 }
 
             } catch (e: Exception) {
@@ -70,12 +64,9 @@ class ChatViewModel @Inject constructor(
     }
 
 
-
-
     fun sendMessage(messageContent: String, chatId: String, senderId: String) {
         viewModelScope.launch {
             val chatObject = chatRepository.getChatById(chatId)
-            // Asigna el ID del receptor basado en el senderId
             val receiverId = if (senderId == chatObject?.user1id) {
                 chatObject?.user2id
             } else {
@@ -89,7 +80,10 @@ class ChatViewModel @Inject constructor(
                 messageContent = messageContent,
                 timestamp = Timestamp.now()
             )
-            Log.d("Chat", "user1id: ${chatObject?.user1id}, user2id: ${chatObject?.user2id}, senderId: $senderId, receiverId: $receiverId")
+            Log.d(
+                "Chat",
+                "user1id: ${chatObject?.user1id}, user2id: ${chatObject?.user2id}, senderId: $senderId, receiverId: $receiverId"
+            )
 
             val messageId = messageRepository.addMessage(newMessage)
             chatRepository.updateChatWithNewMessage(chatId, messageId)
@@ -100,15 +94,12 @@ class ChatViewModel @Inject constructor(
     fun loadOtherUser(chatId: String) {
         viewModelScope.launch {
             val chat = chatRepository.getChatById(chatId)
-
-            // Determinar quién es el "otro usuario"
             val otherUserId = if (chat?.user1id == currentIdUser) {
                 chat?.user2id
             } else {
                 chat?.user1id
             }
 
-            // Obtener los detalles del otro usuario usando su ID
             val user = userRepository.getUserDetailsById(otherUserId.toString())
             _otherUser.value = user
         }

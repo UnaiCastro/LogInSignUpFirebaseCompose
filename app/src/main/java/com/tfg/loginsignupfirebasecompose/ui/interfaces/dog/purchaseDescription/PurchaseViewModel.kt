@@ -35,17 +35,14 @@ class PurchaseViewModel @Inject constructor(
     private val _owner = MutableStateFlow<User?>(null)
     val owner: StateFlow<User?> = _owner
 
-    // Obtener el perro por su ID
     fun getDogById(dogId: String) {
         viewModelScope.launch {
             val fetchedDog = dogRepository.getDogById(dogId)
             _dog.value = fetchedDog
-            // Obtener el dueño basado en el perro
             getOwnerByDogId(fetchedDog?.owner_id ?: "")
         }
     }
 
-    // Obtener el dueño por el ID del perro
     private fun getOwnerByDogId(ownerId: String) {
         viewModelScope.launch {
             val fetchedOwner = userRepository.getUserDetailsById(ownerId)
@@ -54,12 +51,15 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun adoptOrBuy(dog: Dog, userOwnerId: String, dogId: String) {
-        Log.d("PurchaseViewModel", "Adopción o compra iniciada para el perro con ID: ${dogId}, propietario ID: $userOwnerId")
+        Log.d(
+            "PurchaseViewModel",
+            "Adopción o compra iniciada para el perro con ID: ${dogId}, propietario ID: $userOwnerId"
+        )
         viewModelScope.launch {
-            purchaseRepository.newPurchase(dogId,dog.price,uid,userOwnerId)
-            dogRepository.adoptOrBuy(dogId,uid,dog.status)
-            userRepository.addNewDog(dogId,uid)
-            userRepository.deleteDog(dogId,userOwnerId)
+            purchaseRepository.newPurchase(dogId, dog.price, uid, userOwnerId)
+            dogRepository.adoptOrBuy(dogId, uid, dog.status)
+            userRepository.addNewDog(dogId, uid)
+            userRepository.deleteDog(dogId, userOwnerId)
         }
     }
 
@@ -67,11 +67,14 @@ class PurchaseViewModel @Inject constructor(
         viewModelScope.launch {
             val dog = dogRepository.getDogById(dogId)
             val createdChat: String = chatRepository.isCreatedChat(uid, dogId, dog!!.owner_id)
-            userRepository.addChatToRoomChat(createdChat,uid)
-            userRepository.addChatToRoomChat(createdChat,dog.owner_id)
+            userRepository.addChatToRoomChat(createdChat, uid)
+            userRepository.addChatToRoomChat(createdChat, dog.owner_id)
             _navigationEvent.value = "chat/$createdChat"
         }
+    }
 
+    fun clearNavigationEvent() {
+        _navigationEvent.value = null
     }
 }
 

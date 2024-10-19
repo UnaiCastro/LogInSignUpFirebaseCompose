@@ -35,17 +35,16 @@ class DogRepositoryImpl @Inject constructor(
         return try {
             val querySnapshot = db.collection(FirestoreCollections.dogs)
                 .get()
-                .await() // Espera el resultado de la llamada asíncrona
+                .await()
             querySnapshot.documents.map { document ->
                 val dog = document.toObject(Dog::class.java)
                 dog?.apply {
-                    // Aquí añadimos el ID del documento al objeto Dog
                     this.dogId = document.id
                 } ?: throw IllegalStateException("Error al convertir el documento a Dog")
             }
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error al obtener los perros", e)
-            emptyList() // Si hay un error, retornamos una lista vacía
+            emptyList()
         }
     }
 
@@ -56,42 +55,35 @@ class DogRepositoryImpl @Inject constructor(
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(dogRef)
 
-                // Obtener la lista actual de 'sharedBy', si no existe, crear una lista vacía
                 val sharedBy = snapshot.get("shared_dog_userId") as? MutableList<String> ?: mutableListOf()
 
                 if (add) {
-                    // Añadir el ID del usuario si no está ya en la lista
                     if (!sharedBy.contains(uid)) {
                         sharedBy.add(uid)
                     }
                 } else {
-                    // Eliminar el ID del usuario de la lista
                     sharedBy.remove(uid)
                 }
 
-                // Actualizar el campo 'sharedBy' en Firestore
                 transaction.update(dogRef, "shared_dog_userId", sharedBy)
-            }.await() // Asegúrate de manejar las coroutines
+            }.await()
         } catch (e: Exception) {
-            // Aquí puedes manejar el error, por ejemplo, registrarlo o mostrar un mensaje al usuario
             Log.e("DogRepository", "Error updating sharedBy field: ${e.message}")
         }
     }
 
     override suspend fun getDogById(dogId: String): Dog? {
         return try {
-            // Referencia a la colección de usuarios en Firestore
             val document = db.collection(FirestoreCollections.dogs).document(dogId).get().await()
 
-            // Si el documento existe, mapeamos los datos al objeto User
             if (document.exists()) {
-                document.toObject(Dog::class.java) // Convierte el documento en un objeto User
+                document.toObject(Dog::class.java)
             } else {
-                null // En caso de que no exista el documento, devolvemos null
+                null
             }
         } catch (e: Exception) {
             Log.e("FirestoreError", "Error fetching user details for userId: $dogId", e)
-            null // En caso de error, devolvemos null
+            null
         }
     }
 
@@ -161,6 +153,20 @@ class DogRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("DogRepository", "Error al obtener perros por ID", e)
             emptyList()
+        }
+    }
+
+    override suspend fun getDogDetailsById(dogId: String): Dog? {
+        return try {
+            val document = db.collection(FirestoreCollections.dogs).document(dogId).get().await()
+            if (document.exists()) {
+                document.toObject(Dog::class.java)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error fetching dog details for dogId: $dogId", e)
+            null
         }
     }
 

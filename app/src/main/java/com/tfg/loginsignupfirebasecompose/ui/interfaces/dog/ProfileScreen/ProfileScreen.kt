@@ -1,12 +1,5 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.ProfileScreen
 
-import android.app.AlertDialog
-import android.content.Context
-import android.net.Uri
-import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -26,12 +19,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,9 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -51,7 +40,6 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,9 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.compose.onErrorContainerLight
-import com.example.compose.primaryContainerLightHighContrast
 import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 
@@ -83,7 +69,6 @@ fun ProfileScreen(
 
     LaunchedEffect(navigationEvent) {
         navigationEvent?.let { route ->
-            // Navegación interna o externa según el evento
             navController.navigate(route) {
                 popUpTo(AppScreens.DogScreen.route) { inclusive = true }
             }
@@ -110,14 +95,17 @@ fun ProfileScreen(
             )
         },
 
-    ) { paddingValues ->
+        ) { paddingValues ->
         Image(
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
-        
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,12 +115,10 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Imagen de perfil
             Box(
                 modifier = Modifier
                     .size(150.dp)
             ) {
-                // Imagen de perfil
                 profileImageUrl?.let { url ->
                     Image(
                         painter = rememberAsyncImagePainter(model = url),
@@ -187,25 +173,21 @@ fun ProfileScreen(
                     painter = painterResource(id = R.drawable.ic_location),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(18.dp) // Tamaño del icono
-                        .clip(CircleShape), // Espacio entre el icono y el texto
+                        .size(18.dp)
+                        .clip(CircleShape),
                     tint = Color.Unspecified
                 )
 
-                // Texto justo a la derecha del icono
                 Text(
-                    text = adress, // Cambia `adress` por `address` si ese es el nombre correcto
+                    text = adress,
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black,
-                    modifier = Modifier.padding(start = 8.dp) // Espacio entre el icono y el texto
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
 
-
-
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Fila para Settings
             ProfileRowItem(
                 iconResId = R.drawable.settings,
                 text = "Settings",
@@ -218,14 +200,12 @@ fun ProfileScreen(
                 onClick = { innerNavController.navigate("chatroom") }
             )
 
-            // Fila para Shared
             ProfileRowItem(
                 iconResId = R.drawable.ic_compartir,
                 text = "Shared",
                 onClick = { innerNavController.navigate("shared") }
             )
 
-            // Fila para Establishments Likes
             ProfileRowItem(
                 iconResId = R.drawable.corazon,
                 text = "Establishments Likes",
@@ -247,13 +227,13 @@ fun ProfileScreen(
 
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = onErrorContainerLight, // Color de fondo inicial del botón
-                    contentColor = Color.White, // Color de las letras en el estado inicial
+                    containerColor = onErrorContainerLight,
+                    contentColor = Color.White,
                 ),
                 border = BorderStroke(
                     1.dp,
                     onErrorContainerLight
-                ), // Borde con el mismo rojo que el fondo
+                ),
                 modifier = Modifier.padding(vertical = 8.dp),
             ) {
                 Text(
@@ -265,39 +245,6 @@ fun ProfileScreen(
     }
 }
 
-private fun showImageSelectionDialog(
-    context: Context,
-    changeImageLauncher: ManagedActivityResultLauncher<String, Uri?>,
-    takePictureLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
-    photoUri: Uri?
-) {
-    val options = arrayOf("Tomar Foto", "Seleccionar de Galería")
-    AlertDialog.Builder(context).apply {
-        setTitle("Cambiar imagen de perfil")
-        setItems(options) { _, which ->
-            when (which) {
-                0 -> {
-                    // Tomar foto
-                    if (photoUri != null) {
-                        takePictureLauncher.launch(photoUri)
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Error al crear el archivo para la imagen",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-
-                1 -> {
-                    // Seleccionar de galería
-                    changeImageLauncher.launch("image/*")
-                }
-            }
-        }
-        create().show()
-    }
-}
 
 @Composable
 fun ProfileRowItem(

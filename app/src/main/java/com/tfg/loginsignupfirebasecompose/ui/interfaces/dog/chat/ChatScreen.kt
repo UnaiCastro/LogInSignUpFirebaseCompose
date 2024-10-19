@@ -19,15 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,8 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.compose.primaryLight
-import com.example.compose.surfaceContainerLight
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Message
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,37 +50,35 @@ fun ChatScreen(
     navController: NavHostController,
     viewModel: ChatViewModel = hiltViewModel(),
 ) {
-    val messages by viewModel.messages.collectAsState()  // Mensajes actuales
-    val newMessageText = remember { mutableStateOf("") }  // Texto del nuevo mensaje
+    val messages by viewModel.messages.collectAsState()
+    val newMessageText = remember { mutableStateOf("") }
     val currentUser by viewModel.currentUser.collectAsState()
     val currentUserId = viewModel.currentIdUser
-    val otherUser by viewModel.otherUser.collectAsState() // Detalles del otro usuario en el chat
+    val otherUser by viewModel.otherUser.collectAsState()
 
     LaunchedEffect(chatId) {
         viewModel.loadMessageIds(chatId)
         viewModel.loadCurrentUser(currentUserId)
-        viewModel.loadOtherUser(chatId) // Supongo que tienes una función para cargar el otro usuario del chat
+        viewModel.loadOtherUser(chatId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Mostrar la imagen de perfil de la otra persona
                     if (otherUser?.profileImageUrl != null) {
                         AsyncImage(
                             model = otherUser?.profileImageUrl,
                             contentDescription = "Other user profile picture",
                             modifier = Modifier
-                                .size(40.dp)  // Tamaño de la imagen
-                                .clip(CircleShape)  // Forma circular
-                                .border(1.dp, Color.Gray, CircleShape),  // Borde alrededor
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .border(1.dp, Color.Gray, CircleShape),
                             contentScale = ContentScale.Crop
                         )
-                        Spacer(modifier = Modifier.width(8.dp))  // Espacio entre la imagen y el nombre
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
 
-                    // Mostrar el nombre del otro usuario
                     Text(text = otherUser?.name ?: "Chat")
                 }
             },
@@ -115,7 +108,7 @@ fun ChatScreen(
                 modifier = Modifier.weight(1f),
                 value = newMessageText.value,
                 onValueChange = { newMessageText.value = it },
-                placeholder = { Text(text = "Escribe un mensaje...") },
+                placeholder = { Text(text = "New message...") },
                 maxLines = 1,
             )
 
@@ -129,7 +122,10 @@ fun ChatScreen(
                     }
                 }
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = "Send Message")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send Message"
+                )
             }
         }
     }
@@ -138,7 +134,8 @@ fun ChatScreen(
 @Composable
 fun ChatMessageBubble(message: Message, currentUserId: String) {
     val isCurrentUser = message.senderId == currentUserId
-    val backgroundColor = if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val backgroundColor =
+        if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
 
     Row(
         modifier = Modifier
@@ -151,7 +148,10 @@ fun ChatMessageBubble(message: Message, currentUserId: String) {
                 .background(backgroundColor, shape = RoundedCornerShape(16.dp))
                 .padding(12.dp)
         ) {
-            Text(text = message.messageContent, color = if (isCurrentUser) Color.White else Color.Black)
+            Text(
+                text = message.messageContent,
+                color = if (isCurrentUser) Color.White else Color.Black
+            )
         }
     }
 }

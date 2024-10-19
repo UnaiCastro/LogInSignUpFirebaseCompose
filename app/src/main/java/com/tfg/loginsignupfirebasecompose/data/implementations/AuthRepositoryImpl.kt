@@ -1,6 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
@@ -36,5 +37,15 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
+    }
+
+    override suspend fun sendPasswordResetEmail(email: String) {
+        try {
+            auth.sendPasswordResetEmail(email).await()
+        } catch (e: FirebaseAuthInvalidUserException) {
+            throw Exception("No account found with this email.")
+        } catch (e: Exception) {
+            throw Exception("Failed to send reset email. Please try again.")
+        }
     }
 }

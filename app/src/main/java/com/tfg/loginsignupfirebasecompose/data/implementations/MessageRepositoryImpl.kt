@@ -2,6 +2,7 @@ package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tfg.loginsignupfirebasecompose.data.Firebase.FirestoreCollections
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Message
 import com.tfg.loginsignupfirebasecompose.domain.repositories.MessageRepository
 import kotlinx.coroutines.tasks.await
@@ -15,7 +16,7 @@ class MessageRepositoryImpl @Inject constructor(
 
     override suspend fun addMessage(newMessage: Message): String {
         return try {
-            val messageRef = db.collection("messages").document()
+            val messageRef = db.collection(FirestoreCollections.messages).document()
             val newMessageDefinitive = hashMapOf(
                 "chatId" to newMessage.chatId,
                 "senderId" to newMessage.senderId,
@@ -35,11 +36,12 @@ class MessageRepositoryImpl @Inject constructor(
 
     override suspend fun getMessageById(lastMessageId: String): Message? {
         return try {
-            val document = db.collection("messages").document(lastMessageId).get().await()
+            val document = db.collection(FirestoreCollections.messages).document(lastMessageId).get().await()
             document.toObject(Message::class.java)
         } catch (e: Exception) {
-            Log.e("UserRepository", "Error fetching message by ID: $lastMessageId", e)
+            Log.e("MessageRepository", "Error fetching message by ID: $lastMessageId", e)
             null
         }
     }
+
 }

@@ -19,7 +19,7 @@ class MyDogsViewModel @Inject constructor(
     private val dogRepository: DogRepository,
     private val authRepository: AuthRepository
 
-): ViewModel() {
+) : ViewModel() {
     private val _myDogs = MutableStateFlow<List<Dog>>(emptyList())
     val myDogs: StateFlow<List<Dog>> = _myDogs
 

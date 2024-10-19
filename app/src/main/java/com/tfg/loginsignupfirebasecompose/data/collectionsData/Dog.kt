@@ -11,6 +11,6 @@ data class Dog(
     val owner_id: String = "",
     val status: String = "",
     val price: Int = 0,
-    val shared_dog_userId: List<String> = emptyList() // Lista vacía por defecto
+    val shared_dog_userId: List<String> = emptyList()
 )
 

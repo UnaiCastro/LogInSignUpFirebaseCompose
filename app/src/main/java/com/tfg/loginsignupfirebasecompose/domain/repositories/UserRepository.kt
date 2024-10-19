@@ -9,11 +9,8 @@ interface UserRepository {
     suspend fun saveUser(uid: String, user: Map<String, Any>): Result<Unit>
     suspend fun getEmail(uid: String): String?
     suspend fun getProfileImageUrl(uid: String): String?
-    suspend fun getChatsByIds(chatRoomIds: List<String>): List<Chat>
     suspend fun getUserChatRooms(uid: String): List<String>
     suspend fun getUserDetailsById(otherUserId: String): User?
-    suspend fun getDogDetailsById(dogId: String): Dog?
-    suspend fun saveEstablishment(establishment: HashMap<String, Any>): Result<String>
     suspend fun getStarredDogs(uid: String): List<String>?
     suspend fun updateStarredDogs(uid: String, currentStarred: MutableList<String>)
     suspend fun getSharedDogs(uid: String): List<String>
@@ -32,15 +29,6 @@ interface UserRepository {
     suspend fun addChatToRoomChat(createdChat: String, uid: String)
     suspend fun getAddress(uid: String): String?
     suspend fun updateUserProfileImage(imageUrl: String?, uid: String)
-    suspend fun saveBusinessInfo(
-        userId: String,
-        name: String,
-        address: String,
-        phone: String,
-        latitude: Double,
-        longitude: Double
-    )
-    suspend fun deleteBusinessInfo(userId: String)
     suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?)
     suspend fun updateRegion(uid: String, it: String)
     suspend fun addToLikedEstablishments(currentUserId: String, establishmentId: String)

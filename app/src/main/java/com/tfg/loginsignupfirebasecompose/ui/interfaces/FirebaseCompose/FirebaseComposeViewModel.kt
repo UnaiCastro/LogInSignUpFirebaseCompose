@@ -13,10 +13,6 @@ class FirebaseComposeViewModel @Inject constructor() : ViewModel() {
     private val _navigationEvent = MutableStateFlow<String?>(null)
     val navigationEvent: StateFlow<String?> = _navigationEvent
 
-    init {
-
-    }
-
     fun onSignUpClick() {
         _navigationEvent.value = AppScreens.SignUpScreen.route
     }

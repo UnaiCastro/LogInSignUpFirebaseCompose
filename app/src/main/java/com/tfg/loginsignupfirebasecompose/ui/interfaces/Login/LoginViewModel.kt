@@ -1,15 +1,17 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.Login
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -46,6 +48,10 @@ class LoginViewModel @Inject constructor(
 
     fun onSignUpClick() {
         _navigationEvent.value = AppScreens.SignUpScreen.route
+    }
+
+    fun onForgotPasswordClick() {
+        _navigationEvent.value = AppScreens.ResetPasswordScreen.route
     }
 }
 

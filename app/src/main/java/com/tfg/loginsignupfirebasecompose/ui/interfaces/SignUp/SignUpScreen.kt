@@ -1,14 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.SignUp
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,7 +26,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,7 +46,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,10 +58,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.rememberCameraPositionState
 import com.tfg.loginsignupfirebasecompose.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,7 +144,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                 )
 
                 Text(
-                    text = "Selecciona el tipo de usuario:",
+                    text = "Select user type:",
                     modifier = Modifier.padding(bottom = 8.dp),
                     color = Color.White,
                 )
@@ -207,7 +194,6 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                     }
                 }
 
-                // Condición para mostrar la sección de información del usuario
                 if (viewModel.userType.isNotEmpty()) {
                     HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(top = 16.dp))
 
@@ -242,7 +228,6 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         )
                     )
 
-                    // Email
                     TextField(
                         value = viewModel.email,
                         onValueChange = { viewModel.email = it },
@@ -266,7 +251,6 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         )
                     )
 
-                    // Teléfono
                     TextField(
                         value = viewModel.phone,
                         onValueChange = { viewModel.phone = it },
@@ -288,7 +272,6 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         )
                     )
 
-                    // Región
                     ExposedDropdownMenuBox(
                         expanded = expandedCities,
                         onExpandedChange = { expandedCities = !expandedCities }
@@ -338,7 +321,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         value = viewModel.address,
                         onValueChange = { viewModel.address = it },
                         label = { Text("Your Address") },
-                        placeholder = { Text("Calle falsa 123") },
+                        placeholder = { Text("False Street 123") },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
@@ -364,7 +347,10 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         placeholder = { Text("") },
                         visualTransformation =
                         if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password,imeAction = ImeAction.Done),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
                         keyboardActions = KeyboardActions(
                             onNext = {
                                 focusManager.clearFocus()
@@ -393,7 +379,10 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                     )
 
                     if (viewModel.userType == "Enterprise") {
-                        HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(top = 16.dp))
+                        HorizontalDivider(
+                            thickness = 2.dp,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
 
                         Text(
                             text = "Company Information",
@@ -406,7 +395,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         TextField(
                             value = viewModel.companyName,
                             onValueChange = { viewModel.companyName = it },
-                            label = { Text("Nombre de la empresa") },
+                            label = { Text("Company name") },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp),
@@ -427,7 +416,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         TextField(
                             value = viewModel.companyPhone,
                             onValueChange = { viewModel.companyPhone = it },
-                            label = { Text("Phone") },
+                            label = { Text("Company Phone") },
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
                                 unfocusedContainerColor = Color.White,

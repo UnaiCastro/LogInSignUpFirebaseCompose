@@ -13,9 +13,11 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
-    private val db: FirebaseFirestore
+    private val db: FirebaseFirestore,
 ) : UserRepository
 {
+
+    private val dogRepository = DogRepositoryImpl(db)
 
     override suspend fun getUserName(uid: String): String? {
         return try {
@@ -56,28 +58,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getChatsByIds(chatRoomIds: List<String>): List<Chat> {
-        return try {
-            val snapshot = db.collection(FirestoreCollections.chats)
-                .whereIn(FieldPath.documentId(), chatRoomIds)
-                .get()
-                .await()
-            snapshot.documents.map { document ->
-                Chat(
-                    chatId = document.id,
-                    dogId = document.getString("dog_id") ?: "",
-                    user1id = document.getString("user1id") ?: "",
-                    user2id = document.getString("user2id") ?: "",
-                    lastMessage = document.getString("last_message") ?: "",
-                    created_at = document.getString("created_at") ?: "",
-                    messages = document.get("messages") as? List<String> ?: emptyList()
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("ChatRepository", "Error fetching chats", e)
-            emptyList()
-        }
-    }
+
 
     override suspend fun getUserChatRooms(userId: String): List<String> {
         return try {
@@ -110,47 +91,17 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDogDetailsById(dogId: String): Dog? {
-        return try {
-            val document = db.collection(FirestoreCollections.dogs).document(dogId).get().await()
-            if (document.exists()) {
-                document.toObject(Dog::class.java)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("FirestoreError", "Error fetching dog details for dogId: $dogId", e)
-            null
-        }
-    }
 
-    override suspend fun saveEstablishment(
-        establishment: HashMap<String, Any>
-    ): Result<String> { // Cambiar a devolver un String que será el ID del establecimiento
-        return try {
-            // Suponiendo que estás usando Firestore
-            val db = FirebaseFirestore.getInstance()
-            val documentReference = db.collection(FirestoreCollections.establishments) // Nombre de la colección
-                .add(establishment) // Usa add para crear el documento y obtener el ID
-                .await() // Espera a que se complete la operación
-            Result.success(documentReference.id) // Devuelve el ID del documento creado
-        } catch (e: Exception) {
-            Result.failure(e) // Devuelve el error si falla
-        }
-    }
 
     override suspend fun getStarredDogs(uid: String): List<String> {
         return try {
             val document = db.collection(FirestoreCollections.users).document(uid).get().await()
             document.get("starred_dogs") as? List<String>
-                ?: emptyList()  // Retorna una lista vacía si el valor es null o no es del tipo esperado
+                ?: emptyList()
         } catch (e: Exception) {
-            Log.e(
-                "FirestoreError",
-                "Error al obtener los perros favoritos para el usuario: $uid",
-                e
-            )
-            emptyList()  // Retorna una lista vacía en caso de error
+            Log.e("FirestoreError", "Error retrieving favorite dogs for user: $uid", e)
+
+            emptyList()
         }
     }
 
@@ -162,12 +113,10 @@ class UserRepositoryImpl @Inject constructor(
             if (documentSnapshot.exists()) {
                 documentRef.update("starred_dogs", currentStarred).await()
             } else {
-                // Handle the case where the document does not exist
-                // For example, you might want to create a new document or log an error
+
                 Log.w("Firestore", "Document with UID $uid does not exist.")
             }
         } catch (e: Exception) {
-            // Log the exception or handle it as needed
             Log.e("Firestore", "Error updating starred dogs", e)
         }
     }
@@ -177,11 +126,8 @@ class UserRepositoryImpl @Inject constructor(
             val userSnapshot = db.collection(FirestoreCollections.users).document(uid).get().await()
             userSnapshot.get("sharedDogs") as? List<String> ?: emptyList()
         } catch (e: Exception) {
-            Log.e(
-                "FirestoreError",
-                "Error al obtener los perros compartidos para el usuario: $uid",
-                e
-            )
+            Log.e("FirestoreError", "Error retrieving shared dogs for user: $uid", e)
+
             return emptyList()
         }
 
@@ -197,11 +143,8 @@ class UserRepositoryImpl @Inject constructor(
                     FieldValue.arrayRemove(dogId)
                 )
         } catch (e: Exception) {
-            Log.e(
-                "FirestoreError",
-                "Error al eliminar el perro compartidos para el usuario: $uid",
-                e
-            )
+            Log.e("FirestoreError", "Error removing shared dog for user: $uid", e)
+
         }
     }
 
@@ -215,11 +158,7 @@ class UserRepositoryImpl @Inject constructor(
                     FieldValue.arrayUnion(dogId)
                 )
         } catch (e: Exception) {
-            Log.e(
-                "FirestoreError",
-                "Error al eliminar el perro compartidos para el usuario: $uid",
-                e
-            )
+            Log.e("FirestoreError", "Error adding shared dog for user: $uid", e)
         }
     }
 
@@ -249,7 +188,7 @@ class UserRepositoryImpl @Inject constructor(
             val user = userRepository.getUserDetailsById(currentUser)
             val sharedDogIds = user!!.sharedDogs ?: emptyList()
             sharedDogIds.mapNotNull { dogId ->
-                userRepository.getDogDetailsById(dogId)
+                dogRepository.getDogDetailsById(dogId)
             }
         } catch (e: Exception) {
             emptyList()
@@ -262,7 +201,7 @@ class UserRepositoryImpl @Inject constructor(
             val user = userRepository.getUserDetailsById(currentUser)
             val starredDogIds = user!!.starred_dogs ?: emptyList()
             starredDogIds.mapNotNull { dogId ->
-                userRepository.getDogDetailsById(dogId)
+                dogRepository.getDogDetailsById(dogId)
             }
         } catch (e: Exception) {
             emptyList()
@@ -273,7 +212,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(uid).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al actualizar perros favoritos", e)
+            Log.e("FirestoreError", "Error updating favorite dogs", e)
         }
     }
 
@@ -281,7 +220,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(uid).update("dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception){
-            Log.e("FirestoreError", "Error al actualizar perros union ", e)
+            Log.e("FirestoreError", "Error updating union of dogs", e)
         }
     }
 
@@ -289,7 +228,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(uid).update("dogs", FieldValue.arrayRemove(dogId)).await()
         } catch (e: Exception){
-            Log.e("FirestoreError", "Error al actualizar perros delete", e)
+            Log.e("FirestoreError", "Error updating deletion of dogs", e)
         }
     }
 
@@ -297,7 +236,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(uid).update("chat_rooms", FieldValue.arrayUnion(createdChat)).await()
         } catch (e: Exception){
-            Log.e("FirestoreError", "Error al actualizar chatroom", e)
+            Log.e("FirestoreError", "Error updating chatroom", e)
         }
     }
 
@@ -305,7 +244,7 @@ class UserRepositoryImpl @Inject constructor(
         return try {
             db.collection(FirestoreCollections.users).document(uid).get().await().getString("address")
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al obtener la dirección del usuario", e)
+            Log.e("FirestoreError", "Error retrieving user's address", e)
             null
         }
     }
@@ -314,7 +253,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(uid).update("profileImageUrl", imageUrl).await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al actualizar la imagen de perfil", e)
+            Log.e("FirestoreError", "Error updating profile image", e)
         }
     }
 
@@ -324,52 +263,10 @@ class UserRepositoryImpl @Inject constructor(
                 .update(field, value)
                 .await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al actualizar $field", e)
+            Log.e("FirestoreError", "Error updating $field", e)
         }
     }
 
-    override suspend fun saveBusinessInfo(
-        userId: String,
-        name: String,
-        address: String,
-        phone: String,
-        latitude: Double,
-        longitude: Double
-    ) {
-        val coordinates = hashMapOf(
-            "latitude" to latitude,
-            "longitude" to longitude
-        )
-        val establishment = hashMapOf(
-            "name" to name,
-            "address" to address,
-            "phone" to phone,
-            "coordinates" to coordinates,
-            "owner_id" to userId,
-            "likes" to 0
-        )
-        db.collection(FirestoreCollections.establishments).document().set(establishment)
-    }
-
-    override suspend fun deleteBusinessInfo(userId: String) {
-        try {
-            val establishments = db.collection(FirestoreCollections.establishments)
-                .whereEqualTo("owner_id", userId)
-                .get() // Esto retorna un QuerySnapshot
-                .await()
-
-            // Iterar sobre los documentos y eliminarlos uno por uno
-            for (document in establishments.documents) {
-                db.collection(FirestoreCollections.establishments)
-                    .document(document.id)
-                    .delete()
-                    .await() // Esperar que se complete la eliminación
-            }
-        } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al eliminar la información del establecimiento", e)
-        }
-
-    }
 
     override suspend fun saveCommunityInfo(userId: String, coords: Pair<Double, Double>?) {
         try {
@@ -378,7 +275,7 @@ class UserRepositoryImpl @Inject constructor(
                 .update("coordinates", mapOf("latitude" to coords?.first, "longitude" to coords?.second))
                 .await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al guardar la información de la comunidad", e)
+            Log.e("FirestoreError", "Error saving community information", e)
         }
     }
 
@@ -386,7 +283,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(uid).update("region", it).await()
         } catch (e:Exception){
-            Log.e("FirestoreError", "Error al guardar la información de la region", e)
+            Log.e("FirestoreError", "Error saving region information", e)
         }
     }
 
@@ -395,7 +292,7 @@ class UserRepositoryImpl @Inject constructor(
             val userRef = db.collection(FirestoreCollections.users).document(currentUserId)
             userRef.update("likedEstablishments", FieldValue.arrayUnion(establishmentId))
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al agregar establecimiento a favoritos", e)
+            Log.e("FirestoreError", "Error adding establishment to favorites", e)
         }
 
     }
@@ -408,7 +305,7 @@ class UserRepositoryImpl @Inject constructor(
             val userRef = db.collection(FirestoreCollections.users).document(currentUserId)
             userRef.update("likedEstablishments", FieldValue.arrayRemove(establishmentId))
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al eliminar establecimiento de favoritos", e)
+            Log.e("FirestoreError", "Error removing establishment from favorites", e)
         }
 
     }
@@ -417,7 +314,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(toString).update("starred_dogs", FieldValue.arrayRemove(dogId)).await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al eliminar perro de favoritos", e)
+            Log.e("FirestoreError", "Error removing dog from favorites", e)
         }
     }
 
@@ -425,7 +322,7 @@ class UserRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.users).document(toString).update("starred_dogs", FieldValue.arrayUnion(dogId)).await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al añadir perro de favoritos", e)
+            Log.e("FirestoreError", "Error adding dog to favorites", e)
         }
     }
 

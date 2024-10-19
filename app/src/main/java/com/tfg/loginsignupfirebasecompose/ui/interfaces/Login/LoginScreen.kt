@@ -16,13 +16,11 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,7 +31,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -41,7 +38,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.compose.primaryLight
-
 import com.tfg.loginsignupfirebasecompose.R
 
 @Composable
@@ -89,109 +84,122 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     }
 
 
-        Surface {
-            Box(
+    Surface {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.backgroundwelcome),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-
+                    .padding(horizontal = 32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.backgroundwelcome),
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .width(320.dp)
+                        .height(240.dp),
+                    contentScale = ContentScale.Fit
                 )
 
-                Column(
+                Text(
+                    text = "Log in to your account",
+                    textAlign = TextAlign.Center,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 32.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(bottom = 32.dp)
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()
+                )
+                val focusRequester = remember { FocusRequester() }
+                val focusManager = LocalFocusManager.current
+
+                TextField(
+                    value = viewModel.email,
+                    onValueChange = { viewModel.email = it },
+                    label = { Text("Email") },
+                    placeholder = { Text("example@gmail.com") },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    ),
+                )
+
+                TextField(
+                    value = viewModel.password,
+                    onValueChange = { viewModel.password = it },
+                    singleLine = true,
+                    label = { Text("Password") },
+                    placeholder = { Text("") },
+                    visualTransformation =
+                    if (viewModel.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.clearFocus()
+                        }
+                    ),
+
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            viewModel.passwordHidden = !viewModel.passwordHidden
+                        }) {
+                            val visibilityIcon =
+                                if (viewModel.passwordHidden) Icons.Filled.Lock else Icons.Filled.Lock
+                            val description =
+                                if (viewModel.passwordHidden) "Show password" else "Hide password"
+                            Icon(imageVector = visibilityIcon, contentDescription = description)
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                )
+
+                TextButton(
+                    onClick = {
+                        viewModel.onForgotPasswordClick()
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 32.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(320.dp)
-                            .height(240.dp),
-                        contentScale = ContentScale.Fit
-                    )
-
-                    Text(
-                        text = "Log in to your account",
-                        textAlign = TextAlign.Center,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier
-                            .padding(bottom = 32.dp)
-                            .padding(top = 8.dp)
-                            .fillMaxWidth()
-                    )
-                    val focusRequester = remember { FocusRequester() }
-                    val focusManager = LocalFocusManager.current
-
-                    TextField(
-                        value = viewModel.email,
-                        onValueChange = { viewModel.email = it },
-                        label = { Text("Email") },
-                        placeholder = { Text("example@gmail.com") },
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password,imeAction = ImeAction.Next),
-                        keyboardActions = KeyboardActions(
-                            onNext = {
-                                focusManager.moveFocus(FocusDirection.Down)
-                            }
-                        ),
-                    )
-
-                    TextField(
-                        value = viewModel.password,
-                        onValueChange = { viewModel.password = it },
-                        singleLine = true,
-                        label = { Text("Password") },
-                        placeholder = { Text("") },
-                        visualTransformation =
-                        if (viewModel.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password,imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onNext = {
-                                focusManager.clearFocus()
-                            }
-                        ),
-
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                viewModel.passwordHidden = !viewModel.passwordHidden
-                            }) {
-                                val visibilityIcon =
-                                    if (viewModel.passwordHidden) Icons.Filled.Lock else Icons.Filled.Lock
-                                val description =
-                                    if (viewModel.passwordHidden) "Show password" else "Hide password"
-                                Icon(imageVector = visibilityIcon, contentDescription = description)
-                            }
-                        },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                    )
-
                     Text(
                         text = "¿Forgot password?",
                         textAlign = TextAlign.End,
@@ -202,80 +210,36 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                             .padding(top = 8.dp)
                             .fillMaxWidth()
                     )
+                }
 
-                    FilledTonalButton(
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .fillMaxWidth(),
-                        onClick = { viewModel.login() }
-                    ) {
-                        Text("Login")
-                    }
+                FilledTonalButton(
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(),
+                    onClick = { viewModel.login() }
+                ) {
+                    Text("Log In")
+                }
 
+
+                HorizontalDivider(thickness = 2.dp)
+                TextButton(
+                    onClick = {
+                        viewModel.onSignUpClick()
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 32.dp)
+                        .padding(top = 8.dp)
+                ) {
                     Text(
-                        text = "Or continue with",
+                        "¿Don´t have an account? Sign in",
                         textAlign = TextAlign.Center,
                         color = Color.White,
                         fontSize = 16.sp,
-                        modifier = Modifier
-                            .padding(bottom = 32.dp)
-                            .padding(top = 8.dp)
-                            .fillMaxWidth()
                     )
-                    //Sign in with Google and Facebook buttons
-                    /*Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    ) {
-                    //Google Button
-                        IconButton(
-                            onClick = { },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.google),
-                                contentDescription = "Google",
-                                tint = Color.Unspecified
-                            )
-                        }
-                        //Facebook Buttons
-                        IconButton(
-                            onClick = { },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.facebook),
-                                contentDescription = "Facebook",
-                                tint = Color.Unspecified
-                            )
-                        }
-                    }*/
-                    HorizontalDivider(thickness = 2.dp)
-                    TextButton(
-                        onClick = {
-                            viewModel.onSignUpClick()
-                        },
-                        modifier = Modifier
-                            .padding(bottom = 32.dp)
-                            .padding(top = 8.dp)
-                    ) {
-                        Text(
-                            "¿Don´t have an account? Sign in",
-                            textAlign = TextAlign.Center,
-                            color = Color.White,
-                            fontSize = 16.sp,
-                        )
-                    }
-
                 }
+
             }
         }
-
-
-
+    }
 }

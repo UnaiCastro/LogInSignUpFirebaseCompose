@@ -1,4 +1,5 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Settings
+
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -39,7 +40,7 @@ class SettingsViewModel @Inject constructor(
     val type: StateFlow<String> = _type
 
     private val _regions = MutableStateFlow("")
-    var regions : StateFlow<String> = _regions.asStateFlow()
+    var regions: StateFlow<String> = _regions.asStateFlow()
 
     // Información de establecimiento
     private val _companyName = MutableStateFlow("")
@@ -73,7 +74,12 @@ class SettingsViewModel @Inject constructor(
             _companyName.value = establishment?.name ?: ""
             _companyPhone.value = establishment?.phone ?: ""
             _companyAddress.value = establishment?.adress ?: ""
-            _companyCoordinates.value = establishment?.coordinates?.let { Pair(it["latitude"] ?: 0.0, it["longitude"] ?: 0.0) }
+            _companyCoordinates.value = establishment?.coordinates?.let {
+                Pair(
+                    it["latitude"] ?: 0.0,
+                    it["longitude"] ?: 0.0
+                )
+            }
         }
     }
 
@@ -100,25 +106,19 @@ class SettingsViewModel @Inject constructor(
     fun saveBusinessInfo(name: String, address: String, phone: String) = viewModelScope.launch {
         val userId = authRepository.getCurrentUser()?.uid ?: return@launch
         val user = userRepository.getUserDetailsById(userId)
-        userRepository.saveBusinessInfo(userId, name, address, phone,0.0,0.0)
+        establishmentRepository.saveBusinessInfo(userId, name, address, phone, 0.0, 0.0)
     }
 
     // Función para eliminar la información del establecimiento
     fun deleteBusinessInfo() = viewModelScope.launch {
 
         val userId = authRepository.getCurrentUser()?.uid ?: return@launch
-        userRepository.deleteBusinessInfo(userId)
-    }
-
-    fun updateCommunityInfo(community: String, coords: Pair<Double, Double>?) {
-        viewModelScope.launch {
-            /*serRepository.update*/
-        }
+        establishmentRepository.deleteBusinessInfo(userId)
     }
 
     fun updateRegions(it: String) = viewModelScope.launch {
 
-        _regions.value=it
+        _regions.value = it
         userRepository.updateRegion(currentUser!!.uid, it)
     }
 
@@ -147,12 +147,15 @@ class SettingsViewModel @Inject constructor(
         saveCompanyData()
     }
 
-    private fun saveUserData() = viewModelScope.launch {
-        // Guardar los datos del usuario
-    }
-
     private fun saveCompanyData() = viewModelScope.launch {
-        establishmentRepository.updateEstablishment(currentUser!!.uid, _companyName.value, _companyAddress.value, _companyPhone.value, _companyCoordinates.value?.first, _companyCoordinates.value?.second)
+        establishmentRepository.updateEstablishment(
+            currentUser!!.uid,
+            _companyName.value,
+            _companyAddress.value,
+            _companyPhone.value,
+            _companyCoordinates.value?.first,
+            _companyCoordinates.value?.second
+        )
     }
 
 }

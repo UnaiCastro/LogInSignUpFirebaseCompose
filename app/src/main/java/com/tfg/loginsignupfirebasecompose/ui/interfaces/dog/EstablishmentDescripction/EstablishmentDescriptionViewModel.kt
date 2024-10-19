@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Establishment
-import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
-import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.EstablishmentRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
@@ -20,119 +18,115 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EstablishmentDescriptionViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val userRepository: UserRepository,
     private val establishmentRepository: EstablishmentRepository,
-    private val dogRepository: DogRepository
+    private val dogRepository: DogRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
+    private val _establishment = MutableStateFlow<Establishment?>(null)
+    val establishment: StateFlow<Establishment?> = _establishment.asStateFlow()
 
     private val _dogs = MutableStateFlow<List<Dog>>(emptyList())
     val dogs: StateFlow<List<Dog>> = _dogs.asStateFlow()
 
+    private val _userStarredDogs = MutableStateFlow<List<String>>(emptyList())
+    val userStarredDogs: StateFlow<List<String>> = _userStarredDogs.asStateFlow()
 
-    suspend fun getEstablishmentDetails(establishmentId: String): Establishment? {
-        Log.d("EstablishmentDetails", "Obteniendo detalles del establecimiento con ID: $establishmentId")
-        return try {
+    private val _userSharedDogs = MutableStateFlow<List<String>>(emptyList())
+    val userSharedDogs: StateFlow<List<String>> = _userSharedDogs.asStateFlow()
+
+    private val _establishmentLikes = MutableStateFlow<List<String>>(emptyList())
+    val establishmentLikes: StateFlow<List<String>> = _establishmentLikes.asStateFlow()
+
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+    fun loadEstablishmentAndDogs(establishmentId: String) {
+        viewModelScope.launch {
             val establishment = establishmentRepository.getEstablishmentById(establishmentId)
-            Log.d("EstablishmentDetails", "Detalles del establecimiento obtenidos: $establishment")
-            establishment
-        } catch (e: Exception) {
-            Log.e("EstablishmentDetails", "Error al obtener los detalles del establecimiento", e)
-            null
-        }
-    }
+            _establishment.value = establishment
 
-    suspend fun getDogsByOwner(ownerId: String) {
-        val dogList = try {
-            dogRepository.getDogsByOwner(ownerId)
-        } catch (e: Exception) {
-            Log.e("DogFetchError", "Error al obtener los perros del dueño", e)
-            emptyList()
-        }
-        _dogs.value = dogList
-    }
+            establishment?.let {
+                val dogs = dogRepository.getDogsByOwner(it.owner_id)
+                _dogs.value = dogs
 
-    suspend fun isEstablishmentLiked(establishmentId: String): Boolean {
-        val currentUser = userRepository.getUserDetailsById(uid.toString())
-        return currentUser?.likedEstablishments?.contains(establishmentId) ?: false
-    }
-
-    // Método para añadir a likedEstablishments
-    fun likeEstablishment(establishmentId: String) {
-        viewModelScope.launch {
-            userRepository.addToLikedEstablishments(uid.toString(),establishmentId)
-            establishmentRepository.addToLikes(establishmentId,uid.toString())
-        }
-    }
-
-    // Método para eliminar de likedEstablishments
-     fun unlikeEstablishment(establishmentId: String) {
-        viewModelScope.launch {
-            userRepository.removeFromLikedEstablishments(uid.toString(),establishmentId)
-            establishmentRepository.removeFromLikes(establishmentId,uid.toString())
-        }
-    }
-
-    suspend fun isDogStarred(dogId: String): Boolean {
-        val currentUser = userRepository.getUserDetailsById(uid.toString())
-        return currentUser?.starred_dogs?.contains(dogId) ?: false
-    }
-
-    suspend fun isDogShared(dogId: String): Boolean {
-        val currentUser = userRepository.getUserDetailsById(uid.toString())
-        return currentUser?.sharedDogs?.contains(dogId) ?: false
-    }
-
-
-
-    fun onToggleStarred(dogId: String) {
-        viewModelScope.launch {
-            val currentUser = userRepository.getUserDetailsById(uid.toString())
-            val newDogsList = _dogs.value.toMutableList()
-
-            if (currentUser?.starred_dogs?.contains(dogId) == true) {
-                userRepository.removeStarredDog(uid.toString(), dogId)
-                newDogsList.find { it.dogId == dogId }?.let { dog ->
-/*
-                    newDogsList[newDogsList.indexOf(dog)] = dog.copy(starred_dogs = dog.shared_dog_userId.filter { it != uid.toString() })
-*/
-                }
-            } else {
-                userRepository.addToStarredDogs(uid.toString(), dogId)
-                newDogsList.find { it.dogId == dogId }?.let { dog ->
-/*
-                    newDogsList[newDogsList.indexOf(dog)] = dog.copy(starred_dogs = dog.shared_dog_userId + uid.toString())
-*/
+                userId?.let { uid ->
+                    val user = userRepository.getUserDetailsById(uid)
+                    _userStarredDogs.value = user?.starred_dogs ?: emptyList()
+                    _userSharedDogs.value = user?.sharedDogs ?: emptyList()
                 }
             }
-
-            // Actualiza el StateFlow
-            _dogs.value = newDogsList
         }
     }
 
-    fun onToggleShared(dogId: String) {
+    fun toggleStarredDog(dogId: String) {
         viewModelScope.launch {
-            val currentUser = userRepository.getUserDetailsById(uid.toString())
-            val newDogsList = _dogs.value.toMutableList()
-
-            if (currentUser?.sharedDogs?.contains(dogId) == true) {
-                userRepository.removeSharedDog(uid.toString(), dogId)
-                newDogsList.find { it.dogId == dogId }?.let { dog ->
-                    newDogsList[newDogsList.indexOf(dog)] = dog.copy(shared_dog_userId = dog.shared_dog_userId.filter { it != uid.toString() })
-                }
+            val isStarred = _userStarredDogs.value.contains(dogId)
+            if (isStarred) {
+                userRepository.removeStarredDog(userId!!, dogId)
+                _userStarredDogs.value -= dogId
             } else {
-                userRepository.addSharedDog(uid.toString(), dogId)
-                newDogsList.find { it.dogId == dogId }?.let { dog ->
-                    newDogsList[newDogsList.indexOf(dog)] = dog.copy(shared_dog_userId = dog.shared_dog_userId + uid.toString())
+                userRepository.addToStarredDogs(userId!!, dogId)
+                _userStarredDogs.value += dogId
+            }
+        }
+    }
+
+    fun toggleSharedDog(dogId: String) {
+        viewModelScope.launch {
+            val isShared = _userSharedDogs.value.contains(dogId)
+            if (isShared) {
+                userRepository.removeSharedDog(userId!!, dogId)
+                dogRepository.updateSharedBy(dogId, userId, add = false)
+                _userSharedDogs.value -= dogId
+            } else {
+                userRepository.addSharedDog(userId!!, dogId)
+                dogRepository.updateSharedBy(dogId, userId, add = true)
+                _userSharedDogs.value += dogId
+            }
+        }
+    }
+
+    fun loadUserEstablishmentLikes() {
+        viewModelScope.launch {
+            userId?.let {
+                val user = userRepository.getUserDetailsById(it)
+                _establishmentLikes.value = user?.likedEstablishments ?: emptyList()
+            }
+        }
+    }
+
+    fun toggleEstablishmentLike(establishmentId: String) {
+        viewModelScope.launch {
+            val isLiked = _establishmentLikes.value.contains(establishmentId)
+            if (isLiked) {
+                Log.i(
+                    "EstablishmentDescriptionViewModel",
+                    "Toggling like for establishment with ID: $establishmentId"
+                )
+                userRepository.removeFromLikedEstablishments(userId!!, establishmentId)
+                establishmentRepository.removeFromLikes(establishmentId, userId)
+                _establishmentLikes.value -= establishmentId
+                val updatedEstablishment =
+                    establishmentRepository.getEstablishmentById(establishmentId)
+                if (updatedEstablishment != null) {
+                    _establishment.value = updatedEstablishment
+                }
+
+            } else {
+                Log.i(
+                    "EstablishmentDescriptionViewModel",
+                    "Toggling like for establishment with ID: $establishmentId"
+                )
+                userRepository.addToLikedEstablishments(userId!!, establishmentId)
+                establishmentRepository.addToLikes(establishmentId, userId)
+                _establishmentLikes.value += establishmentId
+                val updatedEstablishment =
+                    establishmentRepository.getEstablishmentById(establishmentId)
+                if (updatedEstablishment != null) {
+                    _establishment.value = updatedEstablishment
                 }
             }
-
-            // Actualiza el StateFlow
-            _dogs.value = newDogsList
         }
     }
-
 }
+

@@ -49,7 +49,7 @@ class EstablishmentRepositoryImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al obtener los establecimientos", e)
+            Log.e("FirestoreError", "Error retrieving establishments", e)
             emptyList()
         }
     }
@@ -102,17 +102,14 @@ class EstablishmentRepositoryImpl @Inject constructor(
         second: Double?
     ) {
         try {
-            // Primero, obtenemos el documento del establecimiento con el userId
             val querySnapshot = db.collection(FirestoreCollections.establishments)
                 .whereEqualTo("owner_id", userId)
                 .get()
                 .await()
 
-            // Si se encuentra un documento, lo actualizamos
             if (!querySnapshot.isEmpty) {
-                val document = querySnapshot.documents[0] // Tomamos el primer documento si hay coincidencias
+                val document = querySnapshot.documents[0]
 
-                // Creamos el mapa con los valores a actualizar
                 val updates = mapOf(
                     "name" to value,
                     "address" to value1,
@@ -123,17 +120,16 @@ class EstablishmentRepositoryImpl @Inject constructor(
                     )
                 )
 
-                // Actualizamos el documento
                 db.collection(FirestoreCollections.establishments)
                     .document(document.id)
                     .update(updates)
                     .await()
             } else {
-                Log.e("FirestoreError", "No se encontró ningún establecimiento para el usuario: $userId")
+                Log.e("FirestoreError", "No establishment found for the user: $userId")
             }
 
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al actualizar el establecimiento", e)
+            Log.e("FirestoreError", "Error updating establishment", e)
         }
     }
 
@@ -141,7 +137,7 @@ class EstablishmentRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.establishments).document(establishmentId).update("likes", FieldValue.arrayRemove(userId)).await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al eliminar de likes", e)
+            Log.e("FirestoreError", "Error removing from likes", e)
         }
     }
 
@@ -149,7 +145,7 @@ class EstablishmentRepositoryImpl @Inject constructor(
         try {
             db.collection(FirestoreCollections.establishments).document(establishmentId).update("likes", FieldValue.arrayUnion(userId)).await()
         } catch (e: Exception) {
-            Log.e("FirestoreError", "Error al eliminar de likes", e)
+            Log.e("FirestoreError", "Error removing from likes", e)
         }
     }
 
@@ -193,8 +189,63 @@ class EstablishmentRepositoryImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Log.e("EstablishmentRepositoryImpl", "Error al obtener establecimientos por IDs", e)
-            emptyList() // En caso de error, devolvemos una lista vacía
+            Log.e("EstablishmentRepositoryImpl", "Error retrieving establishments by IDs", e)
+            emptyList()
+        }
+    }
+
+    override suspend fun deleteBusinessInfo(userId: String) {
+        try {
+            val establishments = db.collection(FirestoreCollections.establishments)
+                .whereEqualTo("owner_id", userId)
+                .get()
+                .await()
+
+            for (document in establishments.documents) {
+                db.collection(FirestoreCollections.establishments)
+                    .document(document.id)
+                    .delete()
+                    .await()
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Error deleting establishment information", e)
+        }
+    }
+
+    override suspend fun saveBusinessInfo(
+        userId: String,
+        name: String,
+        address: String,
+        phone: String,
+        latitude: Double,
+        longitude: Double
+    ) {
+        val coordinates = hashMapOf(
+            "latitude" to latitude,
+            "longitude" to longitude
+        )
+        val establishment = hashMapOf(
+            "name" to name,
+            "address" to address,
+            "phone" to phone,
+            "coordinates" to coordinates,
+            "owner_id" to userId,
+            "likes" to 0
+        )
+        db.collection(FirestoreCollections.establishments).document().set(establishment)
+    }
+
+    override suspend fun saveEstablishment(
+        establishment: HashMap<String, Any>
+    ): Result<String> {
+        return try {
+            val db = FirebaseFirestore.getInstance()
+            val documentReference = db.collection(FirestoreCollections.establishments)
+                .add(establishment)
+                .await()
+            Result.success(documentReference.id)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

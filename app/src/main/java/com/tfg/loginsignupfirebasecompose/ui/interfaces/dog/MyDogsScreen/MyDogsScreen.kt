@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,10 +63,10 @@ fun MyDogsScreen(navController: NavHostController, viewModel: MyDogsViewModel = 
     val myDogs by viewModel.myDogs.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.fetchMyDogs() // Esto actualizará la lista de perros
+        viewModel.fetchMyDogs()
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -94,62 +93,61 @@ fun MyDogsScreen(navController: NavHostController, viewModel: MyDogsViewModel = 
                 )
             )
         }
-    ){
+    ) {
 
         Image(
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
 
-       Column(
-           modifier = Modifier
-               .fillMaxSize()
-               .padding(it)
-               .padding(16.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+                .padding(16.dp),
 
-       ) {
-           Box(
-               modifier = Modifier.fillMaxWidth(),
-               contentAlignment = Alignment.TopEnd // Alinea el contenido dentro de Box a la derecha
-           ) {
-               TextButton(
-                   onClick = { navController.navigate("uploadDog") },
-                   modifier = Modifier
-                       .padding(vertical = 8.dp)
-               ) {
-                   Row(
-                       verticalAlignment = Alignment.CenterVertically
-                   ) {
-                       Icon(
-                           imageVector = Icons.Default.Add, // Usar el ícono de más
-                           contentDescription = "Add Dog",
-                       )
-                       Text(text = "Upload Dog")
-                   }
-               }
-           }
+            ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                TextButton(
+                    onClick = { navController.navigate("uploadDog") },
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Dog",
+                        )
+                        Text(text = "Upload Dog")
+                    }
+                }
+            }
 
-           LazyColumn {
-               items(myDogs) { dog ->
-                   DogItemCard(
-                       dog = dog,
-                       viewModel = viewModel
-                   )
-               }
+            LazyColumn {
+                items(myDogs) { dog ->
+                    DogItemCard(
+                        dog = dog,
+                        viewModel = viewModel
+                    )
+                }
 
-           }
-       }
+            }
+        }
     }
 }
 
 @Composable
-fun DogItemCard(
-    dog: Dog,
-    viewModel: MyDogsViewModel,
-
-    ) {
+fun DogItemCard(dog: Dog, viewModel: MyDogsViewModel) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,7 +155,7 @@ fun DogItemCard(
             .border(
                 width = 2.dp,
                 color = Color.Transparent,
-                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
+                shape = RoundedCornerShape(16.dp)
             ),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -167,8 +165,7 @@ fun DogItemCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen del perro
-            Box (modifier = Modifier.size(110.dp)) {
+            Box(modifier = Modifier.size(110.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(dog.profileImageUrl),
                     contentScale = ContentScale.Crop,
@@ -194,7 +191,6 @@ fun DogItemCard(
                     maxLines = 1
                 )
 
-                // Información de la raza y edad
                 Row(
                     modifier = Modifier.padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -218,7 +214,6 @@ fun DogItemCard(
                     )
                 }
 
-                // Precio
                 Text(
                     text = "${dog.price} USD",
                     style = MaterialTheme.typography.bodyLarge,
@@ -249,8 +244,6 @@ fun DogItemCard(
                             .size(25.dp)
                     )
                 }
-
-
             }
         }
     }

@@ -1,34 +1,18 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.uploadDog
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,53 +20,33 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberImagePainter
 import com.tfg.loginsignupfirebasecompose.R
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.IOException
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +54,6 @@ fun UploadDogScreen(
     navController: NavHostController,
     viewModel: UploadDogViewModel = hiltViewModel()
 ) {
-    val currentUser by viewModel.currentUser.collectAsState()
     val breedOptions = listOf(
         "Beagle", "Bichon Frise", "Border Collie", "Boxer", "Bulldog",
         "Bullmastiff", "Cavalier King Charles Spaniel", "Chihuahua",
@@ -101,10 +64,8 @@ fun UploadDogScreen(
         "Pug", "Rottweiler", "Shih Tzu", "Staffordshire Bull Terrier", "Yorkshire Terrier"
     ).sorted()
     val genderOptions = listOf("Male", "Female")
-    val statusOptions =
-        if (currentUser.type == "empresa") listOf("Adopt", "Buy") else listOf("Adopt")
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -135,7 +96,10 @@ fun UploadDogScreen(
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
 
         Column(
@@ -152,7 +116,7 @@ fun UploadDogScreen(
             TextField(
                 value = viewModel.name,
                 onValueChange = { viewModel.name = it },
-                label = { Text("Nombre") },
+                label = { Text("Name") },
                 maxLines = 1,
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
@@ -164,7 +128,7 @@ fun UploadDogScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
-                placeholder = { Text("Nombre del perro") },
+                placeholder = { Text("Dog name") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(
                     onNext = {
@@ -184,7 +148,7 @@ fun UploadDogScreen(
                 TextField(
                     value = viewModel.gender,
                     onValueChange = { viewModel.gender = it },
-                    label = { Text("Género") },
+                    label = { Text("Gender") },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
@@ -262,9 +226,9 @@ fun UploadDogScreen(
             TextField(
                 value = viewModel.description,
                 onValueChange = { viewModel.description = it },
-                label = { Text("Descripcion") },
+                label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Descripcion del perro") },
+                placeholder = { Text("Dog description") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
@@ -283,9 +247,9 @@ fun UploadDogScreen(
                 value = viewModel.age,
                 maxLines = 1,
                 onValueChange = { viewModel.age = it },
-                label = { Text("Edad") },
+                label = { Text("Age") },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Edad del perro") },
+                placeholder = { Text("Dog age") },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
                     keyboardType = KeyboardType.Number
@@ -308,7 +272,7 @@ fun UploadDogScreen(
                 maxLines = 1,
                 value = viewModel.price,
                 onValueChange = { viewModel.price = it },
-                label = { Text("Precio") },
+                label = { Text("Price") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
@@ -325,9 +289,53 @@ fun UploadDogScreen(
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
                 ),
-                placeholder = { Text("Precio del perro") }
+                placeholder = { Text("Dog price") }
 
             )
+
+            var expandedStatus by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = expandedStatus,
+                onExpandedChange = { expandedStatus = !expandedStatus }
+            ) {
+                TextField(
+                    value = viewModel.status,
+                    onValueChange = { viewModel.status = it },
+                    label = { Text("Status") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedStatus)
+                    }
+                )
+                ExposedDropdownMenu(
+                    expanded = expandedStatus,
+                    onDismissRequest = { expandedStatus = false }
+                ) {
+                    val statusOptions = listOf("Adopt", "Buy")
+                    statusOptions.forEach { status ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = status
+                                )
+                            },
+                            onClick = {
+                                viewModel.breed = status
+                                expandedStatus = false
+                            }
+                        )
+                    }
+                }
+            }
 
             Button(
                 onClick = {

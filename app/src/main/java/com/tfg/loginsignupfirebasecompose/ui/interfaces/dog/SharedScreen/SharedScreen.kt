@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.tfg.loginsignupfirebasecompose.R
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 
@@ -45,8 +43,6 @@ import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 @Composable
 fun SharedScreen(navController: NavHostController, viewModel: SharedViewModel = hiltViewModel()) {
     val dogsShared by viewModel.dogsShared.collectAsState()
-
-
 
     Scaffold(
         topBar = {
@@ -67,11 +63,16 @@ fun SharedScreen(navController: NavHostController, viewModel: SharedViewModel = 
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
         if (dogsShared.isNotEmpty()) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
             ) {
                 items(dogsShared) { dog ->
                     DogItem(
@@ -109,8 +110,9 @@ fun DogItem(dog: Dog, onRemoveDog: () -> Unit) {
                 )
             }
 
-            // Información del perro
-            Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+            Column(modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()) {
                 Text(text = dog.name, style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
 

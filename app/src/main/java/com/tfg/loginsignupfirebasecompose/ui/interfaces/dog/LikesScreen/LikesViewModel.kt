@@ -43,8 +43,4 @@ class LikesViewModel @Inject constructor(
             _likedEstablishments.value = establishmentRepository.getEstablishmentsByIds(likedIds)
         }
     }
-
-    fun updateSearchQuery(query: String) {
-        _searchQuery.value = query
-    }
 }

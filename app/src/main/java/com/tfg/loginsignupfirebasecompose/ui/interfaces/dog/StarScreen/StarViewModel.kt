@@ -1,6 +1,5 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -15,12 +14,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StarViewModel @Inject constructor (
+class StarViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val dogRepository: DogRepository,
     private val authRepository: AuthRepository
 
-): ViewModel(){
+) : ViewModel() {
 
     private val _starredDogs = MutableStateFlow<List<Dog>>(emptyList())
     val starredDogs: StateFlow<List<Dog>> = _starredDogs
@@ -33,7 +32,6 @@ class StarViewModel @Inject constructor (
 
     private fun fetchStarredDogs() {
         viewModelScope.launch {
-            // Llama a la función getSharedDogsObject para obtener la lista de perros compartidos
             _starredDogs.value = userRepository.getStarredDogsObject(currentUser)
         }
     }
@@ -51,8 +49,5 @@ class StarViewModel @Inject constructor (
         _starredDogs.value = updatedStarredDogs
         userRepository.updateStarredDogsById(uid, dog.dogId)
     }
-
-
-
 
 }

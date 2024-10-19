@@ -1,11 +1,9 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.SharedScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
-import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.DogRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

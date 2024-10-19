@@ -26,25 +26,22 @@ class HomeViewModel @Inject constructor(
     private val _navigationEvent = MutableStateFlow<String?>(null)
     val navigationEvent: StateFlow<String?> = _navigationEvent
 
-    // Estado de los perros filtrados
     private val _filteredDogs = MutableStateFlow<List<Dog>>(emptyList())
     val filteredDogs: StateFlow<List<Dog>> = _filteredDogs
 
-    // Estado de los perros guardados y compartidos
     private val _starredDogs = MutableStateFlow<List<String>>(emptyList())
     val starredDogs: StateFlow<List<String>> = _starredDogs
 
     private val _sharedDogs = MutableStateFlow<List<String>>(emptyList())
     val sharedDogs: StateFlow<List<String>> = _sharedDogs
 
-    // Estado de la imagen de perfil y el usuario actual
     private val _profileImageUrl = MutableStateFlow<String>("")
     val profileImageUrl: StateFlow<String> = _profileImageUrl
 
     private val _currentUser = MutableStateFlow<String>("")
     val currentUser: StateFlow<String> = _currentUser
 
-    private var allDogs = listOf<Dog>() // Almacena todos los perros no filtrados
+    private var allDogs = listOf<Dog>()
     private var selectedBreed = ""
     private var selectedGender = ""
     private var searchQuery = ""
@@ -56,37 +53,32 @@ class HomeViewModel @Inject constructor(
         loadDogs()
     }
 
-    // Cargar información del usuario actual
     private fun loadUserData() = viewModelScope.launch {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
         _currentUser.value = userRepository.getUserName(uid) ?: ""
         _profileImageUrl.value = userRepository.getProfileImageUrl(uid) ?: ""
     }
 
-    // Cargar los perros guardados (favoritos)
     private fun loadStarredDogs() = viewModelScope.launch {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
         _starredDogs.value = userRepository.getStarredDogs(uid)!!
     }
 
-    // Cargar los perros compartidos
     private fun loadSharedDogs() = viewModelScope.launch {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
         _sharedDogs.value = userRepository.getSharedDogs(uid)
     }
 
-    // Cargar todos los perros
     private fun loadDogs() = viewModelScope.launch {
         val allDogsList = dogRepository.getDogs()
         val allDogsNotMine = allDogsList.filter { dog ->
             dog.owner_id != uid && (dog.status == "Adopt" || dog.status == "Buy")
         }
 
-        allDogs = allDogsNotMine // Actualiza allDogs con los perros no míos
-        _filteredDogs.value = allDogs // Inicializa filteredDogs con todos los perros
+        allDogs = allDogsNotMine
+        _filteredDogs.value = allDogs
     }
 
-    // Actualizar la lista de perros guardados
     fun toggleStarredDog(dogId: String) = viewModelScope.launch {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
         val updatedStarredDogs = _starredDogs.value.toMutableList()
@@ -101,7 +93,6 @@ class HomeViewModel @Inject constructor(
         userRepository.updateStarredDogs(uid, updatedStarredDogs)
     }
 
-    // Actualizar el estado del perro compartido
     fun toggleSharedDog(dogId: String) = viewModelScope.launch {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
         val updatedSharedDogs = _sharedDogs.value.toMutableList()
@@ -119,7 +110,6 @@ class HomeViewModel @Inject constructor(
         _sharedDogs.value = updatedSharedDogs
     }
 
-    // Función para actualizar los filtros seleccionados
     fun updateQuery(query: String) {
         searchQuery = query
         applyFilters()
@@ -136,24 +126,20 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun applyFilters() {
-        // Filtrar la lista según los criterios seleccionados
         var filteredList = allDogs
 
-        // Filtro por nombre
         if (searchQuery.isNotBlank()) {
             filteredList = filteredList.filter { dog ->
                 dog.name.contains(searchQuery, ignoreCase = true)
             }
         }
 
-        // Filtro por raza (si hay una raza seleccionada)
         if (selectedBreed.isNotBlank() && selectedBreed != "All") {
             filteredList = filteredList.filter { dog ->
                 dog.breed.equals(selectedBreed, ignoreCase = true)
             }
         }
 
-        // Filtro por género (si hay un género seleccionado)
         if (selectedGender.isNotBlank() && selectedGender != "All") {
             filteredList = filteredList.filter { dog ->
                 dog.gender.equals(selectedGender, ignoreCase = true)
@@ -165,18 +151,6 @@ class HomeViewModel @Inject constructor(
 
     fun navigateToPurchaseDescription(dogId: String) {
         _navigationEvent.value = "purchaseDescription/$dogId"
-    }
-
-    fun navigateToChat(dogId: String) {
-        viewModelScope.launch {
-            val userId = uid
-            val dog = dogRepository.getDogById(dogId)
-            val createdChat: String = chatRepository.isCreatedChat(uid, dogId, dog!!.owner_id)
-            userRepository.addChatToRoomChat(createdChat,uid)
-            userRepository.addChatToRoomChat(createdChat,dog.owner_id)
-            _navigationEvent.value = "chat/$createdChat"
-        }
-
     }
 
     fun clearNavigationEvent() {

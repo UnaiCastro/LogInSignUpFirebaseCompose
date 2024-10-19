@@ -14,21 +14,21 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun ExploreScreen(navController: NavHostController, viewModel: ExploreViewModel = hiltViewModel()) {
 
-    val establishments = viewModel.establishments // Lista de establecimientos
+    val establishments = viewModel.establishments
 
     val newYork = com.google.android.gms.maps.model.LatLng(40.7128, -74.0060)
     val tokyo = com.google.android.gms.maps.model.LatLng(35.6762, 139.6503)
-    // Definir la posición inicial de la cámara (ejemplo: el centro del mapa)
+
     val initialPosition = com.google.android.gms.maps.model.LatLng(
         0.0,
         0.0
     )
     val cameraPositionState = rememberCameraPositionState {
-        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(initialPosition, 2f) // Zoom global
+        position =
+            com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(initialPosition, 2f)
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
-        // Mapa de Google
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState
@@ -37,10 +37,14 @@ fun ExploreScreen(navController: NavHostController, viewModel: ExploreViewModel 
                 val latitude = establishment.coordinates["latitude"]
                 val longitude = establishment.coordinates["longitude"]
 
-                // Verificamos que latitud y longitud no sean nulas
                 if (latitude != null && longitude != null) {
                     Marker(
-                        state = MarkerState(position = com.google.android.gms.maps.model.LatLng(latitude, longitude)),
+                        state = MarkerState(
+                            position = com.google.android.gms.maps.model.LatLng(
+                                latitude,
+                                longitude
+                            )
+                        ),
                         title = establishment.name,
                         onInfoWindowClick = {
                             navController.navigate("establishmentDescription/${establishment.establishmentId}")

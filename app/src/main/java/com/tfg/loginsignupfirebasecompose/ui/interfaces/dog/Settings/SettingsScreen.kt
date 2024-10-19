@@ -2,17 +2,14 @@ package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.Settings
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,8 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -32,10 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -78,7 +71,6 @@ fun SettingsScreen(
     val type by viewModel.type.collectAsState()
     val regions by viewModel.regions.collectAsState()
 
-    // Campos para empresa
     val companyName by viewModel.companyName.collectAsState()
     val companyPhone by viewModel.companyPhone.collectAsState()
     val companyAddress by viewModel.companyAddress.collectAsState()
@@ -146,7 +138,10 @@ fun SettingsScreen(
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
 
         Column(
@@ -157,7 +152,7 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
+            ) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -168,7 +163,7 @@ fun SettingsScreen(
                 if (profileImageUrl.isNotEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(profileImageUrl),
-                        contentDescription = "Imagen de perfil",
+                        contentDescription = "User Profile",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(120.dp)
@@ -189,11 +184,10 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de nombre
             OutlinedTextField(
                 value = name,
                 onValueChange = { viewModel.updateName(it) },
-                label = { Text("Nombre") },
+                label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
@@ -215,11 +209,10 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Campo de teléfono
             OutlinedTextField(
                 value = phone,
                 onValueChange = { viewModel.updatePhone(it) },
-                label = { Text("Número de teléfono") },
+                label = { Text("Phone Number") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
@@ -247,7 +240,7 @@ fun SettingsScreen(
                 OutlinedTextField(
                     value = regions,
                     onValueChange = { viewModel.updateRegions(it) },
-                    label = { Text("Comunidad Autónoma") },
+                    label = { Text("Region") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
@@ -280,7 +273,7 @@ fun SettingsScreen(
             OutlinedTextField(
                 value = address,
                 onValueChange = { viewModel.updateAddress(it) },
-                label = { Text("Dirección") },
+                label = { Text("Address") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
@@ -296,7 +289,7 @@ fun SettingsScreen(
 
 
             if (type == "Enterprise") {
-                Log.d("SettingsScreen", "Empresa seleccionada")
+                Log.d("SettingsScreen", "Selected company")
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text("Información de la Empresa", style = MaterialTheme.typography.titleMedium)
@@ -306,29 +299,27 @@ fun SettingsScreen(
                 OutlinedTextField(
                     value = companyName,
                     onValueChange = { viewModel.updateCompanyName(it) },
-                    label = { Text("Nombre de la Empresa") },
+                    label = { Text("Company name") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Dirección de la empresa
                 OutlinedTextField(
                     value = companyAddress,
                     onValueChange = { viewModel.updateCompanyAddress(it) },
-                    label = { Text("Dirección de la Empresa") },
+                    label = { Text("Company Address") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Teléfono de la empresa
                 OutlinedTextField(
                     value = companyPhone,
                     onValueChange = { viewModel.updateCompanyPhone(it) },
-                    label = { Text("Teléfono de la Empresa") },
+                    label = { Text("Company Phone") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -336,11 +327,10 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Coordenadas de la empresa (latitud y longitud)
                 OutlinedTextField(
                     value = companyCoordinates?.first?.toString() ?: "",
                     onValueChange = { viewModel.updateCompanyLatitude(it.toDoubleOrNull() ?: 0.0) },
-                    label = { Text("Latitud") },
+                    label = { Text("Latitude") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -350,8 +340,12 @@ fun SettingsScreen(
 
                 OutlinedTextField(
                     value = companyCoordinates?.second?.toString() ?: "",
-                    onValueChange = { viewModel.updateCompanyLongitude(it.toDoubleOrNull() ?: 0.0) },
-                    label = { Text("Longitud") },
+                    onValueChange = {
+                        viewModel.updateCompanyLongitude(
+                            it.toDoubleOrNull() ?: 0.0
+                        )
+                    },
+                    label = { Text("Longitude") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)

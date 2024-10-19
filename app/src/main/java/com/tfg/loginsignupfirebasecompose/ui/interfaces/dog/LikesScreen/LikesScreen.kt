@@ -2,9 +2,7 @@ package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.LikesScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,15 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,7 +26,6 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -53,7 +47,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.compose.onSurfaceLight
 import com.example.compose.primaryLight
 import com.tfg.loginsignupfirebasecompose.R
@@ -62,9 +55,6 @@ import com.tfg.loginsignupfirebasecompose.data.collectionsData.Establishment
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LikesScreen(navController: NavHostController, viewModel: LikesViewModel = hiltViewModel()) {
-
-
-    val currentUser = viewModel.currentUser.collectAsState()
 
     val likedEstablishments by viewModel.likedEstablishments.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -88,7 +78,10 @@ fun LikesScreen(navController: NavHostController, viewModel: LikesViewModel = hi
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
 
         Column(modifier = Modifier.padding(paddingValues)) {
@@ -128,7 +121,6 @@ fun LikesScreen(navController: NavHostController, viewModel: LikesViewModel = hi
                 shadowElevation = SearchBarDefaults.ShadowElevation,
                 windowInsets = SearchBarDefaults.windowInsets,
                 content = {}
-                    // Aquí va el contenido de la SearchBar, si fuera necesario
             )
 
             val filteredEstablishments = likedEstablishments.filter {
@@ -168,9 +160,7 @@ fun EstablishmentCard(establishment: Establishment, navController: NavHostContro
                 contentScale = ContentScale.Crop
             )
 
-            // Sección de información
             Column(modifier = Modifier.padding(16.dp)) {
-                // Nombre del establecimiento
                 Text(
                     text = establishment.name,
                     style = MaterialTheme.typography.bodyLarge,
@@ -189,16 +179,20 @@ fun EstablishmentCard(establishment: Establishment, navController: NavHostContro
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row (
+                Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton (
+                    IconButton(
                         modifier = Modifier.size(30.dp),
                         onClick = {},
                         enabled = false
-                    ){
-                        Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Blue)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = null,
+                            tint = Color.Blue
+                        )
                     }
                     Text(
                         text = establishment.liked_users.size.toString()
@@ -212,7 +206,7 @@ fun EstablishmentCard(establishment: Establishment, navController: NavHostContro
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = {navController.navigate("establishmentDescription/${establishment.establishmentId}")}) {
+                    TextButton(onClick = { navController.navigate("establishmentDescription/${establishment.establishmentId}") }) {
                         Text(text = "See Establishment", fontSize = 18.sp)
                     }
                 }

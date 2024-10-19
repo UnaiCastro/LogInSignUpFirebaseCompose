@@ -1,24 +1,14 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -42,15 +32,6 @@ import com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.uploadDog.UploadDogS
 fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewModel()) {
     val currentUser by viewModel.currentUser.collectAsState()
     val selectedNavItem by viewModel.selectedNavItem.collectAsState()
-    /*val navigationEvent by viewModel.navigationEvent.collectAsState()
-
-    LaunchedEffect(navigationEvent) {
-        navigationEvent?.let { route ->
-            navController.navigate(route)  // Usa el navController global aquí
-            viewModel.clearNavigationEvent()
-        }
-    }*/
-
 
     Scaffold(
         bottomBar = {
@@ -60,17 +41,15 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
             )
         }
     ) { padding ->
-        // Definimos un controlador de navegación interno
         val innerNavController = rememberNavController()
 
-        // NavHost interno para cambiar entre las pantallas del BottomNavItem
         NavHost(
             navController = innerNavController,
-            startDestination = selectedNavItem.route, // La pantalla inicial es la seleccionada
+            startDestination = selectedNavItem.route,
             modifier = Modifier.padding(padding)
         ) {
             composable(BottomNavItem.Inicio.route) {
-                HomeScreen(navController,innerNavController)
+                HomeScreen(navController, innerNavController)
             }
             composable(BottomNavItem.Guardados.route) {
                 StarredScreen(innerNavController)
@@ -79,18 +58,18 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
                 ExploreScreen(innerNavController)
             }
             composable(BottomNavItem.Perfil.route) {
-                ProfileScreen(navController,innerNavController)
+                ProfileScreen(navController, innerNavController)
             }
             composable("chatroom") {
                 ChatRoomScreen(innerNavController)
             }
-            composable("establishmentDescription/{chatId}"){
+            composable("establishmentDescription/{chatId}") {
                 val chatId = it.arguments?.getString("chatId")
                 if (chatId != null) {
                     EstablishmentDescriptionScreen(chatId, innerNavController)
                 }
             }
-            composable("purchaseDescription/{dogId}"){
+            composable("purchaseDescription/{dogId}") {
                 val dogId = it.arguments?.getString("dogId")
                 if (dogId != null) {
                     PurchaseScreen(dogId, innerNavController)
@@ -103,29 +82,27 @@ fun DogScreen(navController: NavController, viewModel: DogViewModel = hiltViewMo
                 }
 
             }
-            composable("settings"){
+            composable("settings") {
                 SettingsScreen(innerNavController)
             }
-            composable("shared"){
+            composable("shared") {
                 SharedScreen(innerNavController)
             }
-            composable("likes"){
+            composable("likes") {
                 LikesScreen(innerNavController)
             }
-            composable("mydogs"){
+            composable("mydogs") {
                 MyDogsScreen(innerNavController)
             }
-            composable("uploadDog"){
+            composable("uploadDog") {
                 UploadDogScreen(innerNavController)
             }
 
         }
 
-        // Cambia la pantalla cuando se selecciona un nuevo item en la barra de navegación
         LaunchedEffect(selectedNavItem) {
             if (innerNavController.currentDestination?.route != selectedNavItem.route) {
                 innerNavController.navigate(selectedNavItem.route) {
-                    // Opcional: Evitar agregar múltiples veces la misma pantalla al backstack
                     popUpTo(innerNavController.graph.startDestinationId) {
                         saveState = true
                     }

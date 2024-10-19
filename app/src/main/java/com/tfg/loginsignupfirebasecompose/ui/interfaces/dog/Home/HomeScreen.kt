@@ -86,14 +86,12 @@ fun HomeScreen(
 
     val navigationEvent by viewModel.navigationEvent.collectAsState()
 
-    val profileImageUrl by viewModel.profileImageUrl.collectAsState() // Cambiado a collectAsState
+    val profileImageUrl by viewModel.profileImageUrl.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
 
-    val starredDogs by viewModel.starredDogs.collectAsState()  // Asegúrate de recolectar esto si es necesario
+    val starredDogs by viewModel.starredDogs.collectAsState()
     val sharedDogs by viewModel.sharedDogs.collectAsState()
 
-
-    // Drawer state
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -114,7 +112,7 @@ fun HomeScreen(
             viewModel.clearNavigationEvent()
         }
     }
-    
+
     fun toggleDrawer() {
         scope.launch {
             if (drawerState.isClosed) {
@@ -130,8 +128,6 @@ fun HomeScreen(
         drawerContent = {
             ModalDrawerSheet {
                 DrawerContent(
-                    selectedFilter = selectedFilter,
-                    onFilterChange = { selectedFilter = it },
                     selectedBreed = selectedBreed,
                     onBreedChange = { selectedBreed = it },
                     selectedGender = selectedGender,
@@ -140,28 +136,27 @@ fun HomeScreen(
             }
         }
     ) {
-        // Main layout with background
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                 // Fondo más claro y limpio
         ) {
 
             Image(
                 painter = painterResource(id = R.drawable.background4),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.6f)
+                    .blur(4.dp)
             )
 
-            // Column that contains all elements
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
 
-                // Header con imagen de perfil y bienvenida
                 Row(modifier = Modifier.padding(vertical = 16.dp)) {
                     val painter = rememberAsyncImagePainter(profileImageUrl)
                     Image(
@@ -199,7 +194,7 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = null,
-                            tint = primaryLight  // Ícono gris claro
+                            tint = primaryLight
                         )
                     },
                     trailingIcon = {
@@ -207,7 +202,7 @@ fun HomeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_tune),
                                 contentDescription = "Filter",
-                                tint = primaryLight  // Ícono verde para consistencia
+                                tint = primaryLight
                             )
                         }
                     },
@@ -219,7 +214,6 @@ fun HomeScreen(
                     content = {}
                 )
 
-                // Lista de perros
                 LazyColumn {
                     items(filteredDogs) { dog ->
                         DogCard(
@@ -244,7 +238,7 @@ fun DogCard(
     isStarred: Boolean,
     onToggleStarred: (String) -> Unit,
     onToggleShared: (String) -> Unit,
-    isShared: Boolean, // Ahora recibimos si el perro está compartido,
+    isShared: Boolean,
     viewModel: HomeViewModel,
 
     ) {
@@ -255,12 +249,12 @@ fun DogCard(
             .border(
                 width = 2.dp,
                 color = Color.Transparent,
-                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
+                shape = RoundedCornerShape(16.dp)
             ),
         colors = androidx.compose.material3.CardDefaults.cardColors(
             containerColor = if (isStarred) Color(0xFFFFF9C4) else Color(0xFFF5F5F5)
         ),
-        elevation = CardDefaults.cardElevation(8.dp) // Elevación para dar efecto de profundidad
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -268,8 +262,7 @@ fun DogCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen del perro
-            Box (modifier = Modifier.size(110.dp)) {
+            Box(modifier = Modifier.size(110.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(dog.profileImageUrl),
                     contentScale = ContentScale.Crop,
@@ -288,7 +281,7 @@ fun DogCard(
                     Icon(
                         imageVector = if (isStarred) Icons.Filled.Star else Icons.Filled.Star,
                         contentDescription = if (isStarred) "Guardado" else "Guardar",
-                        tint = if (isStarred) Color(0xFFFFF9C4) else Color.Black, // Amarillo si está guardado
+                        tint = if (isStarred) Color(0xFFFFF9C4) else Color.Black,
                         modifier = Modifier
                             .size(25.dp)
                             .background(primaryLight.copy(alpha = 0.7f), CircleShape)
@@ -298,7 +291,6 @@ fun DogCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información del perro y botones
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -312,7 +304,6 @@ fun DogCard(
                     maxLines = 1
                 )
 
-                // Información de la raza y edad
                 Row(
                     modifier = Modifier.padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -336,7 +327,6 @@ fun DogCard(
                     )
                 }
 
-                // Precio
                 Text(
                     text = "${dog.price} USD",
                     style = MaterialTheme.typography.bodyLarge,
@@ -353,7 +343,7 @@ fun DogCard(
 
                     TextButton(
                         onClick = { onToggleShared(dog.dogId) },
-                        modifier = Modifier.padding(end = 8.dp) // Espacio entre botones
+                        modifier = Modifier.padding(end = 8.dp)
                     ) {
                         if (isShared) {
                             Icon(
@@ -373,7 +363,7 @@ fun DogCard(
                     Button(
                         onClick = { viewModel.navigateToPurchaseDescription(dog.dogId) },
 
-                    ) {
+                        ) {
                         Text(text = dog.status)
                     }
                 }
@@ -385,8 +375,6 @@ fun DogCard(
 
 @Composable
 fun DrawerContent(
-    selectedFilter: String,
-    onFilterChange: (String) -> Unit,
     selectedBreed: String,
     onBreedChange: (String) -> Unit,
     selectedGender: String,
@@ -394,7 +382,6 @@ fun DrawerContent(
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
 
-        // Sección de filtro por raza
         Text("Breed", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         FilterChipCage(
             text = "All",
@@ -419,7 +406,6 @@ fun DrawerContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección de filtro por género
         Text("Gender", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         FilterChipCage(
             text = "Male",
@@ -444,7 +430,7 @@ fun FilterChipCage(
     FilterChip(
         modifier = Modifier.padding(horizontal = 4.dp),
         onClick = { onSelectionChange(!isSelected) },
-        label = { Text(text)}, // Texto cambia de color si está seleccionado
+        label = { Text(text) },
         selected = isSelected,
         leadingIcon = if (isSelected) {
             {
@@ -458,5 +444,5 @@ fun FilterChipCage(
             null
         },
 
-    )
+        )
 }

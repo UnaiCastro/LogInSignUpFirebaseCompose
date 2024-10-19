@@ -1,7 +1,6 @@
 package com.tfg.loginsignupfirebasecompose.ui.interfaces.dog.StarScreen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.compose.backgroundLight
 import com.example.compose.onBackgroundLight
 import com.example.compose.onSurfaceLight
 import com.tfg.loginsignupfirebasecompose.R
@@ -55,24 +53,25 @@ import com.tfg.loginsignupfirebasecompose.data.collectionsData.Dog
 fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = hiltViewModel()) {
     val starredDogs by viewModel.starredDogs.collectAsState()
 
-    // Fondo decorativo
     Box(
         modifier = Modifier
             .fillMaxSize(),
 
-    ) {
+        ) {
 
         Image(
             painter = painterResource(id = R.drawable.background4),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize().alpha(0.6f).blur(4.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.6f)
+                .blur(4.dp)
         )
 
-        // Encabezado decorativo
-        Column (modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Tus Perros Guardados 🐾",
+                text = "Your saved dogs 🐾",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -82,7 +81,7 @@ fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = h
 
             if (starredDogs.isEmpty()) {
                 Text(
-                    text = "No tienes perros guardados todavía.",
+                    text = "You don't have any saved dogs yet.",
                     style = MaterialTheme.typography.bodyLarge.copy(color = onBackgroundLight),
                     modifier = Modifier
                         .fillMaxSize()
@@ -95,7 +94,7 @@ fun StarredScreen(navController: NavHostController, viewModel: StarViewModel = h
                     items(starredDogs) { dog ->
                         DogCardStar(
                             dog = dog,
-                            viewModel=viewModel,
+                            viewModel = viewModel,
                             navController = navController
                         )
                     }
@@ -114,12 +113,12 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
             .border(
                 width = 2.dp,
                 color = Color.Transparent,
-                shape = RoundedCornerShape(16.dp) // Más redondeada para suavizar visualmente
+                shape = RoundedCornerShape(16.dp)
             ),
         colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF9C4) // Amarillo suave
+            containerColor = Color(0xFFFFF9C4)
         ),
-        elevation = CardDefaults.cardElevation(8.dp) // Elevación para dar efecto de profundidad
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -127,8 +126,7 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen del perro
-            Box (modifier = Modifier.size(110.dp)) {
+            Box(modifier = Modifier.size(110.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(dog.profileImageUrl),
                     contentScale = ContentScale.Crop,
@@ -144,7 +142,7 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
                 ) {
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = "Desmarcar como guardado",
+                        contentDescription = "Unstar",
                         tint = Color(0xFFFFF9C4)
                     )
                 }
@@ -152,7 +150,6 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información del perro
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -166,7 +163,6 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
                     maxLines = 1
                 )
 
-                // Información de la raza y edad
                 Row(
                     modifier = Modifier.padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -184,13 +180,12 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${dog.age} años",
+                        text = "${dog.age} years old",
                         style = MaterialTheme.typography.bodyLarge,
                         color = onSurfaceLight
                     )
                 }
 
-                // Descripción
                 Text(
                     text = dog.description,
                     style = MaterialTheme.typography.bodyLarge,
@@ -202,7 +197,7 @@ fun DogCardStar(dog: Dog, viewModel: StarViewModel, navController: NavHostContro
                 Button(
                     onClick = { navController.navigate("purchaseDescription/${dog.dogId}") },
                     modifier = Modifier.align(Alignment.End)
-                    ) {
+                ) {
                     Text(text = dog.status)
                 }
             }

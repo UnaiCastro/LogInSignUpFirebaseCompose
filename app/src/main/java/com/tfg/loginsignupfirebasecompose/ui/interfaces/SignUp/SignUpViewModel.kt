@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg.loginsignupfirebasecompose.data.Firebase.AppScreens
 import com.tfg.loginsignupfirebasecompose.domain.repositories.AuthRepository
+import com.tfg.loginsignupfirebasecompose.domain.repositories.EstablishmentRepository
 import com.tfg.loginsignupfirebasecompose.domain.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val esta: EstablishmentRepository
 ) : ViewModel() {
     var name: String by mutableStateOf("")
     var email: String by mutableStateOf("")
@@ -33,7 +35,6 @@ class SignUpViewModel @Inject constructor(
     var address: String by mutableStateOf("")
     var phone: String by mutableStateOf("")
 
-    // Nuevos campos para la empresa
     var companyName: String by mutableStateOf("")
     var companyAddress: String by mutableStateOf("")
     var companyPhone: String by mutableStateOf("")
@@ -59,7 +60,7 @@ class SignUpViewModel @Inject constructor(
                     .build()
 
                 client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) throw IOException("Error en la solicitud: $response")
+                    if (!response.isSuccessful) throw IOException("Error in requesting dog image: $response")
 
                     val responseBody = response.body?.string()
                     val jsonObject = JSONObject(responseBody)
@@ -109,10 +110,12 @@ class SignUpViewModel @Inject constructor(
                                     "likes" to emptyList<String>(),
                                     "establishmentImage" to "https://static.fundacion-affinity.org/cdn/farfuture/wA2M2WIdWb-muHHNOHC_YxBPkEhxd0F7uoyJs8MGjuE/mtime:1593587079/sites/default/files/impacto-del-confinamiento-protectoras-y-adopcion-de-animales.jpg",
                                 )
-                                val establishmentResult = userRepository.saveEstablishment(establishment)
+                                val establishmentResult = esta.saveEstablishment(establishment)
                                 establishmentResult.fold(
                                     onSuccess = { navigateToLogin() },
-                                    onFailure = { _errorMessage.value = "Cannot create establishment" }
+                                    onFailure = {
+                                        _errorMessage.value = "Cannot create establishment"
+                                    }
                                 )
                             } else {
                                 navigateToLogin()
@@ -137,6 +140,7 @@ class SignUpViewModel @Inject constructor(
     fun clearNavigationEvent() {
         _navigationEvent.value = null
     }
+
     private fun updateCoordinates() {
         val lat = latitud.toDoubleOrNull() ?: 0.0
         val lon = longitud.toDoubleOrNull() ?: 0.0
