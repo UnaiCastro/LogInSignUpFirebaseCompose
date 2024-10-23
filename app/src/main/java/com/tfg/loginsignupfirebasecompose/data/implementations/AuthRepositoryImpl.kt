@@ -1,6 +1,7 @@
 package com.tfg.loginsignupfirebasecompose.data.implementations
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import com.tfg.loginsignupfirebasecompose.data.collectionsData.User
@@ -48,4 +49,5 @@ class AuthRepositoryImpl @Inject constructor(
             throw Exception("Failed to send reset email. Please try again.")
         }
     }
+
 }

@@ -16,11 +16,16 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
-) : ViewModel() {
+) : ViewModel()
+{
 
     var email: String by mutableStateOf("")
     var password: String by mutableStateOf("")
     var passwordHidden by mutableStateOf(true)
+
+    var emailError: Boolean by mutableStateOf(false)
+    var passwordError: Boolean by mutableStateOf(false)
+    var generalError: String? by mutableStateOf(null)
 
     private val _navigationEvent = MutableStateFlow<String?>(null)
     val navigationEvent: StateFlow<String?> = _navigationEvent
@@ -29,11 +34,16 @@ class LoginViewModel @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage
 
     fun login() {
+        if (!validateForm()) {
+            _errorMessage.value = generalError
+            return
+        }
+
         viewModelScope.launch {
             val result = authRepository.login(email, password)
             result.fold(
                 onSuccess = { _navigationEvent.value = AppScreens.DogScreen.route },
-                onFailure = { _errorMessage.value = "No coinciden la contraseña o el correo" }
+                onFailure = { _errorMessage.value = "Incorrect email or password" }
             )
         }
     }
@@ -52,6 +62,24 @@ class LoginViewModel @Inject constructor(
 
     fun onForgotPasswordClick() {
         _navigationEvent.value = AppScreens.ResetPasswordScreen.route
+    }
+
+    private fun isEmailValid(email: String): Boolean {
+        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        return email.matches(emailPattern.toRegex())
+    }
+
+    private fun validateForm(): Boolean {
+        emailError = email.isBlank() || !isEmailValid(email)
+        passwordError = password.isBlank()
+
+        generalError = when {
+            emailError -> "Email format is invalid"
+            passwordError -> "Password cannot be empty"
+            else -> null
+        }
+
+        return !emailError && !passwordError
     }
 }
 

@@ -44,6 +44,13 @@ class SignUpViewModel @Inject constructor(
     var longitud: String by mutableStateOf("")
     var coordinates: Pair<Double, Double> by mutableStateOf(Pair(0.0, 0.0))
 
+    var nameError: Boolean by mutableStateOf(false)
+    var emailError: Boolean by mutableStateOf(false)
+    var passwordError: Boolean by mutableStateOf(false)
+    var addressError: Boolean by mutableStateOf(false)
+    var phoneError: Boolean by mutableStateOf(false)
+    var generalError: String? by mutableStateOf(null)
+
     private val client = OkHttpClient()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
@@ -73,9 +80,16 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun signUp() {
+        if (!validateForm()) {
+            _errorMessage.value = generalError
+            return
+        }
+
         viewModelScope.launch {
-            val result = authRepository.signUp(email, password)
-            result.fold(
+            name = capitalizeName(name)
+
+            val authResult = authRepository.signUp(email, password)
+            authResult.fold(
                 onSuccess = { firebaseUser ->
                     val uid = firebaseUser.uid
                     val profileImageUrl = getRandomDogImage()
@@ -85,14 +99,11 @@ class SignUpViewModel @Inject constructor(
                         "phone" to phone,
                         "type" to userType,
                         "region" to selectedRegion,
-                        "likedEstablishments" to arrayListOf<String>(),
-                        "starred_dogs" to arrayListOf<String>(),
-                        "sharedDogs" to arrayListOf<String>(),
-                        "chat_rooms" to arrayListOf<String>(),
                         "profileImageUrl" to profileImageUrl,
                         "email" to email,
                         "dogs" to arrayListOf<String>()
                     )
+
                     val saveResult = userRepository.saveUser(uid, user)
                     saveResult.fold(
                         onSuccess = {
@@ -105,26 +116,22 @@ class SignUpViewModel @Inject constructor(
                                         "latitude" to coordinates.first,
                                         "longitude" to coordinates.second
                                     ),
-                                    "phone" to phone,
+                                    "phone" to companyPhone,
                                     "owner_id" to uid,
-                                    "likes" to emptyList<String>(),
-                                    "establishmentImage" to "https://static.fundacion-affinity.org/cdn/farfuture/wA2M2WIdWb-muHHNOHC_YxBPkEhxd0F7uoyJs8MGjuE/mtime:1593587079/sites/default/files/impacto-del-confinamiento-protectoras-y-adopcion-de-animales.jpg",
+                                    "establishmentImage" to "https://img.freepik.com/vector-premium/tienda-mascotas-perro-gato-dibujos-animados-vector-icono-ilustracion_480044-815.jpg"
                                 )
-                                val establishmentResult = esta.saveEstablishment(establishment)
-                                establishmentResult.fold(
-                                    onSuccess = { navigateToLogin() },
-                                    onFailure = {
-                                        _errorMessage.value = "Cannot create establishment"
-                                    }
-                                )
-                            } else {
-                                navigateToLogin()
+                                esta.saveEstablishment(establishment)
                             }
+                            navigateToHome()
                         },
-                        onFailure = { _errorMessage.value = "Cannot sign up" }
+                        onFailure = {
+                            _errorMessage.value = "Error saving user data"
+                        }
                     )
                 },
-                onFailure = { _errorMessage.value = "Error al crear el usuario" }
+                onFailure = {
+                    _errorMessage.value = "Error during sign-up. Email is used"
+                }
             )
         }
     }
@@ -133,8 +140,8 @@ class SignUpViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    fun navigateToLogin() {
-        _navigationEvent.value = AppScreens.LoginScreen.route
+    fun navigateToHome() {
+        _navigationEvent.value = AppScreens.DogScreen.route
     }
 
     fun clearNavigationEvent() {
@@ -145,6 +152,39 @@ class SignUpViewModel @Inject constructor(
         val lat = latitud.toDoubleOrNull() ?: 0.0
         val lon = longitud.toDoubleOrNull() ?: 0.0
         coordinates = Pair(lat, lon)
+    }
+
+    private fun isEmailValid(email: String): Boolean {
+        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        return email.matches(emailPattern.toRegex())
+    }
+
+    private fun isPasswordValid(password: String): Boolean {
+        val passwordPattern = "^(?=.*[A-Z]).{8,}$"
+        return password.matches(passwordPattern.toRegex())
+    }
+
+    private fun capitalizeName(name: String): String {
+        return name.lowercase().replaceFirstChar { it.uppercase() }
+    }
+
+    private fun validateForm(): Boolean {
+        nameError = name.isBlank()
+        emailError = !isEmailValid(email)
+        passwordError = !isPasswordValid(password)
+        addressError = address.isBlank()
+        phoneError = phone.isBlank()
+
+        generalError = when {
+            nameError -> "Name is required"
+            emailError -> "Invalid email format"
+            passwordError -> "Password must be 8 characters long and contain a capital letter"
+            addressError -> "Address is required"
+            phoneError -> "Phone is required"
+            else -> null
+        }
+
+        return !nameError && !emailError && !passwordError && !addressError && !phoneError
     }
 }
 

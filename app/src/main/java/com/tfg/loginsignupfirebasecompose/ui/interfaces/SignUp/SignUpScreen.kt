@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -26,6 +27,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -225,31 +227,54 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                             onNext = {
                                 focusManager.moveFocus(FocusDirection.Down)
                             }
-                        )
+                        ),
+                        supportingText = {
+                            if (viewModel.nameError) {
+                                Text(
+                                    text = "Invalid name format",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
                     )
 
                     TextField(
                         value = viewModel.email,
                         onValueChange = { viewModel.email = it },
                         label = { Text("Email") },
+                        isError = viewModel.emailError,
                         placeholder = { Text("example@gmail.com") },
                         singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
+                            errorIndicatorColor = Color.Red,
+                            errorLabelColor = Color.Red,
                         ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardActions = KeyboardActions(
-                            onNext = {
-                                focusManager.moveFocus(FocusDirection.Down)
+                        supportingText = {
+                            if (viewModel.emailError) {
+                                Text(
+                                    text = "Invalid email format",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
                             }
-                        )
+                        }
                     )
+                    /*if (viewModel.emailError) {
+                        Text(
+                            text = "Invalid email format",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }*/
 
                     TextField(
                         value = viewModel.phone,
@@ -264,12 +289,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next,keyboardType = KeyboardType.Phone),
                         keyboardActions = KeyboardActions(
                             onNext = {
                                 focusManager.moveFocus(FocusDirection.Down)
                             }
-                        )
+                        ),
+                        supportingText = {
+                            if (viewModel.phoneError) {
+                                Text(
+                                    text = "Invalid phone format",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
                     )
 
                     ExposedDropdownMenuBox(
@@ -299,7 +333,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                 onNext = {
                                     focusManager.moveFocus(FocusDirection.Down)
                                 }
-                            )
+                            ),
                         )
                         ExposedDropdownMenu(
                             expanded = expandedCities,
@@ -337,6 +371,15 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                 focusManager.moveFocus(FocusDirection.Down)
                             }
                         ),
+                        supportingText = {
+                            if (viewModel.addressError) {
+                                Text(
+                                    text = "Invalid address format",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
                     )
 
                     TextField(
@@ -375,7 +418,16 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp)
+                            .padding(top = 8.dp),
+                        supportingText = {
+                            if (viewModel.passwordError) {
+                                Text(
+                                    text = "Invalid password format",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
                     )
 
                     if (viewModel.userType == "Enterprise") {
@@ -411,6 +463,16 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                     focusManager.moveFocus(FocusDirection.Down)
                                 }
                             ),
+                            supportingText = {
+                                if (viewModel.companyName.isBlank()) {
+                                    Text(
+                                        text = "Company name is required for enterprise users",
+                                        color = Color.Red,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
+                            }
                         )
 
                         TextField(
@@ -432,6 +494,15 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                     focusManager.moveFocus(FocusDirection.Down)
                                 }
                             ),
+                            supportingText = {
+                                if (viewModel.companyPhone.isBlank()) {
+                                    Text(
+                                        text = "Company phone is required for enterprise users",
+                                        color = Color.Red,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                            }
                         )
 
                         TextField(
@@ -454,6 +525,16 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                     focusManager.moveFocus(FocusDirection.Down)
                                 }
                             ),
+                            supportingText = {
+                                if (viewModel.companyAddress.isBlank()) {
+                                    Text(
+                                        text = "Company address is required for enterprise users",
+                                        color = Color.Red,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
+                            }
                         )
 
                         TextField(
@@ -476,6 +557,15 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                     focusManager.moveFocus(FocusDirection.Down)
                                 }
                             ),
+                            supportingText = {
+                                if (viewModel.latitud.isBlank()) {
+                                    Text(
+                                        text = "Latitude is required for enterprise users",
+                                        color = Color.Red,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                            }
                         )
 
                         TextField(
@@ -497,11 +587,23 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
                                 onNext = {
                                     focusManager.clearFocus()
                                 }
-                            )
+                            ),
+                            supportingText = {
+                                if (viewModel.longitud.isBlank()) {
+                                    Text(
+                                        text = "Longitude is required for enterprise users",
+                                        color = Color.Red,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                            }
                         )
                     }
 
                     FilledTonalButton(
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = Color.White
+                        ),
                         modifier = Modifier
                             .padding(top = 26.dp)
                             .fillMaxWidth(),
@@ -517,7 +619,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = hilt
 
                 TextButton(
                     onClick = {
-                        viewModel.navigateToLogin()
+                        viewModel.navigateToHome()
                     },
                     modifier = Modifier
                         .padding(bottom = 32.dp)

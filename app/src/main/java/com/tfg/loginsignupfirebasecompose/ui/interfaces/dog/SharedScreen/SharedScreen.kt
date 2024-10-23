@@ -82,10 +82,7 @@ fun SharedScreen(navController: NavHostController, viewModel: SharedViewModel = 
                 }
             }
         } else {
-            Text(
-                text = "No shared dogs found.",
-                color = Color.White,
-            )
+
         }
     }
 }

@@ -329,7 +329,7 @@ fun UploadDogScreen(
                                 )
                             },
                             onClick = {
-                                viewModel.breed = status
+                                viewModel.status = status
                                 expandedStatus = false
                             }
                         )

@@ -138,6 +138,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         unfocusedContainerColor = Color.White,
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
+                        errorIndicatorColor = Color.Red,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -151,6 +152,15 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                             focusManager.moveFocus(FocusDirection.Down)
                         }
                     ),
+                    supportingText = {
+                        if (viewModel.emailError) {
+                            Text(
+                                text = "Invalid email format",
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
                 )
 
                 TextField(
@@ -158,27 +168,14 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                     onValueChange = { viewModel.password = it },
                     singleLine = true,
                     label = { Text("Password") },
-                    placeholder = { Text("") },
-                    visualTransformation =
-                    if (viewModel.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            focusManager.clearFocus()
-                        }
-                    ),
-
+                    isError = viewModel.passwordError,
+                    visualTransformation = if (viewModel.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
                     trailingIcon = {
                         IconButton(onClick = {
                             viewModel.passwordHidden = !viewModel.passwordHidden
                         }) {
-                            val visibilityIcon =
-                                if (viewModel.passwordHidden) Icons.Filled.Lock else Icons.Filled.Lock
-                            val description =
-                                if (viewModel.passwordHidden) "Show password" else "Hide password"
+                            val visibilityIcon = if (viewModel.passwordHidden) Icons.Filled.Lock else Icons.Filled.Lock
+                            val description = if (viewModel.passwordHidden) "Show password" else "Hide password"
                             Icon(imageVector = visibilityIcon, contentDescription = description)
                         }
                     },
@@ -187,10 +184,21 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         unfocusedContainerColor = Color.White,
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
+                        errorIndicatorColor = Color.Red
                     ),
+
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp)
+                        .padding(top = 16.dp),
+                    supportingText = {
+                        if (viewModel.passwordError) {
+                            Text(
+                                text = "Password cannot be empty",
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
                 )
 
                 TextButton(
@@ -198,7 +206,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         viewModel.onForgotPasswordClick()
                     },
                     modifier = Modifier
-                        .padding(bottom = 32.dp)
+                        .padding(bottom = 4.dp)
+                        .align(Alignment.End)
                 ) {
                     Text(
                         text = "¿Forgot password?",
@@ -206,9 +215,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         color = Color.White,
                         fontSize = 16.sp,
                         modifier = Modifier
-                            .padding(bottom = 10.dp)
                             .padding(top = 8.dp)
-                            .fillMaxWidth()
                     )
                 }
 
@@ -221,8 +228,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                     Text("Log In")
                 }
 
+                HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(top = 16.dp))
 
-                HorizontalDivider(thickness = 2.dp)
                 TextButton(
                     onClick = {
                         viewModel.onSignUpClick()

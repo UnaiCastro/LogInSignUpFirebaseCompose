@@ -201,9 +201,16 @@ fun SettingsScreen(
                     }
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedPlaceholderColor = Color.Transparent,
-                    unfocusedPlaceholderColor = Color.Transparent,
-                    cursorColor = primaryLight
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    cursorColor = primaryLight,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    focusedLabelColor = Color.Black,
                 )
             )
 
@@ -211,6 +218,18 @@ fun SettingsScreen(
 
             OutlinedTextField(
                 value = phone,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    cursorColor = primaryLight,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = Color.Black,
+                ),
                 onValueChange = { viewModel.updatePhone(it) },
                 label = { Text("Phone Number") },
                 singleLine = true,
@@ -248,6 +267,18 @@ fun SettingsScreen(
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                     },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        cursorColor = primaryLight,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedLabelColor = Color.Black,
+                    )
                 )
 
                 ExposedDropdownMenu(
@@ -283,6 +314,18 @@ fun SettingsScreen(
                     onNext = {
                         focusManager.clearFocus()
                     }
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    cursorColor = primaryLight,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = Color.Black,
                 )
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -301,7 +344,19 @@ fun SettingsScreen(
                     onValueChange = { viewModel.updateCompanyName(it) },
                     label = { Text("Company name") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        cursorColor = primaryLight,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedLabelColor = Color.Black,
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -322,7 +377,19 @@ fun SettingsScreen(
                     label = { Text("Company Phone") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        cursorColor = primaryLight,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedLabelColor = Color.Black,
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -333,7 +400,17 @@ fun SettingsScreen(
                     label = { Text("Latitude") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        cursorColor = primaryLight,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedLabelColor = Color.Black,
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -348,7 +425,19 @@ fun SettingsScreen(
                     label = { Text("Longitude") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        cursorColor = primaryLight,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedLabelColor = Color.Black,
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
